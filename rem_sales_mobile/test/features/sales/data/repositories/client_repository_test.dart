@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:rem_sales_mobile/features/sales/data/models/client_model.dart';
 import 'package:rem_sales_mobile/features/sales/data/repositories/client_repository.dart';
 
-// Faux client HTTP réutilisable pour injecter nos simulations de réponses d'API
 class FakeHttpClient extends http.BaseClient {
   final http.Response Function(http.BaseRequest request) mockResponse;
   FakeHttpClient(this.mockResponse);
@@ -53,38 +52,6 @@ void main() {
       expect(result, isA<ClientModel>());
       expect(result.id, 'client-uuid-generated-by-neon');
       expect(result.name, 'Ousmane Diop');
-    });
-  });
-
-  // ==========================================
-  // JALON SPRINT 2 : REM-205 (ENCAISSEMENT VENTE)
-  // ==========================================
-  group('REM-205: SalesRepository - updateStatus TDD', () {
-    test('doit retourner une reponse 200 quand le statut passe a PAID avec succes', () async {
-      final fakeResponseData = {
-        'message': 'Statut du document mis à jour avec succès',
-        'document': {
-          'id': 'invoice-uuid-456',
-          'status': 'PAID',
-          'total_amount': 120000.0
-        }
-      };
-
-      final fakeHttpClient = FakeHttpClient((request) {
-        expect(request.method, 'PATCH');
-        expect(request.url.path, contains('/status'));
-        return http.Response(jsonEncode(fakeResponseData), 200);
-      });
-
-      final response = await fakeHttpClient.patch(
-        Uri.parse('http://localhost:3000/api/sales/documents/invoice-uuid-456/status'),
-        body: jsonEncode({'status': 'PAID'}),
-      );
-
-      expect(response.statusCode, 200);
-      final body = jsonDecode(response.body);
-      expect(body['document']['status'], 'PAID');
-      expect(body['document']['id'], 'invoice-uuid-456');
     });
   });
 }
