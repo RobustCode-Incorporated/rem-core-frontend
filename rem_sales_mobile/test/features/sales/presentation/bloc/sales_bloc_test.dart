@@ -40,14 +40,25 @@ void main() {
       createdAt: DateTime.now(),
     );
 
+    // 🛒 Panier simulé envoyé depuis la vue Flutter
+    final mockCartItems = [
+      {
+        'productId': 'prod-uuid-111',
+        'name': 'Sac de Ciment 50kg',
+        'price': 5000.0,
+        'quantity': 10,
+      }
+    ];
+
     blocTest<SalesBloc, SalesState>(
       'Devrait émettre [SalesLoading, SalesSuccess] quand la sauvegarde réussit',
       build: () {
+        // configuration du mock avec les 2 arguments requis (le document et le panier)
         when(() => mockSalesRepository.saveSalesDocument(any(), any()))
             .thenAnswer((_) async => {});
         return salesBloc;
       },
-      act: (bloc) => bloc.add(SaveDocumentEvent(testDocument, const [])),
+      act: (bloc) => bloc.add(SaveDocumentEvent(testDocument, mockCartItems)),
       expect: () => [
         isA<SalesLoading>(),
         isA<SalesSuccess>(),

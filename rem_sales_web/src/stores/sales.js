@@ -1,53 +1,80 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.robust-em.com/api/v1',
-  timeout: 10000
-})
-
 export const useSalesStore = defineStore('sales', {
   state: () => ({
-    documents: [],
-    isLoading: false,
-    error: null,
-    currentCompanyId: 'robust-corp-africa-123'
+    // 🛡️ On s'assure que c'est un tableau vide par défaut
+    documents: [], 
+    loading: false,
+    error: null
   }),
 
   getters: {
-    // 📈 Séparation des totaux par devise pour gérer l'économie multi-devise (RDC, Afrique de l'Ouest, etc.)
+    // 📊 Calcul des totaux par devise pour le tableau de bord
     totalsByCurrency: (state) => {
       const totals = {}
-      state.documents.forEach(doc => {
-        // Idéalement la devise est liée au document ou récupérée dans les métadonnées
-        // Pour le MVP, on extrait ou on trie selon les données reçues
+      
+      // 🛡️ SÉCURITÉ SENIOR DEV : Si pour une raison X, state.documents n'est pas un tableau, 
+      // on esquive le crash de l'application en renvoyant un objet vide
+      if (!state.documents || !Array.isArray(state.documents)) {
+        return totals
+      }
+
+      state.documents.forEach((doc) => {
+        // Support adaptatif : gère 'FCFA', 'XOF', 'USD' etc. 
+        // Si ta table n'a pas de colonne currency, on fallback sur 'XOF' par défaut
         const currency = doc.currency || 'XOF' 
-        if (!totals[currency]) totals[currency] = 0
+        const amount = Number(doc.total_amount || doc.totalAmount || 0)
+
+        if (!totals[currency]) {
+          totals[currency] = { total: 0, count: 0, paid: 0, draft: 0 }
+        }
+
+        totals[currency].total += amount
+        totals[currency].count += 1
+        
         if (doc.status === 'PAID') {
-          totals[currency] += doc.totalAmount
+          totals[currency].paid += amount
+        } else if (doc.status === 'DRAFT') {
+          totals[currency].draft += amount
         }
       })
+
       return totals
-    },
-    
-    // Lister les documents en attente de traitement ou synchronisés en mode Draft
-    pendingSyncCount: (state) => state.documents.filter(d => d.status === 'DRAFT').length
+    }
   },
 
   actions: {
     async fetchSalesDocuments() {
-      this.isLoading = true
+      this.loading = true
       this.error = null
+      
       try {
-        const response = await api.get(`/sales`, {
-          params: { company_id: this.currentCompanyId }
+        // On récupère l'adresse de base configurée dans ton .env de Codespaces
+        const baseUrl = import.meta.env.VITE_API_BASE_URL
+        const companyId = 'robust-corp-africa-123' // Multi-tenant ID simulé du manager
+
+        const response = await axios.get(`${baseUrl}/sales`, {
+          params: { company_id: companyId }
         })
-        this.documents = response.data
+
+        // 🛡️ CORRECTION MAJEURE : On s'assure d'extraire le tableau de données proprement.
+        // Si le backend renvoie directement le tableau ou un objet { data: [...] }
+        if (Array.isArray(response.data)) {
+          this.documents = response.data
+        } else if (response.data && Array.isArray(response.data.documents)) {
+          this.documents = response.data.documents
+        } else {
+          console.warn("⚠️ [Sales Store] Format inattendu du backend :", response.data)
+          this.documents = []
+        }
+
       } catch (err) {
-        this.error = err.response?.data?.message || "Erreur lors de la récupération des ventes."
-        console.error("⚡ [Sales Store Error]:", err)
+        console.error('⚡ [Sales Store Error]:', err)
+        this.error = err.message || 'Impossible de charger le suivi des ventes.'
+        this.documents = [] // Évite de laisser un état corrompu en cas d'échec
       } finally {
-        this.isLoading = false
+        this.loading = false
       }
     }
   }

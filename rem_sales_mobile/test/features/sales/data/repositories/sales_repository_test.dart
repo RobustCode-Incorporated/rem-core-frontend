@@ -6,7 +6,7 @@ import 'package:http/testing.dart';
 import 'package:isar/isar.dart';
 import 'package:rem_sales_mobile/features/sales/data/models/local_sales_document.dart';
 import 'package:rem_sales_mobile/features/sales/data/models/sales_document_model.dart';
-import 'package:rem_sales_mobile/features/sales/data/models/product_model.dart'; // 📦 AJOUT : Import du modèle de produit Isar
+import 'package:rem_sales_mobile/features/sales/data/models/product_model.dart'; // 📦 Modèle de produit Isar
 import 'package:rem_sales_mobile/features/sales/data/datasources/sync_manager.dart';
 import 'package:rem_sales_mobile/features/sales/data/repositories/sales_repository.dart';
 
@@ -22,15 +22,16 @@ void main() {
   });
 
   setUp(() async {
-    // 🛡️ MODIFICATION : Ajout de ProductModelSchema pour qu'Isar puisse gérer les produits dans la transaction
+    // 🛡️ Configuration Isar multi-schémas (Factures + Produits du Catalogue)
     isar = await Isar.open(
       [LocalSalesDocumentSchema, ProductModelSchema], 
       directory: tempDir.path,
     );
     
-    // Faux client HTTP qui simule une réussite d'envoi API
+    // Faux client HTTP qui intercepte les requêtes de synchronisation sortantes vers REM Backend
     final mockHttpClient = MockClient((request) async {
-      return http.Response('{"status": "success"}', 201);
+      // On simule une réponse de succès (201 Created) renvoyée par notre API Node.js/Neon
+      return http.Response(jsonEncode({'status': 'success', 'message': 'Synced'}), 201);
     });
     
     syncManager = SyncManager(isar: isar, httpClient: mockHttpClient);
@@ -59,7 +60,7 @@ void main() {
         name: 'Sac de Ciment 50kg',
         purchasePrice: 3500.0,
         sellingPrice: 4500.0,
-        stockQuantity: 100, // Stock de départ
+        stockQuantity: 100, // Stock initial avant vente
         code: 'CIM-50K',
       );
 
@@ -67,32 +68,33 @@ void main() {
         await isar.productModels.put(testProduct);
       });
 
-      // 🛒 Simuler un panier contenant cet article
+      // 🛒 Simuler un panier contenant cet article avec l'ID correct
       final mockCart = [
         {
+          'productId': 'prod-uuid-111',
           'name': 'Sac de Ciment 50kg',
           'price': 4500.0,
-          'quantity': 10, // Le client achète 10 sacs
+          'quantity': 10, // Le client achète 10 sacs de ciment
         }
       ];
 
-      // Act : On passe désormais le document ET le panier associé
+      // Act : On enregistre la vente (déduction de stock + écriture Isar + push API)
       await repository.saveSalesDocument(newInvoice, mockCart);
 
-      // Assertions locales (Facture)
+      // Assertions 1 : La facture existe bien en local sur le téléphone
       final localDoc = await isar.localSalesDocuments.filter().idEqualTo('repo-uuid-111').findFirst();
       expect(localDoc, isNotNull);
       expect(localDoc!.number, 'FACT-REPO-001');
-      expect(localDoc.isSynced, isTrue); // Le SyncManager a réussi à l'envoyer
+      expect(localDoc.isSynced, isTrue); // Le SyncManager a réussi à joindre le faux serveur
 
-      // Assertions d'Inventaire (Vérifier que le stock a baissé de 10 unités : 100 - 10 = 90)
+      // Assertions 2 : Algorithme d'Inventaire local (Vérifier que le stock a baissé de 10 unités : 100 - 10 = 90)
       final updatedProduct = await isar.productModels.filter().nameEqualTo('Sac de Ciment 50kg').findFirst();
       expect(updatedProduct, isNotNull);
       expect(updatedProduct!.stockQuantity, equals(90));
     });
 
     test('🔴 TDD: Devrait mettre à jour le statut à PAID en local et sur l\'API (Encaissement)', () async {
-      // Pré-remplir la base avec une facture DRAFT
+      // Pré-remplir la base Isar locale avec une facture en statut brouillon (DRAFT)
       final localDoc = LocalSalesDocument()
         ..id = 'invoice-uuid-456'
         ..type = 'INVOICE'
@@ -104,11 +106,12 @@ void main() {
 
       await isar.writeTxn(() async => await isar.localSalesDocuments.put(localDoc));
 
-      // Act : On encaisse la facture via le repository
+      // Act : Le vendeur clique sur encaisser (Met à jour le statut)
       await repository.updateStatus(documentId: 'invoice-uuid-456', newStatus: 'PAID');
 
-      // Assert : Le statut est bien mis à jour en local
+      // Assert : Le statut est passé instantanément à PAID en local
       final updatedDoc = await isar.localSalesDocuments.filter().idEqualTo('invoice-uuid-456').findFirst();
+      expect(updatedDoc, isNotNull);
       expect(updatedDoc!.status, 'PAID');
     });
 
