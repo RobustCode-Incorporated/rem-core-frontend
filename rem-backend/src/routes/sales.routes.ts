@@ -3,12 +3,20 @@ import {
   createSalesDocument, 
   createClient, 
   updateDocumentStatus, 
-  syncOfflineDocument 
+  syncOfflineDocument,
+  getSalesDocuments // 💡 Notre nouvelle fonction de récupération paginée
 } from '../controllers/sales.controller';
 import { requireAuth } from '../middlewares/auth.middleware'; // Notre verrou de sécurité
 import { idempotencyMiddleware } from '../middlewares/idempotency.middleware'; // Le bouclier anti-doublons
 
 const router = Router();
+
+/**
+ * @route   GET /api/sales/documents
+ * @desc    Liste des documents de vente avec pagination, filtres et recherche dynamique
+ * @access  Protégé (Requiert une session active et un Token JWT valide)
+ */
+router.get('/documents', requireAuth, getSalesDocuments); // 💡 AJOUT DE LA ROUTE MANQUANTE ICI
 
 /**
  * @route   POST /api/sales/documents
