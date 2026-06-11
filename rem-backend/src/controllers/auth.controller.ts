@@ -6,7 +6,8 @@ import pino from 'pino';
 
 const logger = pino({ transport: { target: 'pino-pretty' } });
 const SALT_ROUNDS = 12;
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_local_key_for_africa_market';
+// Secret harmonisé avec le middleware
+const JWT_SECRET = process.env.JWT_SECRET || 'SuperSecretKeyREM2026!';
 
 // --- LOGIQUE INITIALE : ENREGISTREMENT ADMIN ---
 export const registerCompanyAndUser = async (req: Request, res: Response): Promise<void> => {
@@ -39,7 +40,13 @@ export const registerCompanyAndUser = async (req: Request, res: Response): Promi
     await db.query('COMMIT');
 
     const user = userResult.rows[0];
-    const token = jwt.sign({ userId: user.id, companyId, role: user.role }, JWT_SECRET, { expiresIn: '90d' });
+    
+    // Normalisation du payload : id au lieu de userId
+    const token = jwt.sign(
+      { id: user.id, companyId, role: user.role, email: user.email }, 
+      JWT_SECRET, 
+      { expiresIn: '90d' }
+    );
 
     res.status(201).json({ message: 'Compte créé avec succès', token });
 
@@ -78,8 +85,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
+    // Normalisation du payload : id au lieu de userId pour s'aligner avec le middleware
     const token = jwt.sign(
-      { userId: user.id, companyId: user.company_id, role: user.role },
+      { id: user.id, companyId: user.company_id, role: user.role, email: user.email },
       JWT_SECRET,
       { expiresIn: '90d' }
     );
@@ -88,7 +96,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       token,
       user: { 
         id: user.id, 
-        resellerId: resellerId, // On envoie le vrai ID de la table 'resellers'
+        resellerId: resellerId, 
         firstName: user.first_name, 
         companyId: user.company_id, 
         role: user.role 
@@ -99,7 +107,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// --- NOUVELLE FONCTIONNALITÉ : CRÉATION COMPLÈTE RESELLER (MÉTIER + ACCÈS) ---
+// --- NOUVELLE FONCTIONNALITÉ : CRÉATION COMPLÈTE RESELLER ---
 export const createResellerWithAccess = async (req: Request, res: Response): Promise<void> => {
   const { companyId, firstName, lastName, email, password, phone, deposit_name } = req.body;
   
@@ -108,28 +116,25 @@ export const createResellerWithAccess = async (req: Request, res: Response): Pro
   try {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    await db.query('BEGIN'); // Début de la transaction
+    await db.query('BEGIN');
 
-    // 1. Inscription dans la table 'resellers' (Gestion métier)
-    // Correspond aux colonnes : company_id, name, email, password_hash, phone, deposit_name
     await db.query(
       `INSERT INTO resellers (company_id, name, email, password_hash, phone, deposit_name) 
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [companyId, firstName + ' ' + lastName, email, passwordHash, phone, deposit_name]
     );
 
-    // 2. Inscription dans la table 'users' (Accès login)
     await db.query(
       `INSERT INTO users (company_id, first_name, last_name, email, password_hash, role) 
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [companyId, firstName, lastName, email, passwordHash, 'RESELLER']
     );
 
-    await db.query('COMMIT'); // Validation des deux insertions
+    await db.query('COMMIT');
 
     res.status(201).json({ message: 'Revendeur créé avec succès et accès généré.' });
   } catch (error) {
-    await db.query('ROLLBACK'); // Annulation en cas d'erreur
+    await db.query('ROLLBACK');
     console.error("ERREUR DÉTAILLÉE LORS DE LA CRÉATION RESELLER :", error);
     res.status(500).json({ error: 'Erreur lors de la création du revendeur.' });
   }

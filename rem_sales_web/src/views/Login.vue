@@ -41,33 +41,37 @@ const router = useRouter();
 const loading = ref(false);
 const credentials = ref({ email: '', password: '' });
 
+// Remplace ton bloc de redirection actuel par celui-ci :
 const handleLogin = async () => {
   loading.value = true;
   try {
     const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, credentials.value);
 
-    // Sauvegarde du jeton et des infos utilisateur
+    // 1. Sauvegarde sécurisée
     localStorage.setItem('token', res.data.token);
     localStorage.setItem('companyId', res.data.user.companyId);
-    localStorage.setItem('userRole', res.data.user.role);
+    localStorage.setItem('userRole', res.data.user.role); // Important : stocke bien 'STAFF' ou 'ADMIN'
     
-    // Sauvegarde du vrai ID du revendeur si présent
-    if (res.data.user.resellerId) {
-      localStorage.setItem('resellerId', res.data.user.resellerId);
-    } else {
-      localStorage.setItem('resellerId', res.data.user.id);
-    }
-
-    // Redirection selon le rôle
-    if (res.data.user.role === 'RESELLER') {
+    // 2. Logique de redirection robuste
+    const role = res.data.user.role;
+    
+    // Si c'est un ADMIN, il va au dashboard principal
+    if (role === 'ADMIN') {
+      router.push('/dashboard');
+    } 
+    // Si c'est un STAFF (ton revendeur), il va au dashboard revendeur
+    else if (role === 'STAFF') {
       router.push('/reseller-dashboard');
-    } else {
+    } 
+    // Fallback de sécurité
+    else {
+      console.warn("Rôle inconnu, redirection par défaut.");
       router.push('/dashboard');
     }
 
   } catch (err) {
-    console.error(err);
-    alert("Échec de la connexion : Vérifiez vos identifiants.");
+    console.error("Erreur login :", err);
+    alert("Identifiants incorrects.");
   } finally {
     loading.value = false;
   }

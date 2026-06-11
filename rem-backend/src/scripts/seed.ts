@@ -1,195 +1,139 @@
-// scripts/seed.ts
-import { v4 as uuidv4 } from 'uuid';
-import { faker } from '@faker-js/faker';
-import { Client } from 'pg';
+import { db } from '../config/db';
+import pino from 'pino';
 
-require('dotenv').config();
+const logger = pino({ transport: { target: 'pino-pretty' } });
 
-const connectionString = process.env.DATABASE_URL;
+async function runSeeder() {
+  // 🎯 Configuration multi-tenant : ID de l'entreprise cible
+  const companyId = '943e411e-9c4c-484f-9dde-9db708f5159a';
+  
+  // 🔒 Hash bcrypt correspondant au mot de passe générique : "Password123!"
+  const mockPasswordHash = '$2b$10$e0M2V.68tT8H68kH.u9vO.Z19aVv1.u167B6.yG87aG.fE8H1hP1G';
 
-if (!connectionString) {
-  console.error("❌ Erreur : La variable d'environnement DATABASE_URL n'est pas définie dans ton .env");
-  process.exit(1);
-}
+  logger.info('[REM SEEDER] Début du repuplement synchronisé (Users + Resellers)...');
 
-const client = new Client({ 
-  connectionString,
-  ssl: { rejectUnauthorized: false } 
-});
+  try {
+    await db.query('BEGIN');
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    // ==========================================
+    // 1. INJECTION DES CLIENTS B2B
+    // ==========================================
+    logger.info('[REM SEEDER] Injection des clients...');
+    const clientQuery = `
+      INSERT INTO clients (company_id, name, email, phone, address, created_at)
+      VALUES 
+        ($1, 'Alimentation du Centre', 'contact@alicentre.com', '+243810000001', '12 Avenue de la Justice, Kinshasa', NOW()),
+        ($1, 'Supermarché Kin-Mart', 'info@kinmart.cd', '+243890000002', '30 Boulevard du 30 Juin, Kinshasa', NOW()),
+        ($1, 'Établissements Mwamba & Fils', 'mwamba@gmail.com', '+243820000003', '45 Avenue Kenda, Lubumbashi', NOW())
+      RETURNING id;
+    `;
+    const clientRes = await db.query(clientQuery, [companyId]);
+    const clientIds = clientRes.rows.map(r => r.id);
 
-/**
- * 1. Générateur de Produits aligné sur le schéma (Laisse la base gérer le DEFAULT pour alert_threshold)
- */
-const generateProducts = (companyId: string, count: number) => {
-  return Array.from({ length: count }).map(() => {
-    const sellingPrice = parseFloat(faker.commerce.price({ min: 10, max: 500, dec: 2 }));
-    const purchasePrice = parseFloat((sellingPrice * 0.6).toFixed(2));
+    // ==========================================
+    // 2. INJECTION DU CATALOGUE PRODUITS
+    // ==========================================
+    logger.info('[REM SEEDER] Injection des produits...');
+    const productQuery = `
+      INSERT INTO products (company_id, name, purchase_price, selling_price, stock_quantity, min_stock_alert, currency, created_at)
+      VALUES 
+        ($1, 'Farine de Froment Super 25kg', 18.50, 24.00, 150, 20, 'USD', NOW()),
+        ($1, 'Huile de Palme Raffinée 5L', 6.20, 9.50, 85, 15, 'USD', NOW()),
+        ($1, 'Sucre de Canne Sac 50kg', 32.00, 41.50, 40, 10, 'USD', NOW()),
+        ($1, 'Lait en Poudre Premium 1kg', 7.10, 11.20, 200, 30, 'USD', NOW())
+      RETURNING id, selling_price;
+    `;
+    const productRes = await db.query(productQuery, [companyId]);
+    const products = productRes.rows;
 
-    return ({
-      id: uuidv4(),
-      company_id: companyId,
-      name: faker.commerce.productName(),
-      sku: faker.string.alphanumeric({ length: 8, casing: 'upper' }),
-      barcode: faker.string.numeric({ length: 13 }),
-      stock_quantity: faker.number.int({ min: 20, max: 500 }),
-      purchase_price: purchasePrice,
-      selling_price: sellingPrice,
-    });
-  });
-};
+    // ==========================================
+    // 3. DOUBLE INJECTION : USERS + REVENDEURS
+    // ==========================================
+    logger.info('[REM SEEDER] Injection croisée dans "users" et "resellers"...');
 
-/**
- * 2. Générateur de Documents (Ventes) et Lignes de Vente (Garantie d'unicité par séquence)
- */
-const generateSalesData = (companyId: string, clientIds: string[], productIds: string[], docCount: number) => {
-  const documents: any[] = [];
-  const documentItems: any[] = [];
+    const rawResellersData = [
+      { first: 'Christian', last: 'Mulumba', email: 'christian.m@rem-reseller.com', depot: 'Dépôt Gombe Hub', lat: -4.3013, lng: 15.3048 },
+      { first: 'Sarah', last: 'Mwansa', email: 'sarah.m@rem-reseller.com', depot: 'Dépôt Victoire', lat: -4.3382, lng: 15.3151 },
+      { first: 'Idris', last: 'Kabongo', email: 'idris.k@rem-reseller.com', depot: 'Dépôt Limete Industrial', lat: -4.3596, lng: 15.3614 }
+    ];
 
-  for (let i = 0; i < docCount; i++) {
-    const docId = uuidv4();
-    const status = faker.helpers.arrayElement(['PAID', 'DRAFT', 'CANCELLED']);
-    const createdAt = faker.date.past({ years: 1 });
+    const resellerIds: string[] = [];
 
-    // 💡 Utilisation de l'index 'i' pour garantir un numéro de facture 100% unique (FACT-000001, etc.)
-    const sequenceNumber = String(i + 1).padStart(6, '0');
+    for (const r of rawResellersData) {
+      // A. Insertion dans la table centrale 'users' avec le rôle 'RESELLER'
+      const userInsertQuery = `
+        INSERT INTO public.users (company_id, first_name, last_name, email, password_hash, role, is_active, created_at)
+        VALUES ($1, $2, $3, $4, $5, 'STAFF', true, NOW())
+        RETURNING id;
+      `;
+      const userRes = await db.query(userInsertQuery, [companyId, r.first, r.last, r.email, mockPasswordHash]);
+      const newUserId = userRes.rows[0].id;
 
-    documents.push({
-      id: docId,
-      company_id: companyId,
-      client_id: faker.helpers.arrayElement(clientIds),
-      type: 'INVOICE',
-      number: `FACT-${sequenceNumber}`,
-      status: status,
-      total_amount: 0,
-      created_at: createdAt
-    });
-
-    const itemsCount = faker.number.int({ min: 1, max: 4 });
-    let docTotal = 0;
-
-    for (let j = 0; j < itemsCount; j++) {
-      const prodId = faker.helpers.arrayElement(productIds);
-      const quantity = faker.number.int({ min: 1, max: 5 });
-      const unitPrice = parseFloat(faker.commerce.price({ min: 10, max: 500, dec: 2 }));
-      const totalPrice = quantity * unitPrice;
-      docTotal += totalPrice;
-
-      documentItems.push({
-        id: uuidv4(),
-        document_id: docId,
-        product_id: prodId,
-        quantity,
-        unit_price: unitPrice,
-        total_price: totalPrice
-      });
+      // B. Insertion dans la table métier 'resellers' liée par l'ID ou les infos
+      const resellerInsertQuery = `
+        INSERT INTO public.resellers (id, company_id, name, email, password_hash, phone, deposit_name, latitude, longitude, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        RETURNING id;
+      `;
+      const fullName = `${r.first} ${r.last}`;
+      const resellerRes = await db.query(resellerInsertQuery, [
+        newUserId, // Partage de l'UUID pour un alignement d'index parfait
+        companyId, 
+        fullName, 
+        r.email, 
+        mockPasswordHash, 
+        '+243814444001', 
+        r.depot, 
+        r.lat, 
+        r.lng
+      ]);
+      
+      resellerIds.push(resellerRes.rows[0].id);
     }
 
-    documents[i].total_amount = parseFloat(docTotal.toFixed(2));
-  }
-
-  return { documents, documentItems };
-};
-
-/**
- * Moteurs d'injection par lots (Bulk Inserts)
- */
-async function bulkInsertProducts(products: any[]) {
-  const batchSize = 500;
-  for (let i = 0; i < products.length; i += batchSize) {
-    const batch = products.slice(i, i + batchSize);
-    const values = batch.flatMap(p => [
-      p.id, p.company_id, p.name, p.sku, p.barcode, p.stock_quantity, p.purchase_price, p.selling_price
-    ]);
+    // ==========================================
+    // 4. INJECTION DES DOCUMENTS COMMERCIAUX
+    // ==========================================
+    logger.info("[REM SEEDER] Génération de l'historique des ventes...");
     
-    const placeholders = batch.map((_, idx) => 
-      `($${idx*8+1}, $${idx*8+2}, $${idx*8+3}, $${idx*8+4}, $${idx*8+5}, $${idx*8+6}, $${idx*8+7}, $${idx*8+8})`
-    ).join(',');
+    const doc1 = await db.query(`
+      INSERT INTO public.documents (company_id, client_id, reseller_id, type, number, status, total_amount, created_at)
+      VALUES ($1, $2, $3, 'FACTURE', 'FACT-260001', 'PAID', 161.50, NOW() - INTERVAL '2 days') RETURNING id;
+    `, [companyId, clientIds[0], resellerIds[0]]);
 
-    const query = `
-      INSERT INTO products (id, company_id, name, sku, barcode, stock_quantity, purchase_price, selling_price) 
-      VALUES ${placeholders} 
-      ON CONFLICT (id) DO NOTHING;
-    `;
+    const doc2 = await db.query(`
+      INSERT INTO public.documents (company_id, client_id, reseller_id, type, number, status, total_amount, created_at)
+      VALUES ($1, $2, $3, 'FACTURE', 'FACT-260002', 'SENT', 83.00, NOW() - INTERVAL '1 day') RETURNING id;
+    `, [companyId, clientIds[1], resellerIds[1]]);
 
-    await client.query(query, values);
-    console.log(`[DATA ENG] Produits injectés : ${Math.min(i + batchSize, products.length)}/${products.length}`);
-    await delay(200);
-  }
-}
-
-async function bulkInsertDocuments(documents: any[]) {
-  const batchSize = 500;
-  for (let i = 0; i < documents.length; i += batchSize) {
-    const batch = documents.slice(i, i + batchSize);
-    const values = batch.flatMap(d => [d.id, d.company_id, d.client_id, d.type, d.number, d.status, d.total_amount, d.created_at]);
-    const placeholders = batch.map((_, idx) => `($${idx*8+1}, $${idx*8+2}, $${idx*8+3}, $${idx*8+4}, $${idx*8+5}, $${idx*8+6}, $${idx*8+7}, $${idx*8+8})`).join(',');
+    // ==========================================
+    // 5. INJECTION DES ARTICLES DE DOCUMENTS
+    // ==========================================
+    logger.info('[REM SEEDER] Liaison des articles aux documents...');
     
-    // Ajout d'une clause de sécurité ON CONFLICT sur le numéro si nécessaire
-    await client.query(`INSERT INTO documents (id, company_id, client_id, type, number, status, total_amount, created_at) VALUES ${placeholders} ON CONFLICT (id) DO NOTHING;`, values);
-    console.log(`[DATA ENG] Factures injectées : ${Math.min(i + batchSize, documents.length)}/${documents.length}`);
-    await delay(200);
-  }
-}
+    await db.query(`
+      INSERT INTO public.document_items (document_id, product_id, quantity, unit_price, total_price)
+      VALUES 
+        ($1, $2, 5, $3, 120.00), 
+        ($1, $4, 5, $5, 41.50);
+    `, [doc1.rows[0].id, products[0].id, products[0].selling_price, products[2].id, products[2].selling_price]);
 
-async function bulkInsertDocumentItems(items: any[]) {
-  const batchSize = 500;
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    const values = batch.flatMap(it => [it.id, it.document_id, it.product_id, it.quantity, it.unit_price, it.total_price]);
-    const placeholders = batch.map((_, idx) => `($${idx*6+1}, $${idx*6+2}, $${idx*6+3}, $${idx*6+4}, $${idx*6+5}, $${idx*6+6})`).join(',');
-    await client.query(`INSERT INTO document_items (id, document_id, product_id, quantity, unit_price, total_price) VALUES ${placeholders} ON CONFLICT (id) DO NOTHING;`, values);
-    console.log(`[DATA ENG] Lignes d'articles injectées : ${Math.min(i + batchSize, items.length)}/${items.length}`);
-    await delay(100);
-  }
-}
+    await db.query(`
+      INSERT INTO public.document_items (document_id, product_id, quantity, unit_price, total_price)
+      VALUES 
+        ($1, $2, 2, $3, 19.00), 
+        ($1, $4, 4, $5, 64.00);
+    `, [doc2.rows[0].id, products[1].id, products[1].selling_price, products[0].id, products[0].selling_price]);
 
-/**
- * Orchestrateur Principal
- */
-async function main() {
-  try {
-    console.log("[DATA ENG] Connexion à la base de données Neon PostgreSQL...");
-    await client.connect();
+    await db.query('COMMIT');
+    logger.info('🎯 [REM SEEDER SUCCESS] Base de données et accès utilisateurs repuplés avec succès !');
 
-    const companyResult = await client.query("SELECT id FROM companies LIMIT 1;");
-    if (companyResult.rows.length === 0) throw new Error("Aucune entreprise trouvée.");
-    const targetCompanyId = companyResult.rows[0].id;
-    console.log(`[DATA ENG] Target Tenant ID : ${targetCompanyId}`);
-
-    const clientResult = await client.query("SELECT id FROM clients WHERE company_id = $1;", [targetCompanyId]);
-    const clientIds = clientResult.rows.map(r => r.id);
-    console.log(`[DATA ENG] Récupération de ${clientIds.length} clients pour lier les ventes.`);
-
-    console.log("[DATA ENG] Génération et injection de 1000 produits...");
-    const produits = generateProducts(targetCompanyId, 1000);
-    await bulkInsertProducts(produits);
-    
-    const productResult = await client.query("SELECT id FROM products WHERE company_id = $1;", [targetCompanyId]);
-    const productIds = productResult.rows.map(r => r.id);
-
-    const volumeVentes = 15000;
-    console.log(`[DATA ENG] Génération de ${volumeVentes} factures et de leurs lignes transactionnelles...`);
-    const { documents, documentItems } = generateSalesData(targetCompanyId, clientIds, productIds, volumeVentes);
-
-    const startTime = Date.now();
-    
-    console.log("[DATA ENG] Pipeline - Étape A : Injection des en-têtes de factures...");
-    await bulkInsertDocuments(documents);
-
-    console.log("[DATA ENG] Pipeline - Étape B : Injection des lignes d'articles...");
-    await bulkInsertDocumentItems(documentItems);
-    
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`\n✨ [DATA ENG] Écosystème transactionnel complet injecté avec succès en ${duration} secondes !`);
-
-  } catch (error: any) {
-    console.error("❌ [DATA ENG] Échec critique du pipeline :", error.message || error);
+  } catch (error) {
+    await db.query('ROLLBACK');
+    logger.error(error, '❌ [REM SEEDER CRITICAL ERROR] Échec du seeding, rollback appliqué.');
   } finally {
-    await client.end();
-    console.log("[DATA ENG] Connexion PostgreSQL fermée proprement.");
+    process.exit(0);
   }
 }
 
-main();
+runSeeder();

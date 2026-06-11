@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import { validateRestock, getDocumentItems } from '../controllers/restock.controller';
 import { 
   createSalesDocument, 
   createClient, 
@@ -6,10 +7,12 @@ import {
   syncOfflineDocument,
   getSalesDocuments, 
 } from '../controllers/sales.controller';
-import { getResellersLiveLocation } from '../controllers/resellers.controller'; // 🛰️ Importation du contrôleur de cartographie
-import { requireAuth } from '../middlewares/auth.middleware'; // Notre verrou de sécurité
-import { idempotencyMiddleware } from '../middlewares/idempotency.middleware'; // Le bouclier anti-doublons
-import { runDataSimulation } from '../scripts/seed-simulation'; // 🚀 Importation du script de data engineering
+import { 
+  getResellersLiveLocation, 
+  getResellerPerformance 
+} from '../controllers/resellers.controller'; 
+import { requireAuth } from '../middlewares/auth.middleware'; 
+import { idempotencyMiddleware } from '../middlewares/idempotency.middleware'; 
 
 const router = Router();
 
@@ -18,7 +21,14 @@ const router = Router();
  * @desc    Extraction cartographique synchrone multi-critères des revendeurs (Nom, Email, Dépôt, Tél)
  * @access  Protégé (Requiert une session active et un Token JWT valide)
  */
-router.get('/resellers-location', requireAuth, getResellersLiveLocation); // 🎯 RECOUVREMENT DE LA ROUTE CARTOGRAPHIQUE
+router.get('/resellers-location', requireAuth, getResellersLiveLocation);
+
+/**
+ * @route   GET /api/sales/resellers/:id/performance
+ * @desc    Tableau de bord financier agrégé et analytique d'un revendeur ciblé (Performance Pro)
+ * @access  Public / Dev (Idéal pour l'intégration de la Sidebar Frontend)
+ */
+router.get('/resellers/:id/performance', getResellerPerformance);
 
 /**
  * @route   GET /api/sales/documents
@@ -26,6 +36,13 @@ router.get('/resellers-location', requireAuth, getResellersLiveLocation); // �
  * @access  Protégé (Requiert une session active et un Token JWT valide)
  */
 router.get('/documents', requireAuth, getSalesDocuments); 
+
+/**
+ * @route   GET /api/sales/documents/:id/items
+ * @desc    Extraction exhaustive des lignes d'articles associées à un document commercial (Vente ou Restock)
+ * @access  Protégé (Requiert une session active et un Token JWT valide)
+ */
+router.get('/documents/:id/items', requireAuth, getDocumentItems);
 
 /**
  * @route   POST /api/sales/documents
@@ -56,32 +73,11 @@ router.patch('/documents/:id/status', requireAuth, updateDocumentStatus);
 router.post('/sync', requireAuth, idempotencyMiddleware, syncOfflineDocument);
 
 /**
- * @route   GET /api/sales/maintenance/seed-simulation
- * @desc    Nettoyage complet de la DB et injection ordonnée de données de simulation (Revendeurs GPS, Produits, Clients, Ventes et Stocks)
- * @access  Public (Réservé au développement local / Environnement Dev)
+ * @route   PUT /api/sales/restock/validate/:id
+ * @desc    Validation admin : Valide le paiement et gère le transfert croisé de stocks
+ * @access  Protégé (Requiert une session active et un Token JWT valide)
  */
-router.get('/maintenance/seed-simulation', async (req: Request, res: Response) => {
-  try {
-    // ID d'entreprise par défaut utilisé pour ton espace de travail
-    const companyId = '943e411e-9c4c-484f-9dde-9db708f5159a';
-
-    console.log(`[MAINTENANCE] Déclenchement manuel de la simulation par l'ingénieur.`);
-    
-    // Lancement du moteur de traitement de données
-    await runDataSimulation(companyId);
-
-    res.status(200).json({
-      success: true,
-      message: "Base de données réinitialisée et simulation injectée avec succès ! Stocks mis à jour et synchronisés."
-    });
-  } catch (error: any) {
-    console.error("❌ [MAINTENANCE CRITICAL] Échec du seed :", error);
-    res.status(500).json({
-      success: false,
-      error: "Échec de la réinitialisation des données",
-      details: error.message
-    });
-  }
-});
+router.put('/restock/validate/:id', requireAuth, validateRestock);
+router.put('/documents/:id', updateDocumentStatus);
 
 export const salesRouter = router;

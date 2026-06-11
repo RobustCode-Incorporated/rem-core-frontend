@@ -1,239 +1,115 @@
 <template>
-  <div class="pos-container">
-    <header class="module-header">
-      <h2>Vente Rapide</h2>
-      <p>Générez une facture immédiate et enregistrez les coordonnées du client.</p>
-    </header>
-
-    <div class="form-grid">
-      <div class="form-group full-width">
-        <label>Nom du client *</label>
-        <input 
-          v-model="clientForm.name" 
-          type="text" 
-          placeholder="Ex: MAMADOU DIAL" 
-          class="form-input" 
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Téléphone</label>
-        <input 
-          v-model="clientForm.phone" 
-          type="text" 
-          placeholder="Ex: +243..." 
-          class="form-input" 
-        />
-      </div>
-
-      <div class="form-group">
-        <label>E-mail</label>
-        <input 
-          v-model="clientForm.email" 
-          type="email" 
-          placeholder="Ex: client@email.com" 
-          class="form-input" 
-        />
-      </div>
-
-      <div class="form-group full-width">
-        <label>Adresse de livraison / résidence</label>
-        <textarea 
-          v-model="clientForm.address" 
-          placeholder="Ex: Av. Kasa-Vubu N°14, Kinshasa" 
-          class="form-input form-textarea"
-          rows="2"
-        ></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Article à vendre *</label>
-        <select v-model="selectedProduct" class="form-input animate-select" required>
-          <option :value="null" disabled>Sélectionnez un article</option>
-          <option v-for="p in catalogStore.products" :key="p.id" :value="p">
-            {{ p.name }} - {{ p.selling_price }} {{ p.currency }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Quantité *</label>
-        <input 
-          v-model.number="quantity" 
-          type="number" 
-          min="1" 
-          class="form-input" 
-          required
-        />
-      </div>
+  <div class="restock-container">
+    <div class="header-section">
+      <h2>Mon Inventaire & Réapprovisionnement</h2>
+      <button @click="fetchStocks" class="refresh-btn">Actualiser</button>
     </div>
+    
+    <div v-if="loading" class="loader">Chargement...</div>
+
+    <table v-else class="stock-table">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Stock Actuel</th>
+          <th>Seuil Critique</th>
+          <th>Commander</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in stocks" :key="item.product_id">
+          <td>{{ item.product_name }}</td>
+          <td :class="{'critical': item.quantity <= item.min_threshold}">
+            {{ item.quantity }}
+          </td>
+          <td>{{ item.min_threshold }}</td>
+          <td>
+            <input 
+              type="number" 
+              v-model.number="orderQtys[item.product_id]" 
+              placeholder="0" 
+              class="qty-input"
+              min="0"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <button 
-      @click="processSale" 
-      :disabled="loading" 
-      class="btn-primary"
+      @click="submitRestock" 
+      class="btn-order" 
+      :disabled="isSubmitting"
     >
-      {{ loading ? 'Traitement de la transaction...' : 'Valider & Encaisser' }}
+      {{ isSubmitting ? 'Envoi...' : 'Passer la commande' }}
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useCatalogStore } from '../stores/catalog'
-import axios from 'axios'
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
-const catalogStore = useCatalogStore()
-const selectedProduct = ref(null)
-const quantity = ref(1)
-const loading = ref(false)
+const stocks = ref([]);
+const orderQtys = ref({});
+const loading = ref(false);
+const isSubmitting = ref(false);
 
-// Formulaire client complet calqué sur ta structure SQL
-const clientForm = ref({
-  name: '',
-  phone: '',
-  email: '',
-  address: ''
-})
-
-onMounted(() => {
-  catalogStore.fetchProducts()
-})
-
-const processSale = async () => {
-  if (!clientForm.value.name || clientForm.value.name.trim() === '') {
-    return alert("Le nom du client est obligatoire pour documenter la vente.")
-  }
-
-  if (!selectedProduct.value) {
-    return alert("Veuillez sélectionner un produit.")
-  }
-  
-  if (quantity.value < 1) {
-    return alert("La quantité doit être supérieure ou égale à 1.")
-  }
-  
-  loading.value = true
-  
+// 1. Charger les stocks
+const fetchStocks = async () => {
+  loading.value = true;
   try {
-    const token = localStorage.getItem('token')
-    const companyId = localStorage.getItem('companyId')
-
-    // 1. Création du client avec TOUTES les données fournies
-    const clientResponse = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/sales/clients`, 
-      {
-        name: clientForm.value.name,
-        phone: clientForm.value.phone || null,
-        email: clientForm.value.email || null,
-        address: clientForm.value.address || null,
-        company_id: companyId
-      }, 
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    )
-    
-    const clientId = clientResponse.data.client.id
-
-    // 2. Structuration du document commercial
-    const saleData = {
-      id: crypto.randomUUID(),
-      clientId: clientId,
-      type: 'INVOICE',
-      number: 'INV-' + Date.now().toString().slice(-6),
-      status: 'PAID', // Enclenche la déduction automatique des stocks au backend
-      totalAmount: selectedProduct.value.selling_price * quantity.value,
-      company_id: companyId,
-      items: [{
-        productId: selectedProduct.value.id,
-        quantity: quantity.value,
-        unitPrice: selectedProduct.value.selling_price,
-        lineTotal: selectedProduct.value.selling_price * quantity.value
-      }]
-    }
-
-    // 3. Validation finale de la vente
-    await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/sales/documents`, 
-      saleData, 
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    )
-    
-    alert(`Transaction validée et enregistrée avec succès pour ${clientForm.value.name}.`)
-    
-    // Réinitialisation complète du module après succès
-    clientForm.value = { name: '', phone: '', email: '', address: '' }
-    selectedProduct.value = null
-    quantity.value = 1
-    
-  } catch (err) {
-    console.error("Erreur vente:", err)
-    alert("Échec de l'opération : " + (err.response?.data?.error || err.message))
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers/my-stock`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    stocks.value = res.data.data;
+  } catch (err) { 
+    console.error("Erreur chargement stock", err);
+    alert("Impossible de charger l'inventaire.");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
+
+// 2. Soumettre la commande
+const submitRestock = async () => {
+  const items = Object.entries(orderQtys.value)
+    .filter(([_, qty]) => qty > 0)
+    .map(([product_id, quantity]) => ({ product_id, quantity }));
+
+  if (items.length === 0) return alert("Veuillez saisir une quantité pour au moins un produit.");
+
+  isSubmitting.value = true;
+  try {
+    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/resellers/restock-request`, 
+      { items },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    );
+    
+    alert("Demande de réapprovisionnement transmise avec succès !");
+    orderQtys.value = {}; // Reset du formulaire
+    fetchStocks();       // Recharger les données
+  } catch (err) { 
+    console.error(err);
+    alert("Échec de l'envoi de la commande."); 
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+onMounted(fetchStocks);
 </script>
 
 <style scoped>
-.pos-container { 
-  max-width: 550px; 
-  margin: 0 auto; 
-  background: #fff; 
-  padding: 30px; 
-  border-radius: 12px; 
-  border: 1px solid #eee;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.module-header { margin-bottom: 25px; border-bottom: 1px solid #fafafa; padding-bottom: 10px; }
-.module-header h2 { margin: 0; font-size: 1.6rem; font-weight: 700; color: #111; }
-.module-header p { color: #666; font-size: 0.9rem; margin-top: 5px; }
-
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.full-width { grid-column: 1 / span 2; }
-
-label { font-size: 0.85rem; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 0.5px; }
-
-.form-input { 
-  padding: 12px; 
-  border: 1px solid #ccc; 
-  border-radius: 6px; 
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
-  background-color: #fcfcfc;
-}
-
-.form-input:focus {
-  border-color: #000;
-  background-color: #fff;
-  outline: none;
-}
-
-.form-textarea { resize: vertical; font-family: inherit; }
-
-.animate-select { cursor: pointer; }
-
-.btn-primary { 
-  width: 100%; 
-  padding: 16px; 
-  background: #000; 
-  color: #fff; 
-  border: none; 
-  border-radius: 6px; 
-  cursor: pointer; 
-  font-weight: 700; 
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.btn-primary:disabled { background: #666; cursor: not-allowed; }
-.btn-primary:hover:not(:disabled) { background: #222; }
-.btn-primary:active:not(:disabled) { transform: scale(0.99); }
+.restock-container { padding: 30px; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.header-section { display: flex; justify-content: space-between; align-items: center; }
+.stock-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.stock-table th { text-align: left; color: #666; padding: 15px; border-bottom: 2px solid #eee; }
+.stock-table td { padding: 15px; border-bottom: 1px solid #eee; }
+.critical { color: #d9534f; font-weight: bold; }
+.qty-input { width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+.btn-order { margin-top: 25px; padding: 12px 25px; background: #000; color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+.btn-order:disabled { background: #ccc; cursor: not-allowed; }
+.btn-order:hover:not(:disabled) { background: #333; }
+.refresh-btn { background: #f0f0f0; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
 </style>

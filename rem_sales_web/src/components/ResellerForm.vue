@@ -85,7 +85,6 @@ import axios from 'axios'
 const loading = ref(false)
 const resellers = ref([])
 
-// Correction de l'objet form : deposit_name au lieu de address
 const form = ref({ 
   firstName: '', 
   lastName: '', 
@@ -95,31 +94,53 @@ const form = ref({
   deposit_name: '' 
 })
 
+/**
+ * Extraction sécurisée de la liste des revendeurs
+ */
 const fetchResellers = async () => {
   try {
     const companyId = localStorage.getItem('companyId')
+    const token = localStorage.getItem('token')
+
     const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers`, {
-      params: { company_id: companyId }
+      params: { company_id: companyId },
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     })
-    resellers.value = res.data
-  } catch (err) { console.error(err) }
+    
+    // 🎯 RECTIFICATION DU MAPPING : Axios encapsule la réponse dans res.data,
+    // et notre contrôleur backend met les lignes dans la clé .data
+    resellers.value = res.data.data || []
+    
+  } catch (err) { 
+    console.error("❌ Erreur lors du chargement des revendeurs :", err) 
+  }
 }
 
+/**
+ * Soumission transactionnelle pour la création d'un compte revendeur
+ */
 const submitReseller = async () => {
   loading.value = true
   try {
     const companyId = localStorage.getItem('companyId')
-    // L'envoi correspond désormais exactement à ce qu'attend le controller
+    const token = localStorage.getItem('token')
+
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/resellers/create-with-access`, {
       ...form.value,
-      companyId: companyId
+      company_id: companyId
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     })
     
     alert('Revendeur créé avec succès et accès généré !')
-    // Réinitialisation avec deposit_name
     form.value = { firstName: '', lastName: '', email: '', password: '', phone: '', deposit_name: '' }
     await fetchResellers() 
   } catch (error) {
+    console.error("❌ Échec de la création :", error)
     alert('Erreur lors de la création : vérifiez que l\'email n\'est pas déjà utilisé.')
   } finally {
     loading.value = false
@@ -130,7 +151,6 @@ onMounted(fetchResellers)
 </script>
 
 <style scoped>
-/* Tes styles restent inchangés et parfaits */
 .form-container { background: white; padding: 40px; border-radius: 8px; max-width: 700px; margin: 0 auto; font-family: 'ABeeZee', sans-serif; }
 .form-header { margin-bottom: 30px; }
 .reseller-form { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
@@ -138,6 +158,7 @@ onMounted(fetchResellers)
 .form-group { display: flex; flex-direction: column; gap: 8px; }
 input { padding: 14px; border: 1px solid #ddd; border-radius: 6px; }
 .btn-submit { background: #000; color: #fff; border: none; padding: 15px; border-radius: 6px; cursor: pointer; }
+.btn-submit:disabled { background: #555; cursor: not-allowed; }
 .divider { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
 .reseller-table { width: 100%; border-collapse: collapse; }
 .reseller-table th, .reseller-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 0.9rem; }

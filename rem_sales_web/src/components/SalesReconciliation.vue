@@ -45,7 +45,8 @@
         <thead>
           <tr>
             <th>N° Facture</th>
-            <th>Client</th>
+            <th>Type</th>
+            <th>Bénéficiaire / Dépôt</th>
             <th>Date d'émission</th>
             <th>Montant Total</th>
             <th>Statut</th>
@@ -55,7 +56,17 @@
         <tbody>
           <tr v-for="sale in salesList" :key="sale.id">
             <td class="font-mono font-bold">{{ sale.number }}</td>
-            <td>{{ sale.client_name || 'Client Anonyme' }}</td>
+            <td>
+              <span :class="['type-badge', sale.type?.toLowerCase()]">
+                {{ sale.type === 'RESTOCK_REQUEST' ? '📦 RESTOCK' : '💼 VENTE' }}
+              </span>
+            </td>
+            <td class="font-bold">
+              {{ sale.client_name || sale.reseller_name }}
+              <span v-if="sale.depot_name" class="depot-tag">
+                ({{ sale.depot_name }})
+              </span>
+            </td>
             <td>{{ formatDate(sale.created_at) }}</td>
             <td class="text-right font-bold">{{ Number(sale.total_amount).toLocaleString() }} $</td>
             <td>
@@ -84,6 +95,23 @@
           <button @click="printInvoice" class="btn-action-print">🖨️ Imprimer / PDF</button>
           <a :href="whatsappLink" target="_blank" class="btn-action-whatsapp">💬 WhatsApp</a>
           <a :href="emailLink" class="btn-action-email">✉️ Email</a>
+          
+          <button 
+            v-if="selectedInvoice.status === 'DRAFT'" 
+            @click="handleCollectPayment(selectedInvoice.id)" 
+            class="btn-action-collect"
+          >
+            💵 Encaisser la facture
+          </button>
+          
+          <button 
+            v-if="selectedInvoice.status === 'DRAFT' || selectedInvoice.status === 'PAID'" 
+            @click="handleCancelInvoice(selectedInvoice.id)" 
+            class="btn-action-cancel-invoice"
+          >
+            ❌ Annuler
+          </button>
+
           <button @click="closeModal" class="btn-action-close">Fermer ✕</button>
         </div>
 
@@ -94,32 +122,47 @@
               <p class="company-details">Solutions Technologiques Multi-tenant<br>Bruxelles, Belgique</p>
             </div>
             <div class="invoice-meta-block">
-              <h2>FACTURE</h2>
+              <h2>{{ selectedInvoice.type === 'RESTOCK_REQUEST' ? 'BON DE COMMANDE' : 'FACTURE' }}</h2>
               <p><strong>N° :</strong> {{ selectedInvoice.number }}</p>
               <p><strong>Date :</strong> {{ formatDate(selectedInvoice.created_at) }}</p>
-              <p><strong>Statut :</strong> <span class="invoice-status-text">{{ selectedInvoice.status }}</span></p>
+              <p><strong>Statut :</strong> <span :class="['invoice-status-inline', selectedInvoice.status.toLowerCase()]">{{ selectedInvoice.status }}</span></p>
             </div>
           </div>
 
           <hr class="invoice-separator" />
 
           <div class="invoice-bill-to">
-            <h3>Facturé à :</h3>
-            <p class="client-name">{{ selectedInvoice.client_name || 'Client Anonyme' }}</p>
-            <p class="client-details">Identifiant Client : {{ selectedInvoice.client_id || 'N/A' }}</p>
+            <h3>{{ selectedInvoice.type === 'RESTOCK_REQUEST' ? 'Dépôt Demandeur :' : 'Facturé à :' }}</h3>
+            <p class="client-name">
+              {{ selectedInvoice.client_name || selectedInvoice.reseller_name }}
+              <span v-if="selectedInvoice.depot_name" class="depot-tag-modal">
+                ({{ selectedInvoice.depot_name }})
+              </span>
+            </p>
+            <p class="client-details">Identifiant Compte : {{ selectedInvoice.reseller_id || selectedInvoice.client_id || 'N/A' }}</p>
           </div>
 
           <table class="invoice-items-table">
             <thead>
               <tr>
-                <th>Description</th>
+                <th>Description Produit</th>
+                <th class="text-right">Quantité</th>
+                <th class="text-right">Prix Unitaire</th>
                 <th class="text-right">Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Prestation de services ou vente de marchandises rattachée au dossier {{ selectedInvoice.number }}</td>
-                <td class="text-right font-bold">{{ Number(selectedInvoice.total_amount).toLocaleString() }} $</td>
+              <tr v-for="item in selectedInvoiceItems" :key="item.id">
+                <td>{{ item.product_name || 'Produit Réapprovisionné' }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">{{ Number(item.unit_price).toLocaleString() }} $</td>
+                <td class="text-right font-bold">{{ Number(item.total_price).toLocaleString() }} $</td>
+              </tr>
+              <tr v-if="itemsLoading">
+                <td colspan="4" class="text-center text-muted">🔄 Chargement du détail des articles...</td>
+              </tr>
+              <tr v-else-if="selectedInvoiceItems.length === 0">
+                <td colspan="4" class="text-center text-muted">⚠️ Aucun article trouvé pour ce document.</td>
               </tr>
             </tbody>
           </table>
@@ -134,7 +177,7 @@
               <span>0 $</span>
             </div>
             <div class="total-row grand-total">
-              <span>Total Net à Payer (USD) :</span>
+              <span>Total Net Global (USD) :</span>
               <span>{{ Number(selectedInvoice.total_amount).toLocaleString() }} $</span>
             </div>
           </div>
@@ -154,24 +197,25 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { useSalesStore } from '../stores/sales' // 📦 Importation de ton store mis à jour
 
-// 💡 Importation officielle de ton logo via Vite
 import logoRobustCode from '../assets/RobustCodelogowhite.png'
 
-// États réactifs existants
+const salesStore = useSalesStore()
+
 const salesList = ref([])
 const metaData = ref(null)
 const currentPage = ref(1)
 const searchQuery = ref('')
 const selectedStatus = ref('')
 const loading = ref(false)
+const itemsLoading = ref(false)
 let debounceTimeout = null
 
-// États pour la gestion de la modale
 const isModalOpen = ref(false)
 const selectedInvoice = ref(null)
+const selectedInvoiceItems = ref([])
 
-// Requête HTTP principale connectée à l'API paginée
 const fetchPaginatingSales = async () => {
   loading.value = true
   try {
@@ -198,7 +242,48 @@ const fetchPaginatingSales = async () => {
   }
 }
 
-// Moteur de Debounce
+// 🟢 FONCTION DE TRAITEMENT DU PAIEMENT ENCAISSÉ
+const handleCollectPayment = async (id) => {
+  try {
+    await salesStore.collectPayment(id)
+    selectedInvoice.value.status = 'PAID' // Mutation réactive locale instantanée
+    await fetchPaginatingSales() // Synchronisation asynchrone du tableau global
+    alert("Succès : Le paiement a été enregistré et les stocks ont été mis à jour.")
+  } catch (error) {
+    alert("Une erreur est survenue lors de la tentative d'encaissement de la facture.")
+  }
+}
+
+// 🔴 FONCTION D'ANNULATION DU DOCUMENT DE VENTE
+const handleCancelInvoice = async (id) => {
+  if (confirm("Attention : Êtes-vous sûr de vouloir annuler ce document commercial ? Les stocks correspondants seront recalculés.")) {
+    try {
+      await salesStore.cancelInvoice(id)
+      selectedInvoice.value.status = 'CANCELLED' // Mutation réactive locale instantanée
+      await fetchPaginatingSales() // Synchronisation asynchrone du tableau global
+      alert("Le document a été annulé avec succès.")
+    } catch (error) {
+      alert("Une erreur est survenue lors de l'annulation du document.")
+    }
+  }
+}
+
+const fetchInvoiceItems = async (documentId) => {
+  itemsLoading.value = true
+  try {
+    const token = localStorage.getItem('token')
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents/${documentId}/items`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    selectedInvoiceItems.value = response.data.data || response.data
+  } catch (error) {
+    console.error("❌ Impossible de charger les articles du document:", error)
+    selectedInvoiceItems.value = []
+  } finally {
+    itemsLoading.value = false
+  }
+}
+
 const triggerSearch = () => {
   clearTimeout(debounceTimeout)
   debounceTimeout = setTimeout(() => {
@@ -230,35 +315,36 @@ const formatDate = (dateString) => {
   })
 }
 
-// Logique de la modale
-const openInvoice = (sale) => {
+const openInvoice = async (sale) => {
   selectedInvoice.value = sale
   isModalOpen.value = true
+  selectedInvoiceItems.value = []
+  await fetchInvoiceItems(sale.id)
 }
 
 const closeModal = () => {
   isModalOpen.value = false
   selectedInvoice.value = null
+  selectedInvoiceItems.value = []
 }
 
 const printInvoice = () => {
   window.print()
 }
 
-// Liens omnicanaux
 const whatsappLink = computed(() => {
   if (!selectedInvoice.value) return '#'
   const text = encodeURIComponent(
-    `Bonjour, voici votre facture ${selectedInvoice.value.number} d'un montant de ${Number(selectedInvoice.value.total_amount).toLocaleString()} $. Merci pour votre confiance !`
+    `Bonjour, voici votre document ${selectedInvoice.value.number} d'un montant de ${Number(selectedInvoice.value.total_amount).toLocaleString()} $.`
   )
   return `https://api.whatsapp.com/send?text=${text}`
 })
 
 const emailLink = computed(() => {
   if (!selectedInvoice.value) return '#'
-  const subject = encodeURIComponent(`Facture Robust Code Inc. - N° ${selectedInvoice.value.number}`)
+  const subject = encodeURIComponent(`Document Robust Code Inc. - N° ${selectedInvoice.value.number}`)
   const body = encodeURIComponent(
-    `Bonjour,\n\nVeuillez trouver les informations de votre facture ${selectedInvoice.value.number}.\nMontant total : ${Number(selectedInvoice.value.total_amount).toLocaleString()} $\nStatut : ${selectedInvoice.value.status}\n\nCordialement,\nL'équipe de Robust Code Inc.`
+    `Bonjour,\n\nVeuillez trouver les informations rattachées au dossier ${selectedInvoice.value.number}.\nMontant total : ${Number(selectedInvoice.value.total_amount).toLocaleString()} $\nStatut : ${selectedInvoice.value.status}\n\nCordialement,`
   )
   return `mailto:?subject=${subject}&body=${body}`
 })
@@ -269,7 +355,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Styles structurels du Dashboard */
+/* Tags stylisés pour inclure le nom du dépôt proprement */
+.depot-tag { font-weight: normal; font-size: 0.8rem; color: #64748b; font-style: italic; margin-left: 6px; }
+.depot-tag-modal { font-weight: normal; font-size: 0.95rem; color: #64748b; font-style: italic; margin-left: 6px; }
+
+/* Styles du composant */
 .sales-module-container { background: #fff; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .filter-zone { border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; margin-bottom: 20px; }
 .filter-zone legend { font-size: 0.8rem; font-weight: bold; text-transform: uppercase; padding: 0 8px; }
@@ -287,10 +377,22 @@ onMounted(() => {
 .font-mono { font-family: monospace; }
 .font-bold { font-weight: bold; }
 .text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-muted { color: #64748b; font-style: italic; }
+
 .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
 .badge.paid { background: #d1fae5; color: #065f46; }
 .badge.draft { background: #fef3c7; color: #92400e; }
 .badge.cancelled { background: #fee2e2; color: #991b1b; }
+
+.invoice-status-inline { font-weight: bold; text-transform: uppercase; }
+.invoice-status-inline.paid { color: #10b981; }
+.invoice-status-inline.draft { color: #f59e0b; }
+.invoice-status-inline.cancelled { color: #ef4444; }
+
+.type-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: #e2e8f0; color: #334155; }
+.type-badge.restock_request { background: #dbeafe; color: #1e40af; }
+
 .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px; border-radius: 4px; }
 .action-btn:hover { background: #f1f5f9; }
 .state-feedback { text-align: center; padding: 40px; color: #64748b; }
@@ -299,40 +401,35 @@ onMounted(() => {
 .pag-btn:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
 .page-indicator { font-size: 0.85rem; color: #334155; }
 
-/* Modale Overlay */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-.modal-content { background: #f8fafc; width: 90%; max-width: 800px; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; overflow: hidden; }
+.modal-content { background: #f8fafc; width: 90%; max-width: 850px; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; overflow: hidden; }
+.modal-actions-bar { background: #1e293b; padding: 12px 24px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.modal-actions-bar button, .modal-actions-bar a { padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; transition: background 0.2s ease; }
 
-/* Actions Bar */
-.modal-actions-bar { background: #1e293b; padding: 12px 24px; display: flex; gap: 12px; align-items: center; }
-.modal-actions-bar button, .modal-actions-bar a { padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; }
 .btn-action-print { background: #3b82f6; color: white; }
+.btn-action-print:hover { background: #2563eb; }
 .btn-action-whatsapp { background: #22c55e; color: white; }
+.btn-action-whatsapp:hover { background: #16a34a; }
 .btn-action-email { background: #64748b; color: white; }
-.btn-action-close { background: #ef4444; color: white; margin-left: auto; }
+.btn-action-email:hover { background: #475569; }
 
-/* Zone Papier Facture & Intégration du Logo */
+/* 🎨 NOUVEAUX STYLES APPLIQUÉS AUX BOUTONS GESTIONNAIRES */
+.btn-action-collect { background: #10b981; color: white; }
+.btn-action-collect:hover { background: #059669; }
+.btn-action-cancel-invoice { background: #f97316; color: white; }
+.btn-action-cancel-invoice:hover { background: #ea580c; }
+
+.btn-action-close { background: #ef4444; color: white; margin-left: auto; }
+.btn-action-close:hover { background: #dc2626; }
+
 .invoice-paper { background: #ffffff; padding: 40px; overflow-y: auto; flex: 1; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; }
 .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; }
-
-.logo-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.invoice-logo-img {
-  max-width: 180px;
-  height: auto;
-  object-fit: contain;
-  filter: brightness(0) contrast(100%); 
-}
-
+.logo-container { display: flex; flex-direction: column; gap: 8px; }
+.invoice-logo-img { max-width: 180px; height: auto; object-fit: contain; filter: brightness(0) contrast(100%); }
 .company-details { font-size: 0.85rem; color: #64748b; line-height: 1.4; margin: 0; }
 .invoice-meta-block { text-align: right; }
 .invoice-meta-block h2 { font-size: 1.6rem; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; }
 .invoice-meta-block p { margin: 4px 0; font-size: 0.9rem; color: #475569; }
-.invoice-status-text { font-weight: bold; color: #22c55e; }
 .invoice-separator { border: 0; border-top: 2px solid #f1f5f9; margin: 24px 0; }
 .invoice-bill-to h3 { font-size: 0.85rem; text-transform: uppercase; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; }
 .client-name { font-size: 1.1rem; font-weight: 700; margin: 0 0 4px 0; color: #0f172a; }
@@ -347,7 +444,6 @@ onMounted(() => {
 .invoice-footer p { margin: 4px 0; font-size: 0.9rem; }
 .footer-legal { font-size: 0.75rem !important; margin-top: 12px !important; }
 
-/* Impression CSS */
 @media print {
   .no-print, .no-print * { display: none !important; }
   .modal-overlay { position: absolute !important; background: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
