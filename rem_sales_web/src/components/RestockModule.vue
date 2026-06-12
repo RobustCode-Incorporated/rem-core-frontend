@@ -1,7 +1,7 @@
 <template>
   <div class="restock-module">
     <div class="header">
-      <h2>📦 Mon Inventaire & Commandes</h2>
+      <h2>Mon Inventaire & Commandes</h2>
       <button @click="showOrderForm = !showOrderForm" class="btn-primary">
         {{ showOrderForm ? 'Fermer le catalogue' : '+ Commander au dépôt' }}
       </button>

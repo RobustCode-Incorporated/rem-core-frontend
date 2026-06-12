@@ -1,45 +1,65 @@
 <template>
   <div class="analytics-wrapper">
     
-    <!-- 1. En-tête Analytique Industriel -->
     <div class="analytics-lead">
       <h2>Suivi Analytique Global</h2>
-      <p>Analyse multi-tenant en temps réel du flux transactionnel Neon</p>
+      <p>Analyse multi-tenant en temps réel du flux transactionnel Neon Core</p>
     </div>
 
-    <!-- 2. Bloc Cartographique des Resellers (Impact Visuel Majeur) -->
     <div class="card-section-container">
       <ResellersMap />
     </div>
 
-    <!-- 3. Grille de KPIs Financiers Dynamiques -->
     <div class="metrics-grid">
-      <div class="metric-card">
-        <span class="card-label">Chiffre d'Affaires Encaissé</span>
-        <h3 class="card-number">{{ totalRevenue.toLocaleString() }} $</h3>
-        <span class="card-status status-up">▲ Statut PAID</span>
+      <div class="metric-card black-card">
+        <span class="card-label">CA Flux Dépôt (Factures Restock)</span>
+        <h3 class="card-number total-direct">{{ revenueDirect.toLocaleString() }} $</h3>
+        <span class="card-status status-up">▲ Encaissé Logistique</span>
       </div>
-      <div class="metric-card">
-        <span class="card-label">Volume de Ventes (Global)</span>
+      
+      <div class="metric-card black-card">
+        <span class="card-label">CA Ventes Revendeurs (Caisse)</span>
+        <h3 class="card-number total-reseller">{{ revenueResellers.toLocaleString() }} $</h3>
+        <span class="card-status status-reseller">▲ Terminaux Distants</span>
+      </div>
+
+      <div class="metric-card black-card">
+        <span class="card-label">Volume Transactions</span>
         <h3 class="card-number">{{ salesStore.sales.length }}</h3>
-        <span class="card-status status-sync">● Documents Synchronisés</span>
+        <span class="card-status status-sync">● Éléments Synchronisés</span>
       </div>
-      <div class="metric-card">
-        <span class="card-label">Panier Moyen</span>
+
+      <div class="metric-card black-card">
+        <span class="card-label">Panier Moyen Global</span>
         <h3 class="card-number">{{ averageBasket.toFixed(2) }} $</h3>
-        <span class="card-status status-up">▲ Flux d'Affaires</span>
+        <span class="card-status status-up">▲ Intensité du Flux</span>
       </div>
     </div>
 
-    <!-- 4. Grille des Graphiques de Performance (ApexCharts) -->
     <div class="charts-grid">
-      <div class="chart-box">
-        <h3>Répartition des Statuts Documents</h3>
-        <apexchart type="donut" :options="donutOptions" :series="statusSeries"></apexchart>
+      <div class="chart-box clean-chart">
+        <h3>Statuts des Restocks Logistiques (Dépôt)</h3>
+        <div v-if="hasRestockData" class="chart-render-zone">
+          <apexchart type="donut" :options="donutOptionsRestock" :series="restockSeries"></apexchart>
+        </div>
+        <div v-else class="empty-chart-fallback">
+          <p>📦 Aucun flux de restockage enregistré actuellement</p>
+        </div>
       </div>
-      <div class="chart-box">
-        <h3>Évolution Temporelle des Ventes</h3>
-        <apexchart type="area" :options="lineOptions" :series="lineSeries"></apexchart>
+
+      <div class="chart-box clean-chart">
+        <h3>Statuts des Ventes Revendeurs</h3>
+        <div v-if="hasSalesData" class="chart-render-zone">
+          <apexchart type="donut" :options="donutOptionsSales" :series="salesSeries"></apexchart>
+        </div>
+        <div v-else class="empty-chart-fallback">
+          <p>💰 Aucune vente enregistrée sur le réseau distant</p>
+        </div>
+      </div>
+
+      <div class="chart-box clean-chart full-width-chart">
+        <h3>Évolution Temporelle des Flux Globaux</h3>
+        <apexchart type="area" :options="lineOptions" :series="lineData.series"></apexchart>
       </div>
     </div>
 
@@ -51,61 +71,158 @@ import { computed, onMounted } from 'vue'
 import { useSalesStore } from '../stores/sales'
 import ResellersMap from './ResellersMap.vue'
 
-// Initialisation du store global
 const salesStore = useSalesStore()
 
 onMounted(() => {
-  console.log("[UX LOG] Initialisation de AnalyticsDashboard. Synchro des magasins et resellers.");
+  console.log("[UX LOG] Initialisation de AnalyticsDashboard. Synchro globale active.");
   if (salesStore.sales.length === 0) {
     salesStore.fetchSales() 
   }
 })
 
-// --- CALCULS METRICS FINANCIÈRES RÉELLES ---
-const totalRevenue = computed(() => {
+// --- 📊 CALCULS KPI FINANCIERS ---
+
+// CA Ventes Directes du Dépôt = Factures de type 'RESTOCK' validées (PAID / COMPLETED)
+const revenueDirect = computed(() => {
   return salesStore.sales
-    .filter(s => s.status === 'PAID')
-    .reduce((sum, s) => sum + Number(s.total_amount), 0)
+    .filter(s => {
+      const type = String(s.type || '').toUpperCase();
+      const status = String(s.status || '').toUpperCase();
+      const isPaid = ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(status);
+      
+      const isRestockType = type.includes('RESTOCK') || type.includes('STOCK');
+      const isDirectSale = !s.reseller_name && !s.reseller_id && ['SALE', 'VENTE', 'FACTURE'].includes(type);
+      
+      return (isRestockType || isDirectSale) && isPaid;
+    })
+    .reduce((sum, s) => sum + Number(s.total_amount || 0), 0)
 })
 
+// CA Revendeurs = Documents de vente liés à un agent/revendeur
+const revenueResellers = computed(() => {
+  return salesStore.sales
+    .filter(s => {
+      const type = String(s.type || '').toUpperCase();
+      const status = String(s.status || '').toUpperCase();
+      const isPaid = ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(status);
+      
+      const isSale = ['SALE', 'VENTE', 'FACTURE'].includes(type);
+      const isReseller = !!s.reseller_name || !!s.reseller_id || !!s.resellerId;
+      
+      return isSale && isReseller && isPaid;
+    })
+    .reduce((sum, s) => sum + Number(s.total_amount || 0), 0)
+})
+
+// Panier Moyen Réel
 const averageBasket = computed(() => {
-  return salesStore.sales.length ? totalRevenue.value / salesStore.sales.length : 0
+  const totalPaidSales = salesStore.sales.filter(s => 
+    ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(String(s.status).toUpperCase())
+  ).length;
+  const globalRevenue = revenueDirect.value + revenueResellers.value;
+  return totalPaidSales ? globalRevenue / totalPaidSales : 0;
 })
 
-// --- CONFIGURATION APEXCHARTS : DONUT (Statuts) ---
-const statusSeries = computed(() => {
-  const paid = salesStore.sales.filter(s => s.status === 'PAID').length
-  const draft = salesStore.sales.filter(s => s.status === 'DRAFT').length
-  const cancelled = salesStore.sales.filter(s => s.status === 'CANCELLED').length
+
+// --- 🍩 CONFIGURATION DYNAMIQUE DES DONUTS SÉPARÉS ---
+
+// Donut 1 : Analyse des flux RESTOCK (Avec tolérance accrue sur les statuts d'attente)
+const restockSeries = computed(() => {
+  const restocks = salesStore.sales.filter(s => {
+    const type = String(s.type || '').toUpperCase();
+    return type.includes('RESTOCK') || type.includes('STOCK');
+  });
+
+  // Filtrage des différents états avec tolérance de vocabulaire API
+  const paidCount = restocks.filter(s => ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(String(s.status || '').toUpperCase())).length;
+  
+  // Prise en compte de 'DRAFT', 'PENDING', 'BROUILLON' et 'PROCESSING' pour les brouillons/attentes
+  const draftCount = restocks.filter(s => ['DRAFT', 'BROUILLON', 'PENDING', 'PROCESSING', 'EN_ATTENTE'].includes(String(s.status || '').toUpperCase())).length;
+  
+  const cancelledCount = restocks.filter(s => ['CANCELLED', 'ANNULÉ', 'ANNULE', 'REJECTED'].includes(String(s.status || '').toUpperCase())).length;
+  
+  // LOG DE SÉCURITÉ STATUTS RESTOCK
+  if (restocks.length > 0) {
+    console.log(`📊 [REM RESTOCK STATUTS] Total Restocks: ${restocks.length} | Validés: ${paidCount} | En attente/Draft: ${draftCount} | Annulés: ${cancelledCount}`);
+    console.log(`📊 [REM RESTOCK STATUTS] Échantillon de statuts trouvés dans vos données :`, restocks.map(r => r.status));
+  }
+
+  return [paidCount, draftCount, cancelledCount];
+})
+
+// Donut 2 : Analyse exclusive des flux SALES / VENTES
+const salesSeries = computed(() => {
+  const sales = salesStore.sales.filter(s => ['SALE', 'VENTE', 'FACTURE'].includes(String(s.type || '').toUpperCase()))
+  
+  const paid = sales.filter(s => ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(String(s.status || '').toUpperCase())).length
+  const draft = sales.filter(s => ['DRAFT', 'BROUILLON', 'PENDING'].includes(String(s.status || '').toUpperCase())).length
+  const cancelled = sales.filter(s => ['CANCELLED', 'ANNULÉ', 'ANNULE'].includes(String(s.status || '').toUpperCase())).length
+  
   return [paid, draft, cancelled]
 })
 
-const donutOptions = {
-  labels: ['Payées', 'Brouillons', 'Annulées'],
-  colors: ['#16a34a', '#FEB019', '#FF4560'], // Alignement vert Robust Code pour le PAID
-  legend: { position: 'bottom', fontFamily: 'system-ui, sans-serif' },
-  chart: { animations: { enabled: true } }
+// Sécurités de données pour bloquer le crash d'ApexCharts si tableaux vides [0, 0, 0]
+const hasRestockData = computed(() => restockSeries.value.reduce((a, b) => a + b, 0) > 0)
+const hasSalesData = computed(() => salesSeries.value.reduce((a, b) => a + b, 0) > 0)
+
+// Configuration esthétique standard épurée (Pas de fond noir forcé)
+const baseDonutOptions = {
+  colors: ['#10b981', '#f59e0b', '#ef4444'], // Vert (Validé), Orange (En attente/Draft), Rouge (Annulé)
+  stroke: { colors: ['#ffffff'], width: 2 },
+  legend: { position: 'bottom', labels: { colors: '#111111' }, fontFamily: 'system-ui, sans-serif' },
+  chart: { background: 'transparent' }
 }
 
-// --- CONFIGURATION APEXCHARTS : AREA CHART (Évolution) ---
-const lineSeries = computed(() => [{
-  name: 'Ventes ($)',
-  data: [30, 40, 35, 50, 49, 60, 70, 91, 125] // Prêt pour le mapping dynamique de ta comptabilité
-}])
+const donutOptionsRestock = { ...baseDonutOptions, labels: ['Restocks Validés', 'En attente / Draft', 'Annulés'] }
+const donutOptionsSales = { ...baseDonutOptions, labels: ['Payées', 'Brouillons', 'Annulées'] }
 
-const lineOptions = {
-  chart: { toolbar: { show: false }, fontFamily: 'system-ui, sans-serif' },
-  stroke: { curve: 'smooth', colors: ['#000000'], width: 2 }, // Courbe noire minimaliste haut de gamme
+
+// --- 📈 SUIVI CHRONOLOGIQUE DYNAMIQUE ---
+
+const lineData = computed(() => {
+  const activeSales = salesStore.sales
+    .filter(s => ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(String(s.status || '').toUpperCase()))
+    .map(s => ({
+      amount: Number(s.total_amount || 0),
+      date: s.created_at ? new Date(s.created_at) : new Date()
+    }))
+    .sort((a, b) => a.date - b.date);
+
+  const monthsLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dataMap = {};
+
+  activeSales.forEach(s => {
+    const label = `${monthsLabels[s.date.getMonth()]} ${s.date.getFullYear().toString().slice(-2)}`;
+    dataMap[label] = (dataMap[label] || 0) + s.amount;
+  });
+
+  const categories = Object.keys(dataMap);
+  const data = Object.values(dataMap);
+
+  if (categories.length === 0) {
+    return { series: [{ name: 'Volume de ventes ($)', data: [0] }], categories: ['Aucun flux'] };
+  }
+
+  return {
+    series: [{ name: 'Volume global consolidé ($)', data }],
+    categories
+  };
+})
+
+const lineOptions = computed(() => ({
+  chart: { toolbar: { show: false }, background: 'transparent', fontFamily: 'system-ui, sans-serif' },
+  stroke: { curve: 'smooth', colors: ['#111111'], width: 2.5 },
+  grid: { borderColor: '#eaeaea' },
   fill: {
     type: 'gradient',
-    gradient: { shadeIntensity: 1, opacityFrom: 0.2, opacityTo: 0, stops: [0, 90, 100] }
+    gradient: { shadeIntensity: 1, opacityFrom: 0.15, opacityTo: 0, stops: [0, 90, 100] }
   },
   xaxis: { 
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-    labels: { style: { colors: '#707070' } }
+    categories: lineData.value.categories,
+    labels: { style: { colors: '#666666' } }
   },
-  yaxis: { labels: { style: { colors: '#707070' } } }
-}
+  yaxis: { labels: { style: { colors: '#666666' } } }
+}))
 </script>
 
 <style scoped>
@@ -116,7 +233,6 @@ const lineOptions = {
   padding-bottom: 40px;
 }
 
-/* En-tête */
 .analytics-lead h2 {
   font-size: 1.4rem;
   font-weight: 700;
@@ -131,71 +247,94 @@ const lineOptions = {
   margin: 0;
 }
 
-/* Carte */
 .card-section-container {
   width: 100%;
 }
 
-/* Grille KPI */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
 }
-.metric-card {
-  background: #ffffff;
+
+.black-card {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  border-radius: 12px !important;
   padding: 24px;
-  border-radius: 4px;
-  border: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+
 .card-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  color: #707070;
-  letter-spacing: 0.5px;
+  color: #888888;
+  letter-spacing: 0.8px;
   font-weight: 600;
 }
 .card-number {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #000000;
   margin: 0;
 }
+.total-direct { color: #ffffff; }
+.total-reseller { color: #3b82f6; } 
+
 .card-status {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: bold;
 }
-.card-status.status-up { color: #16a34a; }
-.card-status.status-sync { color: #2563eb; }
+.card-status.status-up { color: #10b981; }
+.card-status.status-reseller { color: #3b82f6; }
+.card-status.status-sync { color: #a855f7; }
 
-/* Grille Graphiques */
 .charts-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
 }
-@media (max-width: 968px) {
+
+.clean-chart {
+  background: #ffffff !important;
+  color: #111111 !important;
+  border: 1px solid #e5e5e5 !important;
+  border-radius: 12px !important;
+  padding: 24px;
+}
+
+.clean-chart h3 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #111111;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.empty-chart-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  color: #777;
+  font-size: 0.82rem;
+  border: 1px dashed #e2e8f0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.full-width-chart {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
   .charts-grid {
     grid-template-columns: 1fr;
   }
-}
-.chart-box {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 4px;
-  border: 1px solid #e5e5e5;
-}
-.chart-box h3 {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #000000;
-  margin: 0 0 20px 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f5f5f5;
 }
 </style>

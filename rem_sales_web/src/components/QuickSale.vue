@@ -2,7 +2,7 @@
   <div class="caisse-container">
     <div class="left-panel">
       <div class="panel-section">
-        <h3>👤 Informations Client (Détail)</h3>
+        <h3>Informations Client (Détail)</h3>
         <div class="client-form">
           <div class="form-group">
             <label>Nom complet *</label>
@@ -26,7 +26,7 @@
       </div>
 
       <div class="panel-section current-stock-section">
-        <h3>📦 Articles disponibles dans votre dépôt</h3>
+        <h3>Articles disponibles dans votre dépôt</h3>
         <div v-if="loadingStock" class="mini-loader">Chargement de votre inventaire...</div>
         
         <div v-else class="products-selection-grid">
@@ -49,7 +49,7 @@
 
     <div class="right-panel">
       <div class="checkout-card">
-        <h3>🛒 Panier de Vente Directe</h3>
+        <h3>Panier de Vente Directe</h3>
         
         <div v-if="cart.length === 0" class="empty-cart">
           <p>Le panier est vide. Cliquez sur un article à gauche pour l'ajouter.</p>
@@ -174,7 +174,11 @@ const processCheckout = async () => {
       }))
     };
 
+    // 1. Soumission de la vente au serveur REM Core
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/sales/retail-checkout`, payload, { headers });
+    
+    // ⚡ 2. Déclenchement immédiat de l'événement pour recalculer le Dashboard Stats
+    window.dispatchEvent(new CustomEvent('sales-updated'));
     
     alert("Vente enregistrée avec succès, les stocks du dépôt ont été déduits !");
     
@@ -231,6 +235,6 @@ onMounted(() => {
 
 .price-summary { border-top: 1px solid #222; padding-top: 15px; margin-bottom: 20px; }
 .summary-row { display: flex; justify-content: space-between; font-size: 0.95rem; }
-.checkout-submit-btn { w: 100%; width: 100%; padding: 15px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+.checkout-submit-btn { width: 100%; padding: 15px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
 .checkout-submit-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 </style>

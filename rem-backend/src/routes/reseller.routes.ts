@@ -4,16 +4,16 @@ import {
   getResellersLiveLocation, 
   getResellerPerformance,
   createResellerWithAccess,
-  getMyStock // Import propre
+  getMyStock 
 } from '../controllers/resellers.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router = Router();
 
 /**
- * 🎯 Route corrigée pour correspondre à l'appel du frontend :
- * Frontend appelle : /api/resellers/me/stock
- * Définition ici : /me/stock (car le routeur est préfixé par /api/resellers)
+ * @route   GET /api/resellers/me/stock
+ * @desc    Récupération du stock avec indicateurs pour Donuts de Stock Optimal
+ * @access  Protégé
  */
 router.get('/me/stock', requireAuth, getMyStock);
 

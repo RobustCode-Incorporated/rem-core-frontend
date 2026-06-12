@@ -19,8 +19,8 @@
     <!-- 📦 NOUVEAU : L'inventaire réel disponible au magasin du revendeur -->
     <div class="inventory-section">
       <div class="section-header">
-        <h2>📦 Mon Inventaire Magasin (Stocks Disponibles)</h2>
-        <button @click="fetchResellerStock" class="refresh-btn">🔄 Actualiser</button>
+        <h2>Mon Inventaire Magasin (Stocks Disponibles)</h2>
+        <button @click="fetchResellerStock" class="refresh-btn">Actualiser</button>
       </div>
 
       <div v-if="stockLoading" class="loading-feedback">

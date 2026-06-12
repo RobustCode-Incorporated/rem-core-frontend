@@ -1,20 +1,20 @@
 <template>
   <div class="map-module-container">
     <div class="map-header">
-      <h3>🛰️ Suivi Géographique Avancé (Resellers)</h3>
+      <h3>Suivi Géographique Avancé (Resellers)</h3>
       <div class="map-actions">
         <div class="view-toggle">
           <button 
             @click="switchViewMode('standard')" 
             :class="['toggle-btn', { active: viewMode === 'standard' }]"
           >
-            📍 Standard & Clusters
+            Standard & Clusters
           </button>
           <button 
             @click="switchViewMode('heatmap')" 
             :class="['toggle-btn', { active: viewMode === 'heatmap' }]"
           >
-            🔥 Carte de chaleur
+            Carte de chaleur
           </button>
         </div>
         <button @click="fetchResellers" class="refresh-btn" :disabled="loading">

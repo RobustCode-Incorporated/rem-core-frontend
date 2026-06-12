@@ -1,8 +1,8 @@
 <template>
   <div class="restock-container">
     <div class="header-section">
-      <h2>🛒 Commander des Produits (Catalogue)</h2>
-      <button @click="fetchProducts" class="refresh-btn">🔄 Actualiser Catalogue</button>
+      <h2>Commander des Produits (Catalogue)</h2>
+      <button @click="fetchProducts" class="refresh-btn">Actualiser Catalogue</button>
     </div>
 
     <div v-if="loading" class="loader">Chargement du catalogue...</div>

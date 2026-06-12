@@ -11,7 +11,7 @@
           <button v-for="tab in tabs" :key="tab.id" 
                   :class="['nav-item', { active: currentTab === tab.id }]"
                   @click="currentTab = tab.id">
-            {{ tab.icon }} {{ tab.label }}
+            {{ tab.label }}
           </button>
         </nav>
         <button @click="logout" class="logout-btn">Déconnexion</button>
@@ -30,7 +30,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Imports composants
+// Imports des modules applicatifs
 import DashboardStats from '../components/DashboardStats.vue';
 import QuickSale from '../components/QuickSale.vue';
 import RestockModule from '../components/RestockModule.vue';
@@ -40,12 +40,13 @@ import GeolocationModule from '../components/GeolocationModule.vue';
 const router = useRouter();
 const currentTab = ref('dashboard');
 
+// Structure des onglets nettoyée de toute pollution visuelle
 const tabs = [
-  { id: 'dashboard', label: 'Vue d\'ensemble', icon: '📊' },
-  { id: 'pos', label: 'Caisse', icon: '🛒' },
-  { id: 'restock', label: 'Stock & Commande', icon: '📦' },
-  { id: 'history', label: 'Historique', icon: '🧾' },
-  { id: 'geo', label: 'Position', icon: '📍' }
+  { id: 'dashboard', label: 'Vue d\'ensemble' },
+  { id: 'pos', label: 'Caisse' },
+  { id: 'restock', label: 'Stock & Commande' },
+  { id: 'history', label: 'Historique' },
+  { id: 'geo', label: 'Position' }
 ];
 
 const activeComponent = computed(() => {
@@ -75,11 +76,12 @@ const logout = () => {
 }
 
 .top-navbar {
-  background: #000;
+  background: #000000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 40px;
+  padding: 15px 40px; /* Légère augmentation du padding pour respirer */
+  border-bottom: 1px solid #111111;
 }
 
 .brand-zone { 
@@ -88,44 +90,69 @@ const logout = () => {
   align-items: center; 
 }
 
-.logo-top { width: 120px; height: auto; margin-bottom: 2px; }
+.logo-top { width: 120px; height: auto; margin-bottom: 4px; }
 
 .brand-title { 
   color: #FFFAFA; 
   font-size: 0.60rem; 
-  letter-spacing: 1.5px; 
+  letter-spacing: 2px; /* Espacement subtilement augmenté */
   font-weight: 400; 
   text-transform: uppercase;
   margin: 0;
+  opacity: 0.9;
 }
 
 .nav-right { display: flex; align-items: center; gap: 30px; }
-.nav-menu { display: flex; gap: 20px; }
+.nav-menu { display: flex; gap: 24px; }
 
 .nav-item {
   background: transparent;
-  color: #A0A0A0;
+  color: #888888;
   border: none;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  padding: 6px 0;
+  position: relative;
 }
-.nav-item:hover, .nav-item.active { color: #fff; }
+
+/* Effet de surbrillance sobre et pro pour l'onglet actif */
+.nav-item:hover, .nav-item.active { 
+  color: #ffffff; 
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #ffffff;
+}
 
 .logout-btn { 
   background: transparent; 
-  color: #fff; 
-  border: 1px solid #333; 
-  padding: 6px 14px; 
-  border-radius: 20px; 
+  color: #ffffff; 
+  border: 1px solid #333333; 
+  padding: 6px 16px; 
+  border-radius: 4px; /* Forme un peu plus angulaire et industrielle que le full-rounded */
   font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer; 
-  transition: 0.3s;
+  transition: all 0.2s ease;
 }
-.logout-btn:hover { background: #fff; color: #000; }
 
-.content-area { flex: 1; padding: 40px; overflow-y: auto; }
+.logout-btn:hover { 
+  background: #ffffff; 
+  color: #000000; 
+  border-color: #ffffff;
+}
+
+.content-area { 
+  flex: 1; 
+  padding: 40px; 
+  overflow-y: auto; 
+}
 </style>

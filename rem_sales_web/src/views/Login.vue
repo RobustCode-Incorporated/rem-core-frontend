@@ -41,29 +41,29 @@ const router = useRouter();
 const loading = ref(false);
 const credentials = ref({ email: '', password: '' });
 
-// Remplace ton bloc de redirection actuel par celui-ci :
 const handleLogin = async () => {
   loading.value = true;
   try {
     const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, credentials.value);
 
-    // 1. Sauvegarde sécurisée
+    // 1. Sauvegarde sécurisée incluant l'ID utilisateur pour la géolocalisation
     localStorage.setItem('token', res.data.token);
     localStorage.setItem('companyId', res.data.user.companyId);
-    localStorage.setItem('userRole', res.data.user.role); // Important : stocke bien 'STAFF' ou 'ADMIN'
+    localStorage.setItem('userRole', res.data.user.role); 
     
-    // 2. Logique de redirection robuste
+    // Extraction de l'ID utilisateur connecté
+    localStorage.setItem('userId', res.data.user.id);
+    localStorage.setItem('resellerId', res.data.user.id); // Doublon pour assurer la compatibilité avec le module GPS
+
+    // 2. Logique de redirection
     const role = res.data.user.role;
     
-    // Si c'est un ADMIN, il va au dashboard principal
     if (role === 'ADMIN') {
       router.push('/dashboard');
     } 
-    // Si c'est un STAFF (ton revendeur), il va au dashboard revendeur
     else if (role === 'STAFF') {
       router.push('/reseller-dashboard');
     } 
-    // Fallback de sécurité
     else {
       console.warn("Rôle inconnu, redirection par défaut.");
       router.push('/dashboard');
@@ -79,14 +79,12 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Structure globale */
 .login-container {
   display: flex;
   height: 100vh;
   font-family: 'ABeeZee', sans-serif;
 }
 
-/* Panneau Gauche : Noir */
 .left-panel {
   width: 40%;
   background-color: #000000;
@@ -115,12 +113,11 @@ const handleLogin = async () => {
   font-size: 2.2rem;
   letter-spacing: 2px;
   font-weight: 300;
-  white-space: nowrap; /* Force sur une seule ligne */
+  white-space: nowrap;
   width: 100%;
   font-family: 'Ysabeau Office', sans-serif;
 }
 
-/* Panneau Droit : Blanc Neige */
 .right-panel {
   flex: 1;
   background-color: #FFFAFA;
@@ -138,7 +135,6 @@ const handleLogin = async () => {
 .register-text { margin-top: 20px; text-align: center; color: #707070; }
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
 
-/* Responsive : Masquer le logo sur mobile pour laisser place au formulaire */
 @media (max-width: 768px) {
   .left-panel { display: none; }
 }

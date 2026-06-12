@@ -5,7 +5,7 @@
       <p class="subtitle">Vos indicateurs de performance en temps réel</p>
     </div>
 
-    <div v-if="isLoading" class="loader">
+    <div v-if="isLoading && productsStock.length === 0" class="loader">
       <span class="spinner"></span> Synchronisation de vos données...
     </div>
 
@@ -32,7 +32,7 @@
 
       <div class="inventory-section">
         <div class="section-title-zone">
-          <h3>📊 Répartition et Stock Optimal par Marchandise</h3>
+          <h3>Répartition et Stock Optimal par Marchandise</h3>
           <p class="section-subtitle">Chaque produit dispose de son indicateur de complétion visuel basé sur son seuil optimal</p>
         </div>
 
@@ -63,58 +63,59 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 
 const totalStock = ref(0);
 const totalRevenue = ref(0);
 const productsStock = ref([]);
 const isLoading = ref(true);
+let refreshInterval = null;
 
-const getResellerIdFromToken = () => {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(window.atob(base64));
-    return payload.id;
-  } catch (e) {
-    return null;
-  }
-};
-
-const fetchDashboardData = async () => {
-  isLoading.value = true;
+const fetchDashboardData = async (silent = false) => {
+  if (!silent) isLoading.value = true;
+  
   const token = localStorage.getItem('token');
   const companyId = localStorage.getItem('companyId');
-  const resellerId = getResellerIdFromToken();
-
   const headers = { Authorization: `Bearer ${token}` };
 
   try {
+    // 1. Récupération des Stocks dédiés
     const stockRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers/me/stock`, { headers });
     if (stockRes.data) {
       productsStock.value = stockRes.data;
       totalStock.value = stockRes.data.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
     }
 
+    // 2. Récupération directe des factures affectées (Le filtrage par ID est géré de manière native en amont par le Token JWT sur votre API)
     const docsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, { 
       params: { company_id: companyId }, 
       headers 
     });
     
     const allDocuments = docsRes.data.data || docsRes.data || [];
-    const myDocuments = allDocuments.filter(doc => 
-      String(doc.reseller_id) === String(resellerId) || String(doc.user_id) === String(resellerId)
-    );
+    console.log(`[REM DEBUG] Flux total reçu pour ce terminal : ${allDocuments.length} lignes`);
 
-    totalRevenue.value = myDocuments
-      .filter(doc => doc.type?.toUpperCase() === 'SALE' && doc.status?.toUpperCase() === 'PAID')
-      .reduce((acc, doc) => acc + Number(doc.total_amount || 0), 0);
+    // Accumulation comptable transparente
+    totalRevenue.value = allDocuments
+      .filter(doc => {
+        const type = String(doc.type || '').toUpperCase();
+        const status = String(doc.status || '').toUpperCase();
+        
+        const isCorrectType = ['SALE', 'VENTE', 'FACTURE'].includes(type);
+        const isCorrectStatus = ['PAID', 'COMPLETED', 'PAYÉ', 'PAYE'].includes(status);
+        
+        return isCorrectType && isCorrectStatus;
+      })
+      .reduce((acc, doc) => {
+        const amount = doc.total_amount ?? doc.totalAmount ?? 0;
+        return acc + Number(amount);
+      }, 0);
+
+    console.log(`[REM DEBUG] Chiffre d'Affaires consolidé calculé : ${totalRevenue.value} $`);
 
   } catch (err) {
-    console.error("Erreur stats:", err);
+    console.error("❌ [DASHBOARD REFRESH ERROR] :", err);
   } finally {
     isLoading.value = false;
   }
@@ -144,6 +145,17 @@ const getStockStatusClass = (status) => {
 
 onMounted(() => {
   fetchDashboardData();
+
+  refreshInterval = setInterval(() => {
+    fetchDashboardData(true);
+  }, 30000);
+
+  window.addEventListener('sales-updated', () => fetchDashboardData(true));
+});
+
+onUnmounted(() => {
+  clearInterval(refreshInterval);
+  window.removeEventListener('sales-updated', fetchDashboardData);
 });
 </script>
 
@@ -155,7 +167,7 @@ onMounted(() => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Élargissement des cartes */
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 25px;
   margin-bottom: 45px;
 }

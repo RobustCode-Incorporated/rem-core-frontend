@@ -62,6 +62,45 @@ export const getResellersLiveLocation = async (req: Request, res: Response): Pro
   }
 };
 
+export const updateResellerLocation = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params; // Récupère l'UUID envoyé dans l'URL par le Front-end
+  const { latitude, longitude } = req.body; // Récupère les coordonnées du payload JSON
+
+  try {
+    // Validation de sécurité sur le payload
+    if (latitude === undefined || longitude === undefined) {
+      res.status(400).json({ success: false, error: "Coordonnées GPS manquantes." });
+      return;
+    }
+
+    // Exécution SQL Directe sur votre table public.resellers
+    const result = await db.query(
+      `UPDATE public.resellers 
+       SET latitude = $1, longitude = $2 
+       WHERE id = $3
+       RETURNING id, name, deposit_name, latitude, longitude`,
+      [latitude, longitude, id]
+    );
+
+    // Si l'UUID n'existe pas dans la table
+    if (result.rows.length === 0) {
+      res.status(404).json({ success: false, error: "Revendeur introuvable." });
+      return;
+    }
+
+    // Réponse de succès attendue par le GeolocationModule.vue
+    res.status(200).json({ 
+      success: true, 
+      message: "Localisation mise à jour avec succès.",
+      data: result.rows[0] 
+    });
+
+  } catch (error: any) {
+    console.error("❌ [REM ENGINE ERROR] :", error);
+    res.status(500).json({ success: false, error: "Erreur lors de la mise à jour de la position." });
+  }
+};
+
 /**
  * @desc    Tableau de bord financier et opérationnel agrégé du revendeur
  */

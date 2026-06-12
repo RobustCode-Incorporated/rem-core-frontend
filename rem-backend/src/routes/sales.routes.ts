@@ -6,11 +6,12 @@ import {
   updateDocumentStatus, 
   syncOfflineDocument,
   getSalesDocuments,
-  processRetailCheckout // 👈 Importation de la nouvelle méthode de caisse
+  processRetailCheckout 
 } from '../controllers/sales.controller';
 import { 
   getResellersLiveLocation, 
-  getResellerPerformance 
+  getResellerPerformance,
+  updateResellerLocation // 👈 AJOUTÉ : Importation de la méthode de mise à jour GPS
 } from '../controllers/resellers.controller'; 
 import { requireAuth } from '../middlewares/auth.middleware'; 
 import { idempotencyMiddleware } from '../middlewares/idempotency.middleware'; 
@@ -86,6 +87,19 @@ router.post('/sync', requireAuth, idempotencyMiddleware, syncOfflineDocument);
  * @access  Protégé (Requiert une session active et un Token JWT valide)
  */
 router.put('/restock/validate/:id', requireAuth, validateRestock);
+
+/**
+ * @route   PUT /api/sales/documents/:id
+ * @desc    Mise à jour globale ou forçage du statut d'un document commercial
+ * @access  Public / Back-office
+ */
 router.put('/documents/:id', updateDocumentStatus);
+
+/**
+ * @route   PATCH /api/sales/resellers/:id/location
+ * @desc    Mise à jour en temps réel des coordonnées géographiques (Latitude / Longitude) d'un revendeur
+ * @access  Protégé (Requiert une session active et un Token JWT valide)
+ */
+router.patch('/resellers/:id/location', requireAuth, updateResellerLocation); // 👈 SÉCURISÉ : Déclaration de la route de synchro GPS
 
 export const salesRouter = router;
