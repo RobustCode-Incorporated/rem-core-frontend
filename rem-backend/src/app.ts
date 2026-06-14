@@ -5,6 +5,7 @@ import { db } from './config/db';
 import { salesRouter } from './routes/sales.routes';
 import { authRouter } from './routes/auth.routes';
 import { resellerRouter } from './routes/reseller.routes';
+import analyticsRoutes from './routes/analytics.routes';
 
 const logger = pino({ transport: { target: 'pino-pretty' } });
 const app = express();
@@ -29,6 +30,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/sales', salesRouter); // Le point d'entrée inclut maintenant /resellers-location
 app.use('/api/auth', authRouter);
 app.use('/api/resellers', resellerRouter); 
+app.use('/api/analytics', analyticsRoutes);
 
 // Récupération du catalogue (CORRIGÉ : Ajout de 'currency' dans le SELECT)
 app.get('/api/products', async (req: Request, res: Response): Promise<void> => {
