@@ -1,7 +1,7 @@
 {
-  "name": "rem_sales_web",
+  "name": "rem-sales-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,6 @@
   "dependencies": {
     "apexcharts": "^5.14.0",
     "axios": "^1.16.1",
-    "cors": "^2.8.6",
     "leaflet": "^1.9.4",
     "pinia": "^3.0.4",
     "vue": "^3.5.34",
@@ -20,6 +19,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
-    "vite": "^8.0.12"
+    "typescript": "^5.4.5",
+    "vite": "^6.0.0"
   }
 }
