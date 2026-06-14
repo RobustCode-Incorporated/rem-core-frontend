@@ -72,7 +72,7 @@ const fetchRestockHistory = async () => {
     const queryParams = {};
     if (companyId) queryParams.company_id = companyId;
 
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       params: queryParams
     });

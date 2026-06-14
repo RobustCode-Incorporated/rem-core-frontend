@@ -240,7 +240,7 @@ const fetchPaginatingSales = async () => {
     const urlParams = new URLSearchParams(window.location.search)
     const companyId = urlParams.get('company_id') || localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a'
 
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, {
       headers: { Authorization: `Bearer ${token}` },
       params: {
         page: currentPage.value,
@@ -299,7 +299,7 @@ const fetchInvoiceItems = async (documentId) => {
   itemsLoading.value = true
   try {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents/${documentId}/items`, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents/${documentId}/items`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     selectedInvoiceItems.value = response.data.data || response.data

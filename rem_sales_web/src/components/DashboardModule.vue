@@ -75,7 +75,7 @@ const fetchResellerStock = async () => {
   try {
     const token = localStorage.getItem('token')
     // Route adaptative ou fallback dynamique
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers/me/stock`, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/resellers/me/stock`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     // Ajustement selon la structure de ta réponse BDD
@@ -91,7 +91,7 @@ const fetchResellerStock = async () => {
 const fetchKpis = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, {
       headers: { Authorization: `Bearer ${token}` },
       params: { limit: 100 }
     })

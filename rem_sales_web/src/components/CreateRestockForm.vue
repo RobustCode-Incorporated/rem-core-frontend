@@ -63,7 +63,7 @@ const fetchProducts = async () => {
   try {
     const companyId = localStorage.getItem('companyId'); 
     
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/products`, {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/products`, {
       params: { 
         company_id: companyId 
       },
@@ -90,7 +90,7 @@ const submitRestock = async () => {
   isSubmitting.value = true;
   try {
     const token = localStorage.getItem('token');
-    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/resellers/restock-request`, 
+    await axios.post(`${import.meta.env.VITE_API_URL}/resellers/restock-request`, 
       { items },
       { headers: { Authorization: `Bearer ${token}` } }
     );

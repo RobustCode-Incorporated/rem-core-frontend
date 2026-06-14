@@ -122,7 +122,7 @@ const processSale = async () => {
 
     // 1. Création du client avec TOUTES les données fournies
     const clientResponse = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/sales/clients`, 
+      `${import.meta.env.VITE_API_URL}/sales/clients`, 
       {
         name: clientForm.value.name,
         phone: clientForm.value.phone || null,
@@ -156,7 +156,7 @@ const processSale = async () => {
 
     // 3. Validation finale de la vente
     await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/sales/documents`, 
+      `${import.meta.env.VITE_API_URL}/sales/documents`, 
       saleData, 
       {
         headers: { Authorization: `Bearer ${token}` }

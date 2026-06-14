@@ -102,7 +102,7 @@ const fetchResellers = async () => {
     const companyId = localStorage.getItem('companyId')
     const token = localStorage.getItem('token')
 
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers`, {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/resellers`, {
       params: { company_id: companyId },
       headers: {
         Authorization: `Bearer ${token}`
@@ -127,7 +127,7 @@ const submitReseller = async () => {
     const companyId = localStorage.getItem('companyId')
     const token = localStorage.getItem('token')
 
-    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/resellers/create-with-access`, {
+    await axios.post(`${import.meta.env.VITE_API_URL}/resellers/create-with-access`, {
       ...form.value,
       company_id: companyId
     }, {

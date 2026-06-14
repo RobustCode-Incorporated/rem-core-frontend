@@ -143,7 +143,7 @@ const fetchResellerPerformance = async (id) => {
   loading.value = true;
   try {
     const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a';
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const baseUrl = import.meta.env.VITE_API_URL;
     const response = await fetch(`${baseUrl}/sales/resellers/${id}/performance?company_id=${companyId}`);
     const result = await response.json();
 

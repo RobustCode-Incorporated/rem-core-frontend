@@ -143,7 +143,7 @@ const fetchResellers = async () => {
     const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a';
     const token = localStorage.getItem('token');
     
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/resellers-location`, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/resellers-location`, {
       headers: { Authorization: `Bearer ${token}` },
       params: { company_id: companyId }
     });
@@ -160,7 +160,7 @@ const fetchResellers = async () => {
 // 🎯 GENERATEUR DE REPARTITION FINANCIERE ET DONUT SVG POUR LE POPUP NATIF
 const generatePopupContent = async (reseller, popup) => {
   const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a';
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = import.meta.env.VITE_API_URL;
 
   // Contenu d'attente (Loader) le temps de fetch l'analytics Neon
   const skeletonContent = `

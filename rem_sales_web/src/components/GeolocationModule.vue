@@ -54,7 +54,7 @@ const updateLocation = () => {
         
         // 3. Payload, headers d'autorisation et URL alignée sur le salesRouter backend
         await axios.patch(
-          `${import.meta.env.VITE_API_BASE_URL}/sales/resellers/${resellerId}/location`, 
+          `${import.meta.env.VITE_API_URL}/sales/resellers/${resellerId}/location`, 
           { latitude, longitude },
           {
             headers: { Authorization: `Bearer ${token}` }

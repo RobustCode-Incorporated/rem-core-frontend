@@ -114,7 +114,7 @@ const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 const fetchResellerInventory = async () => {
   loadingStock.value = true;
   try {
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers/me/stock`, { headers });
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/resellers/me/stock`, { headers });
     resellerStock.value = res.data || [];
   } catch (err) {
     console.error("Erreur chargement stock caisse:", err);
@@ -175,7 +175,7 @@ const processCheckout = async () => {
     };
 
     // 1. Soumission de la vente au serveur REM Core
-    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/sales/retail-checkout`, payload, { headers });
+    await axios.post(`${import.meta.env.VITE_API_URL}/sales/retail-checkout`, payload, { headers });
     
     // ⚡ 2. Déclenchement immédiat de l'événement pour recalculer le Dashboard Stats
     window.dispatchEvent(new CustomEvent('sales-updated'));

@@ -44,7 +44,7 @@ const credentials = ref({ email: '', password: '' });
 const handleLogin = async () => {
   loading.value = true;
   try {
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, credentials.value);
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, credentials.value);
 
     // 1. Sauvegarde sécurisée incluant l'ID utilisateur pour la géolocalisation
     localStorage.setItem('token', res.data.token);

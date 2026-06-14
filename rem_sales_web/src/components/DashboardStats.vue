@@ -108,7 +108,7 @@ const fetchDashboardData = async (silent = false) => {
 
   try {
     // 1. Récupération des Stocks (Déjà sécurisé par /me/stock)
-    const stockRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/resellers/me/stock`, { headers });
+    const stockRes = await axios.get(`${import.meta.env.VITE_API_URL}/resellers/me/stock`, { headers });
     const stockArray = extractArray(stockRes.data);
     productsStock.value = stockArray;
     totalStock.value = stockArray.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
@@ -117,7 +117,7 @@ const fetchDashboardData = async (silent = false) => {
     const queryParams = {};
     if (companyId) queryParams.company_id = companyId;
 
-    const docsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, { 
+    const docsRes = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, { 
       params: queryParams, 
       headers 
     });

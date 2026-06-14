@@ -163,7 +163,7 @@ const fetchSales = async () => {
     if (searchQuery.value) queryParams.search = searchQuery.value;
     if (selectedStatus.value) queryParams.status = selectedStatus.value;
 
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       params: queryParams
     });
@@ -183,7 +183,7 @@ const fetchSales = async () => {
 const fetchInvoiceItems = async (documentId) => {
   itemsLoading.value = true;
   try {
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents/${documentId}/items`, {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents/${documentId}/items`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     selectedInvoiceItems.value = extractArray(res.data);
