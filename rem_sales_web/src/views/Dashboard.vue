@@ -1,13 +1,11 @@
 <template>
   <div class="dashboard-container">
     <header class="top-navbar">
-      <!-- Branding : Logo centré au-dessus du titre -->
       <div class="brand-zone">
         <img src="../assets/RobustCodelogowhite.png" alt="Logo REM" class="logo-top" />
         <h1 class="brand-title">ROBUST ENTERPRISE MANAGEMENT</h1>
       </div>
 
-      <!-- Navigation Droite : Minimaliste -->
       <div class="nav-right">
         <nav class="nav-menu">
           <button v-for="link in menuItems" :key="link.id" 
@@ -41,8 +39,8 @@ const router = useRouter()
 const currentTab = ref('dashboard')
 
 const menuItems = [
-  { id: 'dashboard', label: 'Statistiques' }, // Devient la vue Analytics
-  { id: 'pos', label: 'Vente Rapide' },       // L'ancien SalesReconciliation
+  { id: 'dashboard', label: 'Statistiques' }, 
+  { id: 'pos', label: 'Vente Rapide' },       
   { id: 'inventory', label: 'Suivi Stocks' },
   { id: 'products', label: 'Articles' },
   { id: 'Resellers', label: 'Revendeurs'}
@@ -50,8 +48,8 @@ const menuItems = [
 
 const activeComponent = computed(() => {
   const components = {
-    dashboard: AnalyticsDashboard, // Liaison au nouveau composant
-    pos: SalesReconciliation,      // Liaison à ton module de vente actuel
+    dashboard: AnalyticsDashboard, 
+    pos: SalesReconciliation,      
     inventory: InventoryAlerts,
     products: ProductForm,
     Resellers: ResellerForm
@@ -79,10 +77,9 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 40px; /* Réduction du padding pour affiner la barre */
+  padding: 10px 40px; 
 }
 
-/* Branding : Logo et Titre plus compacts */
 .brand-zone { 
   display: flex; 
   flex-direction: column; 
@@ -90,14 +87,14 @@ const logout = () => {
 }
 
 .logo-top { 
-  width: 140px; /* Logo réduit pour gagner de la place */
+  width: 140px; 
   height: auto; 
   margin-bottom: 2px; 
 }
 
 .brand-title { 
   color: #FFFAFA; 
-  font-size: 0.65rem; /* Titre légèrement plus petit pour l'harmonie */
+  font-size: 0.65rem; 
   letter-spacing: 1.5px; 
   font-weight: 400; 
   white-space: nowrap;
@@ -105,7 +102,6 @@ const logout = () => {
   margin: 0;
 }
 
-/* Menu Droite */
 .nav-right { display: flex; align-items: center; gap: 25px; }
 .nav-menu { display: flex; gap: 20px; }
 .nav-item {
