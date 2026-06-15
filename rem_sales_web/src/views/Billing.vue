@@ -7,6 +7,7 @@
     </div>
 
     <div class="plans-grid">
+      <!-- 📦 PLAN ENTRÉE -->
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibG6JLHjLUPZfxYZfpGu8B' }">
         <h3>Entrée</h3>
         <p class="price">29€ <span>/ mois</span></p>
@@ -24,6 +25,7 @@
         </button>
       </div>
 
+      <!-- 📦 PLAN STANDARD (RECOMMANDÉ) -->
       <div class="plan-card featured" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibLcJLHjLUPZfxOz4622dR' }">
         <div class="pop-badge">RECOMMANDÉ</div>
         <h3>Standard</h3>
@@ -42,6 +44,7 @@
         </button>
       </div>
 
+      <!-- 📦 PLAN PROFESSIONNEL -->
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibOoJLHjLUPZfxUmFSbuvL' }">
         <h3>Professionnel</h3>
         <p class="price">99€ <span>/ mois</span></p>
@@ -64,7 +67,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios' // Remplacer par ton instance axios globale si nécessaire
+import axios from 'axios'
 
 // États réactifs pour l'expérience utilisateur
 const activeLoadingId = ref(null)
@@ -77,9 +80,12 @@ const handleSubscription = async (priceId) => {
   try {
     const token = localStorage.getItem('token')
     
-    // Correction de l'endpoint pour cibler la route exacte de ton app.ts actualisé
+    // 🔍 Capture et stockage de l'URL cible pour débogage direct
+    const targetUrl = `${import.meta.env.VITE_API_URL}/stripe/checkout`
+    console.log("🚀 URL cible générée par le frontend :", targetUrl)
+    
     const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/stripe/checkout`,
+      targetUrl,
       { planPriceId: priceId },
       { headers: { Authorization: `Bearer ${token}` } }
     )
