@@ -79,7 +79,7 @@ const handleSubscription = async (priceId) => {
     
     // Correction de l'endpoint pour cibler la route exacte de ton app.ts actualisé
     const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/stripe/checkout`,
+      `${import.meta.env.VITE_API_URL}/stripe/checkout`,
       { planPriceId: priceId },
       { headers: { Authorization: `Bearer ${token}` } }
     )
