@@ -7,7 +7,6 @@
     </div>
 
     <div class="plans-grid">
-      <!-- 📦 PLAN ENTRÉE -->
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibG6JLHjLUPZfxYZfpGu8B' }">
         <h3>Entrée</h3>
         <p class="price">29€ <span>/ mois</span></p>
@@ -25,7 +24,6 @@
         </button>
       </div>
 
-      <!-- 📦 PLAN STANDARD (RECOMMANDÉ) -->
       <div class="plan-card featured" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibLcJLHjLUPZfxOz4622dR' }">
         <div class="pop-badge">RECOMMANDÉ</div>
         <h3>Standard</h3>
@@ -44,7 +42,6 @@
         </button>
       </div>
 
-      <!-- 📦 PLAN PROFESSIONNEL -->
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibOoJLHjLUPZfxUmFSbuvL' }">
         <h3>Professionnel</h3>
         <p class="price">99€ <span>/ mois</span></p>
@@ -69,7 +66,6 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-// États réactifs pour l'expérience utilisateur
 const activeLoadingId = ref(null)
 const errorMessage = ref('')
 
@@ -80,7 +76,6 @@ const handleSubscription = async (priceId) => {
   try {
     const token = localStorage.getItem('token')
     
-    // 🔍 Capture et stockage de l'URL cible pour débogage direct
     const targetUrl = `${import.meta.env.VITE_API_URL}/stripe/checkout`
     console.log("🚀 URL cible générée par le frontend :", targetUrl)
     
@@ -90,14 +85,12 @@ const handleSubscription = async (priceId) => {
       { headers: { Authorization: `Bearer ${token}` } }
     )
     
-    // Si Stripe renvoie l'URL de sa session de paiement, on redirige l'utilisateur
     if (response.data.url) {
       window.location.href = response.data.url
     } else {
       throw new Error("L'API de paiement n'a renvoyé aucune URL valide.")
     }
   } catch (err) {
-    // Extraction propre du message d'erreur envoyé par ton Express backend
     errorMessage.value = err.response?.data?.error || "Impossible d'initier la session de paiement avec Stripe. Veuillez réessayer."
     activeLoadingId.value = null
   }
@@ -108,17 +101,14 @@ const handleSubscription = async (priceId) => {
 .billing-container { padding: 50px 20px; text-align: center; font-family: 'ABeeZee', sans-serif; background: #FFFAFA; min-height: 100vh; }
 .main-title { font-family: 'Ysabeau Office', sans-serif; font-size: 2.5rem; margin-bottom: 20px; color: #000; }
 
-/* Bannière d'erreur moderne */
 .error-banner { max-width: 600px; margin: 0 auto 30px auto; background-color: #ffebee; border: 1px solid #ffcdd2; color: #c62828; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; text-align: left; animation: fadeIn 0.3s ease-in-out; }
 
 .plans-grid { display: flex; gap: 30px; justify-content: center; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; padding-top: 20px; }
 .plan-card { background: #fff; border: 1px solid #ddd; padding: 30px; border-radius: 12px; width: 300px; text-align: left; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s ease; }
 
-/* Mise en avant du plan Standard */
 .plan-card.featured { background: #000; color: #fff; border-color: #000; transform: scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 .pop-badge { position: absolute; top: -15px; right: 20px; background: #fffa00; color: #000; font-weight: bold; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-/* Effet visuel si une autre carte charge */
 .disabled-card { opacity: 0.5; transform: scale(0.98); pointer-events: none; }
 
 .price { font-size: 2.2rem; font-weight: bold; margin: 20px 0; }

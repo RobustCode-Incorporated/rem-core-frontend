@@ -1,5 +1,12 @@
 <template>
   <div class="dashboard-container">
+    <div v-if="showSuccessBanner" class="success-activation-banner">
+      <div class="success-banner-content">
+        <span>🚀 Félicitations ! Votre espace REM a été activé avec succès au plan <strong>Standard</strong>. Profitez de vos 30 jours d'essai gratuit !</span>
+        <button @click="closeSuccessBanner" class="close-banner-btn">✕</button>
+      </div>
+    </div>
+
     <header class="top-navbar">
       <div class="brand-zone">
         <img src="../assets/RobustCodelogowhite.png" alt="Logo REM" class="logo-top" />
@@ -27,8 +34,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import SalesReconciliation from '../components/SalesReconciliation.vue'
 import InventoryAlerts from '../components/InventoryAlerts.vue'
 import ProductForm from '../components/ProductForm.vue'
@@ -36,7 +43,9 @@ import ResellerForm from '../components/ResellerForm.vue'
 import AnalyticsDashboard from '../components/AnalyticsDashboard.vue'
 
 const router = useRouter()
+const route = useRoute()
 const currentTab = ref('dashboard')
+const showSuccessBanner = ref(false)
 
 const menuItems = [
   { id: 'dashboard', label: 'Statistiques' }, 
@@ -57,6 +66,24 @@ const activeComponent = computed(() => {
   return components[currentTab.value]
 })
 
+onMounted(() => {
+  // Capture de la confirmation Stripe avant le nettoyage d'URL
+  if (route.query.status === 'success') {
+    showSuccessBanner.value = true
+    
+    // 🔥 SÉCURITÉ FRONTLINE : On écrase immédiatement le LocalStorage local pour valider l'accès permanent
+    localStorage.setItem('plan_type', 'standard')
+    localStorage.setItem('is_premium', 'true')
+    
+    // Nettoie proprement les paramètres de l'URL (?status=success) pour laisser une URL propre
+    router.replace({ query: {} })
+  }
+})
+
+const closeSuccessBanner = () => {
+  showSuccessBanner.value = false
+}
+
 const logout = () => {
   localStorage.clear()
   router.push('/login')
@@ -71,6 +98,35 @@ const logout = () => {
   background: #FFFAFA; 
   font-family: 'ABeeZee', sans-serif; 
 }
+
+/* Style premium pour le bandeau d'activation */
+.success-activation-banner {
+  background: linear-gradient(90deg, #1b5e20, #2e7d32);
+  color: #ffffff;
+  padding: 12px 40px;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  animation: slideDown 0.4s ease-out;
+}
+
+.success-banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.close-banner-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.close-banner-btn:hover { opacity: 1; }
 
 .top-navbar {
   background: #000;
@@ -127,4 +183,9 @@ const logout = () => {
 .logout-btn:hover { background: #fff; color: #000; }
 
 .content-area { flex: 1; padding: 30px 50px; overflow-y: auto; }
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
 </style>

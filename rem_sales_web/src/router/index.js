@@ -19,10 +19,10 @@ const router = createRouter({
   ]
 });
 
-// Le "Router Guard" : Version optimisée avec détection du Bypass Administrateur
+// Le "Router Guard" : Mis à jour avec tolérance pour le retour de paiement Stripe
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
-  const planType = localStorage.getItem('plan_type'); // 'unlimited', 'free', etc.
+  const planType = localStorage.getItem('plan_type'); 
   const isPremium = localStorage.getItem('is_premium') === 'true';
 
   // 1. Vérification de l'authentification de base
@@ -32,11 +32,11 @@ router.beforeEach((to, from, next) => {
 
   // 2. Vérification de la barrière de paiement Premium
   if (to.meta.requiresPremium) {
-    // 🎯 LE BYPASS : Si tu es configuré en 'unlimited' dans ton localStorage, la barrière s'ouvre immédiatement
-    if (planType === 'unlimited' || isPremium) {
+    // 🎯 RECONNAISSANCE DU SUCCÈS : Si l'utilisateur est admin, déjà premium, OR s'il revient tout juste de valider son paiement Stripe
+    if (planType === 'unlimited' || isPremium || to.query.status === 'success') {
       return next();
     } else {
-      // Pas payé et pas Admin ? Direction la page d'abonnement / d'essai 30 jours
+      // Pas payé, pas Admin et pas en retour de paiement ? Redirection vers les plans
       return next('/billing');
     }
   }
