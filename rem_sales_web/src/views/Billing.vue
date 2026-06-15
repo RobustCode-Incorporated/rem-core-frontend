@@ -7,7 +7,8 @@
     </div>
 
     <div class="plans-grid">
-      <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibG6JLHjLUPZfxYZfpGu8B' }">
+      <!-- 📦 PLAN ENTRÉE -->
+      <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.ENTREE }">
         <h3>Entrée</h3>
         <p class="price">29€ <span>/ mois</span></p>
         <ul>
@@ -16,15 +17,16 @@
           <li>Essai gratuit de 30 jours</li>
         </ul>
         <button 
-          @click="handleSubscription('price_1TibG6JLHjLUPZfxYZfpGu8B')" 
+          @click="handleSubscription(PLAN_IDS.ENTREE)" 
           :disabled="activeLoadingId !== null"
           class="btn-plan"
         >
-          {{ activeLoadingId === 'price_1TibG6JLHjLUPZfxYZfpGu8B' ? 'Connexion Stripe...' : 'Sélectionner' }}
+          {{ activeLoadingId === PLAN_IDS.ENTREE ? 'Connexion Stripe...' : 'Sélectionner' }}
         </button>
       </div>
 
-      <div class="plan-card featured" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibLcJLHjLUPZfxOz4622dR' }">
+      <!-- 📦 PLAN STANDARD (RECOMMANDÉ) -->
+      <div class="plan-card featured" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.STANDARD }">
         <div class="pop-badge">RECOMMANDÉ</div>
         <h3>Standard</h3>
         <p class="price">59€ <span>/ mois</span></p>
@@ -34,15 +36,16 @@
           <li>Essai gratuit de 30 jours</li>
         </ul>
         <button 
-          @click="handleSubscription('price_1TibLcJLHjLUPZfxOz4622dR')" 
+          @click="handleSubscription(PLAN_IDS.STANDARD)" 
           :disabled="activeLoadingId !== null"
           class="btn-plan"
         >
-          {{ activeLoadingId === 'price_1TibLcJLHjLUPZfxOz4622dR' ? 'Connexion Stripe...' : 'Sélectionner' }}
+          {{ activeLoadingId === PLAN_IDS.STANDARD ? 'Connexion Stripe...' : 'Sélectionner' }}
         </button>
       </div>
 
-      <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== 'price_1TibOoJLHjLUPZfxUmFSbuvL' }">
+      <!-- 📦 PLAN PROFESSIONNEL -->
+      <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.PRO }">
         <h3>Professionnel</h3>
         <p class="price">99€ <span>/ mois</span></p>
         <ul>
@@ -51,11 +54,11 @@
           <li>Essai gratuit de 30 jours</li>
         </ul>
         <button 
-          @click="handleSubscription('price_1TibOoJLHjLUPZfxUmFSbuvL')" 
+          @click="handleSubscription(PLAN_IDS.PRO)" 
           :disabled="activeLoadingId !== null"
           class="btn-plan"
         >
-          {{ activeLoadingId === 'price_1TibOoJLHjLUPZfxUmFSbuvL' ? 'Connexion Stripe...' : 'Sélectionner' }}
+          {{ activeLoadingId === PLAN_IDS.PRO ? 'Connexion Stripe...' : 'Sélectionner' }}
         </button>
       </div>
     </div>
@@ -66,6 +69,13 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
+// Centralisation des IDs pour éviter les répétitions et faciliter la maintenance
+const PLAN_IDS = {
+  ENTREE: 'price_1TibG6JLHjLUPZfxYZfpGu8B',
+  STANDARD: 'price_1TibLcJLHjLUPZfxOz4622dR',
+  PRO: 'price_1TibOoJLHjLUPZfxUmFSbuvL'
+}
+
 const activeLoadingId = ref(null)
 const errorMessage = ref('')
 
@@ -75,9 +85,9 @@ const handleSubscription = async (priceId) => {
   
   try {
     const token = localStorage.getItem('token')
-    
     const targetUrl = `${import.meta.env.VITE_API_URL}/stripe/checkout`
-    console.log("🚀 URL cible générée par le frontend :", targetUrl)
+    
+    console.log("🚀 Envoi du Price ID au backend :", priceId)
     
     const response = await axios.post(
       targetUrl,

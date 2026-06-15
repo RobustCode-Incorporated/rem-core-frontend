@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SalesReconciliation from '../components/SalesReconciliation.vue'
 import InventoryAlerts from '../components/InventoryAlerts.vue'
@@ -71,28 +71,32 @@ const activeComponent = computed(() => {
   return components[currentTab.value]
 })
 
-// Formatage propre pour l'affichage utilisateur
+// Formatage propre pour l'affichage utilisateur (ex: entrée -> Entrée)
 const formattedTargetPlan = computed(() => {
-  if (!targetPlan.value) return ''
+  if (!targetPlan.value) return 'Non défini'
   return targetPlan.value.charAt(0).toUpperCase() + targetPlan.value.slice(1)
 })
 
-onMounted(() => {
+onMounted(async () => {
+  // 1. On intercepte immédiatement les paramètres de l'URL
   if (route.query.status === 'success') {
+    const chosenPlan = route.query.chosen_plan || 'standard'
+    
+    // 2. On affecte Directement la valeur à la réactivité Vue
+    targetPlan.value = chosenPlan
     showSuccessBanner.value = true
     
-    // Récupération du plan que l'utilisateur a réellement sélectionné
-    const chosenPlan = route.query.chosen_plan || 'entrée'
-    targetPlan.value = chosenPlan
-    
-    // 🎯 STRATÉGIE COMMERCIALE : On injecte 'pro' dans le localStorage pour lui donner accès à TOUT
-    // Mais on garde en mémoire son plan cible ('chosen_plan') pour la suite
+    // 3. Stockage local pour accorder les droits maximaux 'pro'
     localStorage.setItem('plan_type', 'pro') 
     localStorage.setItem('chosen_plan', chosenPlan)
     localStorage.setItem('is_premium', 'true')
     
-    // Nettoie l'URL pour cacher les paramètres techniques
+    // 4. On attend que Vue mette à jour l'affichage avant de nettoyer l'URL
+    await nextTick()
     router.replace({ query: {} })
+  } else {
+    // Si on arrive normalement sans passer par Stripe, on récupère le plan cible stocké
+    targetPlan.value = localStorage.getItem('chosen_plan') || 'standard'
   }
 })
 
