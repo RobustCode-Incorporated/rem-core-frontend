@@ -3,7 +3,7 @@
     
     <div class="analytics-lead">
       <h2>Suivi Analytique Global</h2>
-      <p>Analyse multi-tenant en temps réel du flux transactionnel Neon Core — <span class="plan-badge">{{ currentPlan.toUpperCase() }}</span></p>
+      <p>Analyse multi-tenant en temps réel du flux transactionnel. Plan <span class="plan-badge">{{ currentPlan.toUpperCase() }}</span></p>
     </div>
 
     <div class="card-section-container">

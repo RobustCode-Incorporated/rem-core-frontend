@@ -2,7 +2,11 @@
   <div class="dashboard-container">
     <div v-if="showSuccessBanner" class="success-activation-banner">
       <div class="success-banner-content">
-        <span>🚀 Félicitations ! Votre espace REM a été activé avec succès au plan <strong>Standard</strong>. Profitez de vos 30 jours d'essai gratuit !</span>
+        <span>
+          🚀 <strong>Période d'essai activée !</strong> Pour vous souhaiter la bienvenue, nous débloquons 
+          <strong>toutes les fonctionnalités Professionnel</strong> pendant 30 jours. 
+          <span class="plan-badge">Option future : {{ formattedTargetPlan }}</span>
+        </span>
         <button @click="closeSuccessBanner" class="close-banner-btn">✕</button>
       </div>
     </div>
@@ -46,6 +50,7 @@ const router = useRouter()
 const route = useRoute()
 const currentTab = ref('dashboard')
 const showSuccessBanner = ref(false)
+const targetPlan = ref('')
 
 const menuItems = [
   { id: 'dashboard', label: 'Statistiques' }, 
@@ -66,16 +71,27 @@ const activeComponent = computed(() => {
   return components[currentTab.value]
 })
 
+// Formatage propre pour l'affichage utilisateur
+const formattedTargetPlan = computed(() => {
+  if (!targetPlan.value) return ''
+  return targetPlan.value.charAt(0).toUpperCase() + targetPlan.value.slice(1)
+})
+
 onMounted(() => {
-  // Capture de la confirmation Stripe avant le nettoyage d'URL
   if (route.query.status === 'success') {
     showSuccessBanner.value = true
     
-    // 🔥 SÉCURITÉ FRONTLINE : On écrase immédiatement le LocalStorage local pour valider l'accès permanent
-    localStorage.setItem('plan_type', 'standard')
+    // Récupération du plan que l'utilisateur a réellement sélectionné
+    const chosenPlan = route.query.chosen_plan || 'entrée'
+    targetPlan.value = chosenPlan
+    
+    // 🎯 STRATÉGIE COMMERCIALE : On injecte 'pro' dans le localStorage pour lui donner accès à TOUT
+    // Mais on garde en mémoire son plan cible ('chosen_plan') pour la suite
+    localStorage.setItem('plan_type', 'pro') 
+    localStorage.setItem('chosen_plan', chosenPlan)
     localStorage.setItem('is_premium', 'true')
     
-    // Nettoie proprement les paramètres de l'URL (?status=success) pour laisser une URL propre
+    // Nettoie l'URL pour cacher les paramètres techniques
     router.replace({ query: {} })
   }
 })
@@ -99,13 +115,13 @@ const logout = () => {
   font-family: 'ABeeZee', sans-serif; 
 }
 
-/* Style premium pour le bandeau d'activation */
+/* Bandeau de bienvenue haut de gamme */
 .success-activation-banner {
-  background: linear-gradient(90deg, #1b5e20, #2e7d32);
+  background: linear-gradient(90deg, #111111, #1b5e20);
   color: #ffffff;
-  padding: 12px 40px;
+  padding: 14px 40px;
   font-size: 0.95rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   animation: slideDown 0.4s ease-out;
 }
 
@@ -115,6 +131,16 @@ const logout = () => {
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.plan-badge {
+  background: #fffa00;
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-left: 10px;
 }
 
 .close-banner-btn {
