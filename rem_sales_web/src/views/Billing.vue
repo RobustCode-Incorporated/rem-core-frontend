@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'express' // Remplacer par ton instance axios globale si nécessaire
+import axios from 'axios' // Remplacer par ton instance axios globale si nécessaire
 
 // États réactifs pour l'expérience utilisateur
 const activeLoadingId = ref(null)
