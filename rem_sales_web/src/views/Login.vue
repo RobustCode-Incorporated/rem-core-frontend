@@ -53,19 +53,19 @@ const handleLogin = async () => {
     localStorage.setItem('userId', res.data.user.id);
     localStorage.setItem('resellerId', res.data.user.id);
 
-    // 🎯 CORRECTION CRUCIALE : Sauvegarde du plan et de la monnaie (currency)
-    // On extrait dynamiquement les infos de la compagnie (adapte si ton backend structure res.data différemment)
+    // Extraction dynamique des infos de la compagnie
     const companyData = res.data.company || res.data.user.company || {};
     
-    // Si le backend renvoie le plan, on le sauvegarde pour valider le ticket d'entrée au Dashboard
+    // Sauvegarde du plan
     if (companyData.plan_type || res.data.plan_type) {
-      localStorage.setItem('plan_type', companyData.plan_type || res.data.plan_type);
-      localStorage.setItem('chosen_plan', companyData.plan_type || res.data.plan_type);
+      const plan = companyData.plan_type || res.data.plan_type;
+      localStorage.setItem('plan_type', plan);
+      localStorage.setItem('chosen_plan', plan);
     }
     
-    // On met aussi en place la monnaie de l'entreprise (USD par défaut) pour plus tard
+    // 🎯 CORRECTION : Utilisation stricte de la clé 'companyCurrency'
     if (companyData.currency) {
-      localStorage.setItem('currency', companyData.currency);
+      localStorage.setItem('companyCurrency', companyData.currency);
     }
 
     // Sauvegarde du statut premium
@@ -98,7 +98,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Tes styles restent absolument identiques */
+/* Styles conservés à l'identique */
 .login-container { display: flex; height: 100vh; font-family: 'ABeeZee', sans-serif; }
 .left-panel { width: 40%; background-color: #000000; display: flex; align-items: center; justify-content: center; }
 .branding { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px; width: 100%; }
@@ -112,8 +112,5 @@ const handleLogin = async () => {
 .login-form button { width: 100%; background-color: #000; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .register-text { margin-top: 20px; text-align: center; color: #707070; }
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
-
-@media (max-width: 768px) {
-  .left-panel { display: none; }
-}
+@media (max-width: 768px) { .left-panel { display: none; } }
 </style>

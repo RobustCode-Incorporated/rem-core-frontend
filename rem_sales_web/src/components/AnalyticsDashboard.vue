@@ -13,13 +13,13 @@
     <div class="metrics-grid">
       <div class="metric-card black-card">
         <span class="card-label">CA Flux Dépôt (Factures Restock)</span>
-        <h3 class="card-number total-direct">{{ revenueDirect.toLocaleString() }} $</h3>
+        <h3 class="card-number total-direct">{{ formatCurrency(revenueDirect) }}</h3>
         <span class="card-status status-up">▲ Encaissé Logistique</span>
       </div>
       
       <div class="metric-card black-card">
         <span class="card-label">CA Ventes Revendeurs (Caisse)</span>
-        <h3 class="card-number total-reseller">{{ revenueResellers.toLocaleString() }} $</h3>
+        <h3 class="card-number total-reseller">{{ formatCurrency(revenueResellers) }}</h3>
         <span class="card-status status-reseller">▲ Terminaux Distants</span>
       </div>
 
@@ -31,7 +31,7 @@
 
       <div class="metric-card black-card">
         <span class="card-label">Panier Moyen Global</span>
-        <h3 class="card-number">{{ averageBasket.toFixed(2) }} $</h3>
+        <h3 class="card-number">{{ formatCurrency(averageBasket) }}</h3>
         <span class="card-status status-up">▲ Intensité du Flux</span>
       </div>
     </div>
@@ -134,14 +134,26 @@ import ResellersMap from './ResellersMap.vue'
 
 const salesStore = useSalesStore()
 
-// Récupération dynamique du niveau d'abonnement
+// Récupération dynamique
 const currentPlan = ref(localStorage.getItem('plan_type') || 'entrée')
+// 🎯 AJOUT : Récupération de la devise depuis le localStorage (par défaut USD)
+const companyCurrency = ref(localStorage.getItem('companyCurrency') || 'USD')
 
 onMounted(() => {
   const companyId = localStorage.getItem('companyId') || 'b95f3b70-9d08-4ea0-95ca-961cf7df688f'
   if (salesStore.sales.length === 0) salesStore.fetchSales() 
   salesStore.fetchProductAnalytics(companyId)
 })
+
+// 🎯 AJOUT : Fonction universelle de formatage monétaire
+const formatCurrency = (value) => {
+  if (isNaN(value) || value === null) return '0'
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: companyCurrency.value,
+    maximumFractionDigits: 2
+  }).format(value)
+}
 
 // --- 🔐 LOGIQUE DE ROBUST FEATURE GATING ---
 const isStandardOrAbove = computed(() => {
@@ -243,7 +255,8 @@ const lineData = computed(() => {
       const key = `${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear().toString().slice(-2)}`
       dataMap[key] = (dataMap[key] || 0) + Number(s.total_amount)
     })
-  return { series: [{ name: 'CA ($)', data: Object.values(dataMap) }], categories: Object.keys(dataMap) }
+  // 🎯 AJOUT : Le nom de la courbe intègre dynamiquement la devise
+  return { series: [{ name: `CA (${companyCurrency.value})`, data: Object.values(dataMap) }], categories: Object.keys(dataMap) }
 })
 
 const lineOptions = computed(() => ({
@@ -257,6 +270,7 @@ const lineOptions = computed(() => ({
 </script>
 
 <style scoped>
+/* Les styles restent identiques à ton code d'origine, aucune modification visuelle n'a été apportée ici */
 .analytics-wrapper { display: flex; flex-direction: column; gap: 32px; padding-bottom: 40px; }
 .analytics-lead h2 { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
 .analytics-lead p { font-size: 0.85rem; color: #707070; }
@@ -280,7 +294,6 @@ const lineOptions = computed(() => ({
 .clean-chart h3 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; margin-bottom: 20px; color: #1a1a1a; }
 .empty-chart-fallback { height: 180px; display: flex; align-items: center; justify-content: center; color: #999; background: #fafafa; border: 1px dashed #e2e8f0; border-radius: 8px; font-size: 0.75rem; }
 
-/* 🔒 STYLISATION DU VERROU COMPOSANT MUNICIPAL/ENTREPRISE */
 .locked-premium-overlay { position: absolute; top: 50px; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10; }
 .lock-blur { position: absolute; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(4px); }
 .lock-content { position: relative; z-index: 11; background: #000; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }

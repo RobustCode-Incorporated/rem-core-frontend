@@ -14,6 +14,7 @@
             {{ tab.label }}
           </button>
         </nav>
+        <!-- 🎯 Bouton harmonisé -->
         <button @click="logout" class="logout-btn">Déconnexion</button>
       </div>
     </header>
@@ -134,21 +135,15 @@ const logout = () => {
 
 .logout-btn { 
   background: transparent; 
-  color: #ffffff; 
-  border: 1px solid #333333; 
-  padding: 6px 16px; 
-  border-radius: 4px; /* Forme un peu plus angulaire et industrielle que le full-rounded */
+  color: #fff; 
+  border: 1px solid #333; 
+  padding: 6px 14px; 
+  border-radius: 20px; 
   font-size: 0.75rem;
-  font-weight: 600;
   cursor: pointer; 
-  transition: all 0.2s ease;
+  transition: 0.3s;
 }
-
-.logout-btn:hover { 
-  background: #ffffff; 
-  color: #000000; 
-  border-color: #ffffff;
-}
+.logout-btn:hover { background: #fff; color: #000; }
 
 .content-area { 
   flex: 1; 
