@@ -46,14 +46,33 @@ const handleLogin = async () => {
   try {
     const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, credentials.value);
 
-    // 1. Sauvegarde sécurisée incluant l'ID utilisateur pour la géolocalisation
+    // 1. Sauvegarde sécurisée des identifiants de base
     localStorage.setItem('token', res.data.token);
     localStorage.setItem('companyId', res.data.user.companyId);
     localStorage.setItem('userRole', res.data.user.role); 
-    
-    // Extraction de l'ID utilisateur connecté
     localStorage.setItem('userId', res.data.user.id);
-    localStorage.setItem('resellerId', res.data.user.id); // Doublon pour assurer la compatibilité avec le module GPS
+    localStorage.setItem('resellerId', res.data.user.id);
+
+    // 🎯 CORRECTION CRUCIALE : Sauvegarde du plan et de la monnaie (currency)
+    // On extrait dynamiquement les infos de la compagnie (adapte si ton backend structure res.data différemment)
+    const companyData = res.data.company || res.data.user.company || {};
+    
+    // Si le backend renvoie le plan, on le sauvegarde pour valider le ticket d'entrée au Dashboard
+    if (companyData.plan_type || res.data.plan_type) {
+      localStorage.setItem('plan_type', companyData.plan_type || res.data.plan_type);
+      localStorage.setItem('chosen_plan', companyData.plan_type || res.data.plan_type);
+    }
+    
+    // On met aussi en place la monnaie de l'entreprise (USD par défaut) pour plus tard
+    if (companyData.currency) {
+      localStorage.setItem('currency', companyData.currency);
+    }
+
+    // Sauvegarde du statut premium
+    const isPremium = companyData.is_premium || res.data.is_premium;
+    if (isPremium) {
+      localStorage.setItem('is_premium', 'true');
+    }
 
     // 2. Logique de redirection
     const role = res.data.user.role;
@@ -79,54 +98,13 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  height: 100vh;
-  font-family: 'ABeeZee', sans-serif;
-}
-
-.left-panel {
-  width: 40%;
-  background-color: #000000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.branding {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 40px;
-  width: 100%;
-}
-
-.logo-rem {
-  width: 550px;
-  height: auto;
-  margin-bottom: 30px;
-}
-
-.title {
-  color: #FFFAFA;
-  font-size: 2.2rem;
-  letter-spacing: 2px;
-  font-weight: 300;
-  white-space: nowrap;
-  width: 100%;
-  font-family: 'Ysabeau Office', sans-serif;
-}
-
-.right-panel {
-  flex: 1;
-  background-color: #FFFAFA;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
+/* Tes styles restent absolument identiques */
+.login-container { display: flex; height: 100vh; font-family: 'ABeeZee', sans-serif; }
+.left-panel { width: 40%; background-color: #000000; display: flex; align-items: center; justify-content: center; }
+.branding { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px; width: 100%; }
+.logo-rem { width: 550px; height: auto; margin-bottom: 30px; }
+.title { color: #FFFAFA; font-size: 2.2rem; letter-spacing: 2px; font-weight: 300; white-space: nowrap; width: 100%; font-family: 'Ysabeau Office', sans-serif; }
+.right-panel { flex: 1; background-color: #FFFAFA; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .form-wrapper { width: 100%; max-width: 400px; }
 .form-title { font-size: 22px; font-weight: bold; margin-bottom: 24px; color: #000; }
 .login-form label { font-weight: 600; margin-bottom: 5px; display: block; color: #333; }
