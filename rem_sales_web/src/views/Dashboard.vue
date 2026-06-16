@@ -1,13 +1,11 @@
 <template>
   <div class="dashboard-container">
-    <div v-if="showSuccessBanner" class="success-activation-banner">
+    <div v-if="daysRemaining !== null && daysRemaining > 0" class="success-activation-banner">
       <div class="success-banner-content">
         <span>
-          🚀 <strong>Période d'essai activée !</strong> Pour vous souhaiter la bienvenue, nous débloquons 
-          <strong>toutes les fonctionnalités Professionnel</strong> pendant 30 jours. 
-          <span class="plan-badge">Option future : {{ formattedTargetPlan }}</span>
+          🚀 <strong>Mode PRO Cadeau Actif !</strong> Il vous reste <strong>{{ daysRemaining }} jours</strong> d'essai gratuit avec toutes les fonctionnalités débloquées.
+          <span class="plan-badge">Abonnement futur : {{ formattedTargetPlan }}</span>
         </span>
-        <button @click="closeSuccessBanner" class="close-banner-btn">✕</button>
       </div>
     </div>
 
@@ -40,6 +38,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
 import SalesReconciliation from '../components/SalesReconciliation.vue'
 import InventoryAlerts from '../components/InventoryAlerts.vue'
 import ProductForm from '../components/ProductForm.vue'
@@ -49,8 +48,8 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard.vue'
 const router = useRouter()
 const route = useRoute()
 const currentTab = ref('dashboard')
-const showSuccessBanner = ref(false)
 const targetPlan = ref('')
+const daysRemaining = ref(null)
 
 const menuItems = [
   { id: 'dashboard', label: 'Statistiques' }, 
@@ -71,38 +70,60 @@ const activeComponent = computed(() => {
   return components[currentTab.value]
 })
 
-// Formatage propre pour l'affichage utilisateur (ex: entrée -> Entrée)
 const formattedTargetPlan = computed(() => {
   if (!targetPlan.value) return 'Non défini'
   return targetPlan.value.charAt(0).toUpperCase() + targetPlan.value.slice(1)
 })
 
 onMounted(async () => {
-  // 1. On intercepte immédiatement les paramètres de l'URL
+  const companyId = localStorage.getItem('companyId')
+  const token = localStorage.getItem('token')
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://rem-core-backend.onrender.com/api'
+
+  // 1. Interception de la réponse immédiate de Stripe Checkout
   if (route.query.status === 'success') {
-    const chosenPlan = route.query.chosen_plan || 'standard'
-    
-    // 2. On affecte Directement la valeur à la réactivité Vue
+    const chosenPlan = route.query.chosen_plan || 'entrée'
     targetPlan.value = chosenPlan
-    showSuccessBanner.value = true
     
-    // 3. Stockage local pour accorder les droits maximaux 'pro'
     localStorage.setItem('plan_type', 'pro') 
     localStorage.setItem('chosen_plan', chosenPlan)
     localStorage.setItem('is_premium', 'true')
     
-    // 4. On attend que Vue mette à jour l'affichage avant de nettoyer l'URL
     await nextTick()
     router.replace({ query: {} })
-  } else {
-    // Si on arrive normalement sans passer par Stripe, on récupère le plan cible stocké
-    targetPlan.value = localStorage.getItem('chosen_plan') || 'standard'
+  }
+
+  // 2. Calcul du décompte en interrogeant la BDD (assure la justesse à chaque reconnexion)
+  if (companyId && token) {
+    try {
+      // Appel à ton endpoint d'authentification ou d'entreprise pour lire les données fraîches
+      const response = await axios.get(`${apiUrl}/auth/companies/${companyId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      
+      const company = response.data.company || response.data
+
+      if (company.trial_ends_at) {
+        const end = new Date(company.trial_ends_at)
+        const now = new Date()
+        const diffTime = end.getTime() - now.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        
+        daysRemaining.value = diffDays > 0 ? diffDays : 0
+      }
+
+      if (company.chosen_plan) {
+        targetPlan.value = company.chosen_plan
+        localStorage.setItem('chosen_plan', company.chosen_plan)
+      }
+    } catch (err) {
+      console.error("Erreur lors de la récupération des données de l'essai :", err)
+      // Fallback local sécurisé si l'API est indisponible momentanément
+      targetPlan.value = localStorage.getItem('chosen_plan') || 'entrée'
+      daysRemaining.value = 30
+    }
   }
 })
-
-const closeSuccessBanner = () => {
-  showSuccessBanner.value = false
-}
 
 const logout = () => {
   localStorage.clear()
@@ -119,7 +140,6 @@ const logout = () => {
   font-family: 'ABeeZee', sans-serif; 
 }
 
-/* Bandeau de bienvenue haut de gamme */
 .success-activation-banner {
   background: linear-gradient(90deg, #111111, #1b5e20);
   color: #ffffff;
@@ -147,17 +167,6 @@ const logout = () => {
   margin-left: 10px;
 }
 
-.close-banner-btn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 1.1rem;
-  cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-.close-banner-btn:hover { opacity: 1; }
-
 .top-navbar {
   background: #000;
   display: flex;
@@ -166,18 +175,8 @@ const logout = () => {
   padding: 10px 40px; 
 }
 
-.brand-zone { 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-}
-
-.logo-top { 
-  width: 140px; 
-  height: auto; 
-  margin-bottom: 2px; 
-}
-
+.brand-zone { display: flex; flex-direction: column; align-items: center; }
+.logo-top { width: 140px; height: auto; margin-bottom: 2px; }
 .brand-title { 
   color: #FFFAFA; 
   font-size: 0.65rem; 
