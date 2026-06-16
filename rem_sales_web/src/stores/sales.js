@@ -18,7 +18,7 @@ export const useSalesStore = defineStore('sales', {
         const token = localStorage.getItem('token')
         const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a'
 
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sales/documents`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, {
           params: { company_id: companyId },
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -45,7 +45,7 @@ export const useSalesStore = defineStore('sales', {
       this.loadingAnalytics = true
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/analytics/products`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/analytics/products`, {
           params: { company_id: companyId },
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -65,7 +65,7 @@ export const useSalesStore = defineStore('sales', {
         const token = localStorage.getItem('token')
         const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a'
         const response = await axios.put(
-          `${import.meta.env.VITE_API_BASE_URL}/sales/documents/${documentId}`,
+          `${import.meta.env.VITE_API_URL}/sales/documents/${documentId}`,
           { status: 'PAID', company_id: companyId },
           { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -81,7 +81,7 @@ export const useSalesStore = defineStore('sales', {
         const token = localStorage.getItem('token')
         const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a'
         const response = await axios.put(
-          `${import.meta.env.VITE_API_BASE_URL}/sales/documents/${documentId}`,
+          `${import.meta.env.VITE_API_URL}/sales/documents/${documentId}`,
           { status: 'CANCELLED', company_id: companyId },
           { headers: { Authorization: `Bearer ${token}` } }
         )

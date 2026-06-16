@@ -36,7 +36,9 @@ export const useCatalogStore = defineStore('catalog', {
       this.error = null
       
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL
+        // 🎯 CORRECTION CHIRURGICALE : Utilisation de VITE_API_URL + Fallback de sécurité
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://rem-core-backend.onrender.com/api'
+        
         const companyId = localStorage.getItem('companyId')
         const token = localStorage.getItem('token')
 
@@ -44,7 +46,7 @@ export const useCatalogStore = defineStore('catalog', {
           throw new Error("Authentification invalide.")
         }
 
-        const response = await axios.get(`${baseUrl}/products`, {
+        const response = await axios.get(`${apiUrl}/products`, {
           params: { company_id: companyId },
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -69,12 +71,14 @@ export const useCatalogStore = defineStore('catalog', {
       this.error = null
       
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL
+        // 🎯 CORRECTION CHIRURGICALE : Utilisation de VITE_API_URL + Fallback de sécurité
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://rem-core-backend.onrender.com/api'
+        
         const companyId = localStorage.getItem('companyId')
         const token = localStorage.getItem('token')
 
         // On envoie toutes les données du formulaire + l'ID de l'entreprise
-        await axios.post(`${baseUrl}/products`, 
+        await axios.post(`${apiUrl}/products`, 
           { 
             ...productData, 
             company_id: companyId 
