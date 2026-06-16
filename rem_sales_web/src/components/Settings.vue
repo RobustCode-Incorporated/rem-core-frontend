@@ -31,7 +31,8 @@ const handleDestroyAccount = async () => {
   try {
     const token = localStorage.getItem('token')
     
-    await axios.delete(`${import.meta.env.VITE_API_URL}/companies/danger-delete`, {
+    // 🚀 MODIFICATION ICI : Ajout de /auth pour correspondre au routeur backend
+    await axios.delete(`${import.meta.env.VITE_API_URL}/auth/companies/danger-delete`, {
       headers: { Authorization: `Bearer ${token}` }
     })
 
