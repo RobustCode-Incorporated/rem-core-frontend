@@ -10,7 +10,7 @@ const router = createRouter({
     { path: '/register', component: () => import('../views/RegisterCompany.vue') },
     { path: '/billing', component: () => import('../views/Billing.vue') },
     // 🎯 CORRECTION : Le fichier est dans components, pas dans views
-    { path: '/settings', component: () => import('../components/Settings.vue'), meta: { requiresAuth: true } },
+    
     { path: '/reseller-dashboard', component: ResellerDashboard },
     { 
       path: '/dashboard', 
