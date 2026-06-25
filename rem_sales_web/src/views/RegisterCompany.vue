@@ -76,7 +76,7 @@ const error = ref('')
 const form = reactive({
   companyName: '',
   country: '',
-  currency: 'USD', // 🎯 AJOUT : Devise par défaut (USD)
+  currency: 'USD', // Devise par défaut ($)
   firstName: '',
   lastName: '',
   email: '',
