@@ -4,7 +4,7 @@
 </template>
 
 <style>
-/* Garde tes styles globaux ici (fonts, reset css) */
+/*styles globaux ici (fonts, reset css) */
 :root {
   --bg-main: #FFFAFA; /* Blanc neige */
 }
