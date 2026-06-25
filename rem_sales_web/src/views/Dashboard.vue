@@ -46,7 +46,7 @@ import InventoryAlerts from '../components/InventoryAlerts.vue'
 import ProductForm from '../components/ProductForm.vue'
 import ResellerForm from '../components/ResellerForm.vue'
 import AnalyticsDashboard from '../components/AnalyticsDashboard.vue'
-import Settings from '../components/Settings.vue' // ✅ Importation vérifiée
+import Settings from '../components/Settings.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -60,7 +60,7 @@ const menuItems = [
   { id: 'inventory', label: 'Suivi Stocks' },
   { id: 'products', label: 'Articles' },
   { id: 'Resellers', label: 'Revendeurs'},
-  { id: 'settings', label: 'Paramètres' } // ✅ Clé minuscule 'settings'
+  { id: 'settings', label: 'Paramètres' } 
 ]
 
 const activeComponent = computed(() => {
@@ -70,7 +70,7 @@ const activeComponent = computed(() => {
     inventory: InventoryAlerts,
     products: ProductForm,
     Resellers: ResellerForm,
-    settings: Settings // ✅ Liaison stricte
+    settings: Settings 
   }
   return components[currentTab.value]
 })
