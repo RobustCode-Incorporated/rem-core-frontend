@@ -12,7 +12,7 @@
     </div>
 
     <div class="plans-grid">
-      <!-- 📦 PLAN ENTRÉE -->
+      <!--  PLAN ENTRÉE -->
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.ENTREE }">
         <div class="plan-header">
           <h3>Entrée</h3>
@@ -39,7 +39,7 @@
         </button>
       </div>
 
-      <!-- 📦 PLAN STANDARD (RECOMMANDÉ) -->
+      <!--  PLAN STANDARD (RECOMMANDÉ) -->
       <div class="plan-card featured" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.STANDARD }">
         <div class="pop-badge">⭐️ RECOMMANDÉ</div>
         <div class="plan-header">
@@ -67,7 +67,7 @@
         </button>
       </div>
 
-      <!-- 📦 PLAN PROFESSIONNEL -->
+      <!--  PLAN PROFESSIONNEL -->
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.PRO }">
         <div class="plan-header">
           <h3>Professionnel</h3>
@@ -138,7 +138,7 @@ const handleSubscription = async (priceId) => {
 </script>
 
 <style scoped>
-/* 🌌 Arrière-plan Premium Sombre (Mise en valeur du logo blanc) */
+/*  Arrière-plan Sombre (Mise en valeur du logo blanc) */
 .billing-container { 
   padding: 60px 20px; 
   text-align: center; 
@@ -151,7 +151,7 @@ const handleSubscription = async (priceId) => {
   align-items: center;
 }
 
-/* 🎨 En-tête et Logo */
+/*  En-tête et Logo */
 .billing-header {
   margin-bottom: 50px;
   display: flex;
@@ -181,7 +181,7 @@ const handleSubscription = async (priceId) => {
   line-height: 1.5;
 }
 
-/* ⚠️ Bannière d'erreur */
+/*  Bannière d'erreur */
 .error-banner { 
   max-width: 600px; 
   width: 100%;
@@ -200,7 +200,7 @@ const handleSubscription = async (priceId) => {
   animation: fadeIn 0.4s ease-in-out; 
 }
 
-/* 📦 Grille des plans */
+/*  Grille des plans */
 .plans-grid { 
   display: flex; 
   gap: 30px; 
@@ -210,7 +210,7 @@ const handleSubscription = async (priceId) => {
   flex-wrap: wrap; 
 }
 
-/* 🃏 Style des Cartes */
+/*  Style des Cartes */
 .plan-card { 
   background: #1c1c1e; 
   border: 1px solid #333; 
@@ -230,7 +230,7 @@ const handleSubscription = async (priceId) => {
   border-color: #555;
 }
 
-/* 🌟 Carte Recommandée (Standard) */
+/*  Carte Recommandée (Standard) */
 .plan-card.featured { 
   background: linear-gradient(180deg, #2a2a2a 0%, #1c1c1e 100%);
   border: 1px solid #fffa00; 
@@ -262,7 +262,7 @@ const handleSubscription = async (priceId) => {
   pointer-events: none; 
 }
 
-/* 🏷️ En-tête de la carte et Prix */
+/*  En-tête de la carte et Prix */
 .plan-header { margin-bottom: 24px; }
 .plan-header h3 { font-size: 1.5rem; margin: 0 0 8px 0; color: #fff; }
 .plan-desc { font-size: 0.85rem; color: #888; margin: 0; }
@@ -279,7 +279,7 @@ const handleSubscription = async (priceId) => {
 .amount { font-size: 3.5rem; font-weight: 800; line-height: 1; color: #fff; }
 .period { font-size: 1rem; color: #888; margin-left: 8px; }
 
-/* ✅ Liste des fonctionnalités */
+/*  Liste des fonctionnalités */
 .features-list { list-style: none; padding: 0; margin: 0 0 40px 0; flex-grow: 1; }
 .features-list li { margin-bottom: 16px; font-size: 0.95rem; display: flex; align-items: center; color: #d1d1d1; }
 .features-list li::before { 
@@ -291,7 +291,7 @@ const handleSubscription = async (priceId) => {
 }
 .plan-card.featured .features-list li::before { color: #fffa00; } /* Jaune pour le plan pro */
 
-/* 🔘 Boutons d'action */
+/* Boutons d'action */
 .btn-plan { 
   width: 100%; 
   padding: 16px; 
@@ -325,7 +325,7 @@ const handleSubscription = async (priceId) => {
 
 .btn-plan:disabled { opacity: 0.7; cursor: not-allowed; }
 
-/* ⏳ Animation de chargement */
+/* Animation de chargement */
 .loader {
   border: 3px solid rgba(255,255,255,0.3);
   border-top: 3px solid #fff;
