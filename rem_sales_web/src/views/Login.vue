@@ -63,7 +63,7 @@ const handleLogin = async () => {
       localStorage.setItem('chosen_plan', plan);
     }
     
-    // 🎯 CORRECTION : Utilisation stricte de la clé 'companyCurrency'
+    //  Utilisation stricte de la clé 'companyCurrency'
     if (companyData.currency) {
       localStorage.setItem('companyCurrency', companyData.currency);
     }
@@ -98,7 +98,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Styles conservés à l'identique */
+/* Styles conservés à l'identique UI ROBUST CODE TEMPLATE */
 .login-container { display: flex; height: 100vh; font-family: 'ABeeZee', sans-serif; }
 .left-panel { width: 40%; background-color: #000000; display: flex; align-items: center; justify-content: center; }
 .branding { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px; width: 100%; }
