@@ -14,7 +14,7 @@
             {{ tab.label }}
           </button>
         </nav>
-        <!-- 🎯 Bouton harmonisé -->
+        <!-- Bouton harmonisé -->
         <button @click="logout" class="logout-btn">Déconnexion</button>
       </div>
     </header>
@@ -81,7 +81,7 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 40px; /* Légère augmentation du padding pour respirer */
+  padding: 15px 40px; 
   border-bottom: 1px solid #111111;
 }
 
@@ -96,7 +96,7 @@ const logout = () => {
 .brand-title { 
   color: #FFFAFA; 
   font-size: 0.60rem; 
-  letter-spacing: 2px; /* Espacement subtilement augmenté */
+  letter-spacing: 2px; 
   font-weight: 400; 
   text-transform: uppercase;
   margin: 0;
