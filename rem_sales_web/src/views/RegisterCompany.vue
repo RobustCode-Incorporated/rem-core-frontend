@@ -46,7 +46,6 @@
           <input v-model="form.email" type="email" placeholder="patron@entreprise.com" required />
 
           <label>Mot de passe</label>
-          <!-- Ajout du conteneur pour l'icône de visibilité -->
           <div class="password-wrapper">
             <input 
               v-model="form.password" 
@@ -60,12 +59,10 @@
               @click="showPassword = !showPassword"
               :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
             >
-              <!-- Icône Œil barré (Quand le mot de passe est visible) -->
               <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.243 4.243L9.35 9.35" />
               </svg>
               
-              <!-- Icône Œil normal (Quand le mot de passe est masqué) -->
               <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -82,7 +79,7 @@
 
         <p class="register-text">
           Déjà un compte ? 
-          <router-link TO="/login">Se connecter</router-link>
+          <router-link to="/login">Se connecter</router-link>
         </p>
       </div>
     </div>
@@ -142,7 +139,7 @@ const handleRegister = async () => {
 .name-row { display: flex; gap: 15px; }
 .input-half { flex: 1; }
 
-/* Ajouts CSS pour aligner proprement l'œil SVG */
+/* Alignement corrigé de l'œil SVG */
 .password-wrapper {
   position: relative;
   width: 100%;
@@ -154,7 +151,7 @@ const handleRegister = async () => {
 .toggle-password {
   position: absolute;
   right: 12px;
-  top: 43%; /* Ajusté pour s'aligner avec le margin-bottom du champ */
+  top: 36%; /* Remis à 36% pour correspondre exactement à l'alignement du premier formulaire */
   transform: translateY(-50%);
   background: none;
   border: none;
