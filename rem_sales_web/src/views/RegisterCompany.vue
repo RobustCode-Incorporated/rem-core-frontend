@@ -95,13 +95,12 @@ const router = useRouter()
 const loading = ref(false)
 const error = ref('')
 
-// Variable pour gérer la visibilité du mot de passe
 const showPassword = ref(false)
 
 const form = reactive({
   companyName: '',
   country: '',
-  currency: 'USD', // Devise par défaut ($)
+  currency: 'USD',
   firstName: '',
   lastName: '',
   email: '',
@@ -134,24 +133,23 @@ const handleRegister = async () => {
 .form-wrapper { width: 100%; max-width: 450px; }
 .form-title { font-size: 22px; font-weight: bold; margin-bottom: 24px; color: #000; }
 .login-form label { font-weight: 600; margin-bottom: 5px; display: block; color: #333; font-size: 0.9rem; }
-.login-form input, .currency-select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+.login-form input, .currency-select { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
 .currency-select { background-color: #fff; cursor: pointer; }
 .name-row { display: flex; gap: 15px; }
 .input-half { flex: 1; }
 
-/* Alignement corrigé de l'œil SVG */
+/* Structure et alignement strictement identique au login */
 .password-wrapper {
   position: relative;
   width: 100%;
 }
 .password-wrapper input {
-  padding-right: 45px; /* Empêche le texte du mot de passe de se cacher sous l'icône */
-  margin-bottom: 15px;
+  padding-right: 45px; 
 }
 .toggle-password {
   position: absolute;
   right: 12px;
-  top: 36%; /* Remis à 36% pour correspondre exactement à l'alignement du premier formulaire */
+  top: 36%;
   transform: translateY(-50%);
   background: none;
   border: none;
@@ -161,7 +159,7 @@ const handleRegister = async () => {
   align-items: center;
   justify-content: center;
   width: auto !important; 
-  color: #707070 !important; /* Gris de base du template */
+  color: #707070 !important;
 }
 
 .eye-icon {
@@ -171,10 +169,11 @@ const handleRegister = async () => {
 }
 
 .toggle-password:hover {
-  color: #000 !important; /* Passe en noir au survol */
+  color: #000 !important;
 }
 
-.login-form button { width: 100%; background-color: #000; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+/* Ciblage précis uniquement sur le bouton d'envoi du formulaire */
+.login-form button[type="submit"] { width: 100%; background-color: #000; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 .error-msg { color: #d32f2f; margin-bottom: 15px; font-size: 0.85rem; font-weight: bold; }
 .register-text { margin-top: 20px; text-align: center; color: #707070; }
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
