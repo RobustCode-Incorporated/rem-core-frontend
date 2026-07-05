@@ -126,8 +126,9 @@ const handleLogin = async () => {
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  /* 🌟 Déclare ce panneau comme conteneur de référence pour la taille du texte */
-  container-type: inline-size; 
+  /* 🌟 On force des marges intérieures (10% de la largeur du panneau) pour garantir l'espace vide aux extrémités */
+  padding: 0 10%; 
+  box-sizing: border-box; 
 }
 
 .branding { 
@@ -135,10 +136,7 @@ const handleLogin = async () => {
   flex-direction: column; 
   align-items: center; 
   text-align: center; 
-  padding: 20px; 
   width: 100%; 
-  max-width: 90%; 
-  box-sizing: border-box;
 }
 
 .logo-rem { 
@@ -150,14 +148,18 @@ const handleLogin = async () => {
 
 .title { 
   color: #FFFAFA; 
-  /* 🌟 La taille est calculée strictement par rapport à la largeur du left-panel (cqw) */
-  font-size: clamp(0.4rem, 5.5cqw, 2.2rem); 
-  letter-spacing: 1px; 
+  /* 🌟 La magie opère ici : 
+     1.8vw signifie "1.8% de la largeur totale de l'écran".
+     Quand tu zoomes, l'écran "rétrécit" virtuellement, donc le texte rétrécit tout seul !
+     Le min() l'empêche juste de devenir géant sur un écran 4K (bloqué à 30px max).
+     Il n'y a PAS de limite minimum, donc il peut rétrécir à l'infini en cas de zoom extrême.
+  */
+  font-size: min(1.8vw, 30px); 
+  letter-spacing: 2px; 
   font-weight: 300; 
   white-space: nowrap; 
-  width: 100%; 
-  text-align: center;
   font-family: 'Ysabeau Office', sans-serif; 
+  margin: 0;
 }
 
 .right-panel { 
