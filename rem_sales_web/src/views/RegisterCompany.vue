@@ -123,13 +123,58 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-/* Styles existants conservés */
-.login-container { display: flex; height: 100vh; font-family: 'ABeeZee', sans-serif; }
-.left-panel { width: 40%; background-color: #000000; display: flex; align-items: center; justify-content: center; }
-.branding { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px; width: 100%; }
-.logo-rem { width: 550px; height: auto; margin-bottom: 30px; }
-.title { color: #FFFAFA; font-size: 2.2rem; letter-spacing: 2px; font-weight: 300; white-space: nowrap; width: 100%; font-family: 'Ysabeau Office', sans-serif; }
-.right-panel { flex: 1; background-color: #FFFAFA; display: flex; align-items: center; justify-content: center; padding: 20px; }
+/* Base */
+.login-container { 
+  display: flex; 
+  height: 100vh; 
+  font-family: 'ABeeZee', sans-serif; 
+}
+
+/* 🌟 NOUVEAU LEFT PANEL : Identique à la page de Login (Responsive & Élastique) */
+.left-panel { 
+  width: 40%; 
+  background-color: #000000; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 0 10%; 
+  box-sizing: border-box; 
+}
+
+.branding { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  text-align: center; 
+  width: 100%; 
+}
+
+.logo-rem { 
+  width: 100%; 
+  max-width: 320px; 
+  height: auto; 
+  margin-bottom: 25px; 
+}
+
+.title { 
+  color: #FFFAFA; 
+  font-size: min(1.8vw, 30px); /* S'adapte au pixel près au zoom */
+  letter-spacing: 2px; 
+  font-weight: 300; 
+  white-space: nowrap; 
+  font-family: 'Ysabeau Office', sans-serif; 
+  margin: 0;
+}
+
+/* Formulaire et layout de droite */
+.right-panel { 
+  flex: 1; 
+  background-color: #FFFAFA; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 20px; 
+}
 .form-wrapper { width: 100%; max-width: 450px; }
 .form-title { font-size: 22px; font-weight: bold; margin-bottom: 24px; color: #000; }
 .login-form label { font-weight: 600; margin-bottom: 5px; display: block; color: #333; font-size: 0.9rem; }
@@ -138,7 +183,7 @@ const handleRegister = async () => {
 .name-row { display: flex; gap: 15px; }
 .input-half { flex: 1; }
 
-/* Structure et alignement strictement identique au login */
+/* Mot de passe et Icône Œil */
 .password-wrapper {
   position: relative;
   width: 100%;
@@ -172,10 +217,13 @@ const handleRegister = async () => {
   color: #000 !important;
 }
 
-/* Ciblage précis uniquement sur le bouton d'envoi du formulaire */
+/* Boutons & Textes */
 .login-form button[type="submit"] { width: 100%; background-color: #000; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 .error-msg { color: #d32f2f; margin-bottom: 15px; font-size: 0.85rem; font-weight: bold; }
 .register-text { margin-top: 20px; text-align: center; color: #707070; }
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
-@media (max-width: 768px) { .left-panel { display: none; } }
+
+@media (max-width: 768px) { 
+  .left-panel { display: none; } 
+}
 </style>
