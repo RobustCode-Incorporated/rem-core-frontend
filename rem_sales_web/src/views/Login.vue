@@ -29,10 +29,12 @@
               @click="showPassword = !showPassword"
               :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
             >
+              <!-- Icône Œil barré -->
               <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.243 4.243L9.35 9.35" />
               </svg>
               
+              <!-- Icône Œil normal -->
               <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -112,10 +114,22 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container { display: flex; height: 100vh; font-family: 'ABeeZee', sans-serif; }
-.left-panel { width: 40%; background-color: #000000; display: flex; align-items: center; justify-content: center; }
+.login-container { 
+  display: flex; 
+  height: 100vh; 
+  font-family: 'ABeeZee', sans-serif; 
+}
 
-/* 🌟 Conteneur branding sécurisé pour le flex-scaling */
+.left-panel { 
+  width: 40%; 
+  background-color: #000000; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  /* 🌟 Déclare ce panneau comme conteneur de référence pour la taille du texte */
+  container-type: inline-size; 
+}
+
 .branding { 
   display: flex; 
   flex-direction: column; 
@@ -123,32 +137,38 @@ const handleLogin = async () => {
   text-align: center; 
   padding: 20px; 
   width: 100%; 
-  max-width: 90%; /* Évite de toucher les bords extrêmes du panneau gauche */
+  max-width: 90%; 
   box-sizing: border-box;
 }
 
-/* 🔄 FIX LOGO: Fin du comportement fixe à 550px qui cassait la boîte parente */
 .logo-rem { 
   width: 100%; 
-  max-width: 320px; /* Taille optimale pour ton logo hexagonal */
+  max-width: 320px; 
   height: auto; 
   margin-bottom: 25px; 
 }
 
-/* 🔄 FIX TITRE DYNAMIQUE: S'adapte au pixel près sans jamais sauter de ligne ni dépasser */
 .title { 
   color: #FFFAFA; 
-  font-size: clamp(1rem, 1.8vw, 2rem); /* Rapprochement fluide basé sur le viewport */
-  letter-spacing: 2px; 
+  /* 🌟 La taille est calculée strictement par rapport à la largeur du left-panel (cqw) */
+  font-size: clamp(0.4rem, 5.5cqw, 2.2rem); 
+  letter-spacing: 1px; 
   font-weight: 300; 
   white-space: nowrap; 
-  overflow: hidden;
-  text-overflow: clip;
   width: 100%; 
+  text-align: center;
   font-family: 'Ysabeau Office', sans-serif; 
 }
 
-.right-panel { flex: 1; background-color: #FFFAFA; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.right-panel { 
+  flex: 1; 
+  background-color: #FFFAFA; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 20px; 
+}
+
 .form-wrapper { width: 100%; max-width: 400px; }
 .form-title { font-size: 22px; font-weight: bold; margin-bottom: 24px; color: #000; }
 .login-form label { font-weight: 600; margin-bottom: 5px; display: block; color: #333; }
@@ -191,5 +211,7 @@ const handleLogin = async () => {
 .register-text { margin-top: 20px; text-align: center; color: #707070; }
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
 
-@media (max-width: 768px) { .left-panel { display: none; } }
+@media (max-width: 768px) { 
+  .left-panel { display: none; } 
+}
 </style>
