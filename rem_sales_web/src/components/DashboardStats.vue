@@ -104,24 +104,27 @@ const fetchDashboardData = async (silent = false) => {
   const headers = { Authorization: `Bearer ${token}` };
 
   try {
+    // 1. Récupération des Stocks
     const stockRes = await axios.get(`${import.meta.env.VITE_API_URL}/resellers/me/stock`, { headers });
     const stockArray = extractArray(stockRes.data);
     productsStock.value = stockArray;
     totalStock.value = stockArray.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
 
+    // 2. Récupération de TOUS les documents de vente
     const queryParams = {};
     if (companyId) queryParams.company_id = companyId;
 
     const docsRes = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, { 
-  params: { 
-    ...queryParams,
-    all: 'true' // 👈 On demande tout l'historique
-  }, 
-  headers 
-});
+      params: { 
+        ...queryParams,
+        all: 'true' // Demande explicite à l'API d'ignorer la pagination pour le calcul total
+      }, 
+      headers 
+    });
     
     const myDocuments = extractArray(docsRes.data);
 
+    // 3. Calcul du Chiffre d'Affaires global
     totalRevenue.value = myDocuments
       .filter(doc => {
         const type = String(doc.type || '').toUpperCase();
