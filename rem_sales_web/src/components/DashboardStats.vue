@@ -62,7 +62,7 @@
   </div>
 </template>
 
-<script script setup>
+<script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 
@@ -103,17 +103,12 @@ const fetchDashboardData = async (silent = false) => {
   const currentUserId = getCurrentUserId();
   const headers = { Authorization: `Bearer ${token}` };
 
-  console.group("📊 [REM DIAGNOSTIC] Analyse des flux Dashboard");
-  console.log("Configuration Contextuelle - Company ID:", companyId, "| User ID:", currentUserId);
-
   try {
-    // 1. Récupération des Stocks (Déjà sécurisé par /me/stock)
     const stockRes = await axios.get(`${import.meta.env.VITE_API_URL}/resellers/me/stock`, { headers });
     const stockArray = extractArray(stockRes.data);
     productsStock.value = stockArray;
     totalStock.value = stockArray.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
 
-    // 2. Récupération des documents sécurisés par le backend
     const queryParams = {};
     if (companyId) queryParams.company_id = companyId;
 
@@ -123,9 +118,7 @@ const fetchDashboardData = async (silent = false) => {
     });
     
     const myDocuments = extractArray(docsRes.data);
-    console.log(`Nombre de documents sécurisés reçus du backend : ${myDocuments.length}`);
 
-    // Calcul direct du Chiffre d'Affaires sans re-filtrage d'identifiant
     totalRevenue.value = myDocuments
       .filter(doc => {
         const type = String(doc.type || '').toUpperCase();
@@ -141,12 +134,9 @@ const fetchDashboardData = async (silent = false) => {
         return acc + Number(amount);
       }, 0);
 
-    console.log("Calcul final de la carte Ventes Caisse :", totalRevenue.value);
-
   } catch (err) {
-    console.error("❌ Erreur critique lors de la récupération des indicateurs :", err);
+    console.error("❌ Erreur lors de la récupération des indicateurs :", err);
   } finally {
-    console.groupEnd();
     isLoading.value = false;
   }
 };
@@ -185,28 +175,37 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dashboard-stats-container { max-width: 1200px; margin: 0 auto; }
-.header-section { margin-bottom: 30px; }
-.header-section h2 { font-size: 1.8rem; color: #111; margin-bottom: 5px; font-weight: bold; }
+.dashboard-stats-container { max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+.header-section { margin-bottom: 25px; }
+.header-section h2 { font-size: 1.5rem; color: #111; margin-bottom: 5px; font-weight: bold; }
 .subtitle { color: #666; font-size: 0.95rem; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 45px; }
-.black-card { background: #111; color: #fff; border-radius: 12px; padding: 25px; display: flex; align-items: flex-start; gap: 20px; border: 1px solid #222; }
-.card-icon { font-size: 2.2rem; background: #1c1c1c; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-.card-content h3 { font-size: 0.85rem; color: #888; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px; }
-.metric { font-size: 2rem; font-weight: bold; margin: 0 0 4px 0; }
+
+/* 🌟 Remplacement de minmax(350px) par minmax(250px) pour éviter l'overflow sur mobile */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
+
+.black-card { background: #111; color: #fff; border-radius: 12px; padding: 20px; display: flex; align-items: flex-start; gap: 15px; border: 1px solid #222; }
+.card-icon { font-size: 1.8rem; background: #1c1c1c; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-shrink: 0; }
+.card-content { overflow: hidden; }
+.card-content h3 { font-size: 0.8rem; color: #888; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.metric { font-size: 1.6rem; font-weight: bold; margin: 0 0 4px 0; word-break: break-all; }
 .unit { font-size: 0.9rem; color: #666; }
 .trend { font-size: 0.8rem; color: #10b981; margin: 0; }
-.inventory-section { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 30px; }
+
+.inventory-section { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 20px; box-sizing: border-box; width: 100%; }
 .section-title-zone { margin-bottom: 25px; }
-.section-title-zone h3 { font-size: 1.2rem; color: #111; margin: 0; }
-.section-subtitle { color: #777; font-size: 0.85rem; }
-.inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-.inventory-card { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 10px; padding: 20px; display: flex; align-items: center; gap: 20px; }
-.mini-donut { width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.donut-center { width: 41px; height: 41px; background: #fafafa; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.donut-qty { font-size: 0.95rem; font-weight: bold; }
-.inventory-details h4 { font-size: 0.95rem; color: #111; margin: 0 0 6px 0; }
-.stock-badge { font-size: 0.72rem; padding: 4px 8px; border-radius: 20px; font-weight: bold; text-transform: uppercase; }
+.section-title-zone h3 { font-size: 1.1rem; color: #111; margin: 0 0 5px 0; line-height: 1.3; }
+.section-subtitle { color: #777; font-size: 0.85rem; line-height: 1.4; }
+
+/* 🌟 Ajustement minmax pour s'adapter même aux plus petits écrans */
+.inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+.inventory-card { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 10px; padding: 15px; display: flex; align-items: center; gap: 15px; }
+.mini-donut { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.donut-center { width: 38px; height: 38px; background: #fafafa; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.donut-qty { font-size: 0.9rem; font-weight: bold; }
+.inventory-details { overflow: hidden; }
+.inventory-details h4 { font-size: 0.9rem; color: #111; margin: 0 0 6px 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.stock-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 20px; font-weight: bold; text-transform: uppercase; display: inline-block; }
+
 .status-success { background: #e6f4ea; color: #137333; }
 .status-warning { background: #fef7e0; color: #b06000; }
 .status-danger { background: #fce8e6; color: #c5221f; }
@@ -214,4 +213,9 @@ onUnmounted(() => {
 .loader { display: flex; align-items: center; gap: 15px; padding: 40px 0; }
 .spinner { width: 22px; height: 22px; border: 3px solid #eee; border-top-color: #111; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (min-width: 768px) {
+  .header-section h2 { font-size: 1.8rem; }
+  .inventory-section { padding: 30px; }
+}
 </style>

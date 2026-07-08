@@ -3,8 +3,8 @@
     <div v-if="daysRemaining !== null && daysRemaining > 0" class="success-activation-banner">
       <div class="success-banner-content">
         <span>
-          🚀 <strong>Mode PRO Cadeau Actif !</strong> Il vous reste <strong>{{ daysRemaining }} jours</strong> d'essai gratuit avec toutes les fonctionnalités débloquées.
-          <span class="plan-badge">Abonnement futur : {{ formattedTargetPlan }}</span>
+          🚀 <strong>Mode PRO Cadeau Actif !</strong> Il vous reste <strong>{{ daysRemaining }} jours</strong> d'essai gratuit.
+          <span class="plan-badge">Futur : {{ formattedTargetPlan }}</span>
         </span>
       </div>
     </div>
@@ -29,7 +29,6 @@
 
     <main class="content-area">
       <section class="content-body">
-        <!-- Rendu dynamique sécurisé -->
         <component :is="activeComponent" v-if="activeComponent" />
         <div v-else class="error-component">Erreur : Impossible de charger ce module.</div>
       </section>
@@ -134,20 +133,36 @@ const logout = () => {
 
 <style scoped>
 .dashboard-container { display: flex; flex-direction: column; height: 100vh; background: #FFFAFA; font-family: 'ABeeZee', sans-serif; }
-.success-activation-banner { background: linear-gradient(90deg, #111111, #1b5e20); color: #ffffff; padding: 14px 40px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideDown 0.4s ease-out; }
-.success-banner-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
-.plan-badge { background: #fffa00; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-left: 10px; }
-.top-navbar { background: #000; display: flex; justify-content: space-between; align-items: center; padding: 10px 40px; }
-.brand-zone { display: flex; flex-direction: column; align-items: center; }
-.logo-top { width: 140px; height: auto; margin-bottom: 2px; }
-.brand-title { color: #FFFAFA; font-size: 0.65rem; letter-spacing: 1.5px; font-weight: 400; white-space: nowrap; text-transform: uppercase; margin: 0; }
-.nav-right { display: flex; align-items: center; gap: 25px; }
-.nav-menu { display: flex; gap: 20px; }
-.nav-item { background: transparent; color: #A0A0A0; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
-.nav-item:hover, .nav-item.active { color: #fff; }
-.logout-btn { background: transparent; color: #fff; border: 1px solid #333; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; transition: 0.3s; }
+.success-activation-banner { background: linear-gradient(90deg, #111111, #1b5e20); color: #ffffff; padding: 14px 20px; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideDown 0.4s ease-out; text-align: center; }
+.success-banner-content { max-width: 1200px; margin: 0 auto; line-height: 1.4; }
+.plan-badge { background: #fffa00; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-left: 10px; display: inline-block; margin-top: 5px; }
+
+/* 🌟 Adaptation du Header */
+.top-navbar { background: #000; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; flex-wrap: wrap; gap: 15px; }
+.brand-zone { display: flex; flex-direction: column; align-items: center; min-width: 150px; }
+.logo-top { width: 120px; height: auto; margin-bottom: 2px; }
+.brand-title { color: #FFFAFA; font-size: 0.6rem; letter-spacing: 1px; font-weight: 400; white-space: nowrap; text-transform: uppercase; margin: 0; }
+
+.nav-right { display: flex; align-items: center; gap: 15px; flex: 1; justify-content: flex-end; overflow: hidden; }
+
+/* 🌟 Menu glissant pour mobile */
+.nav-menu { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; padding-bottom: 5px; }
+.nav-menu::-webkit-scrollbar { display: none; }
+.nav-item { background: transparent; color: #A0A0A0; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; padding: 5px 0; }
+.nav-item:hover, .nav-item.active { color: #fff; font-weight: bold; border-bottom: 2px solid #fff; }
+
+.logout-btn { background: transparent; color: #fff; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
 .logout-btn:hover { background: #fff; color: #000; }
-.content-area { flex: 1; padding: 30px 50px; overflow-y: auto; }
+
+.content-area { flex: 1; padding: 20px 15px; overflow-y: auto; overflow-x: hidden; }
 .error-component { color: #d32f2f; font-weight: bold; padding: 4px; text-align: center; }
+
 @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (min-width: 768px) {
+  .top-navbar { padding: 10px 40px; flex-wrap: nowrap; }
+  .content-area { padding: 30px 50px; }
+  .logo-top { width: 140px; }
+  .brand-title { font-size: 0.65rem; letter-spacing: 1.5px; }
+}
 </style>
