@@ -175,40 +175,108 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dashboard-stats-container { max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+/* 🌟 Sécurité globale anti-débordement */
+.dashboard-stats-container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  width: 100%; 
+  box-sizing: border-box; 
+}
 .header-section { margin-bottom: 25px; }
 .header-section h2 { font-size: 1.5rem; color: #111; margin-bottom: 5px; font-weight: bold; }
 .subtitle { color: #666; font-size: 0.95rem; }
 
-/* 🌟 Optimisation de la grille principale pour mobile */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 20px; margin-bottom: 40px; }
+/* 🌟 Grille principale dynamique : calcul chirurgical de la place dispo */
+.stats-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); 
+  gap: 20px; 
+  margin-bottom: 40px; 
+  width: 100%;
+  box-sizing: border-box;
+}
 
-.black-card { background: #111; color: #fff; border-radius: 12px; padding: 20px; display: flex; align-items: flex-start; gap: 15px; border: 1px solid #222; overflow: hidden; }
+.black-card { 
+  background: #111; 
+  color: #fff; 
+  border-radius: 12px; 
+  padding: 20px; 
+  display: flex; 
+  align-items: flex-start; 
+  gap: 15px; 
+  border: 1px solid #222; 
+  overflow: hidden; 
+  width: 100%;
+  box-sizing: border-box;
+}
 .card-icon { font-size: 1.8rem; background: #1c1c1c; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-shrink: 0; }
-.card-content { flex: 1; min-width: 0; /* 🌟 Magie Anti-Blowout */ }
+
+/* 🌟 Emplacement de la sécurité min-width: 0 pour éviter la poussée du texte */
+.card-content { flex: 1; min-width: 0; }
 .card-content h3 { font-size: 0.8rem; color: #888; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 .metric { font-size: 1.6rem; font-weight: bold; margin: 0 0 4px 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 .unit { font-size: 0.9rem; color: #666; }
 .trend { font-size: 0.8rem; color: #10b981; margin: 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-.inventory-section { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 20px; box-sizing: border-box; width: 100%; }
+.inventory-section { 
+  background: #fff; 
+  border: 1px solid #eee; 
+  border-radius: 14px; 
+  padding: 20px; 
+  box-sizing: border-box; 
+  width: 100%; 
+}
 .section-title-zone { margin-bottom: 25px; }
 .section-title-zone h3 { font-size: 1.1rem; color: #111; margin: 0 0 5px 0; line-height: 1.3; }
 .section-subtitle { color: #777; font-size: 0.85rem; line-height: 1.4; }
 
-/* 🌟 Optimisation de la grille d'inventaire : Ne dépasse jamais 100% de l'écran */
-.inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 15px; }
-.inventory-card { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 10px; padding: 15px; display: flex; align-items: center; gap: 15px; overflow: hidden; }
+/* 🌟 Grille d'inventaire chirurgicale : s'adapte à 100% de la largeur disponible */
+.inventory-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); 
+  gap: 15px; 
+  width: 100%;
+  box-sizing: border-box;
+}
 
-/* 🌟 Protection absolue du Donut pour ne pas qu'il s'écrase */
-.donut-wrapper { flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.inventory-card { 
+  background: #fafafa; 
+  border: 1px solid #f0f0f0; 
+  border-radius: 10px; 
+  padding: 15px; 
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+  overflow: hidden; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 🌟 Protection totale du Donut : Interdiction absolue de rétrécir ou de s'écraser */
+.donut-wrapper { 
+  flex-shrink: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
 .mini-donut { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .donut-center { width: 38px; height: 38px; background: #fafafa; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .donut-qty { font-size: 0.9rem; font-weight: bold; }
 
-/* 🌟 Application du min-width: 0 essentiel pour tronquer le texte sur mobile */
-.inventory-details { flex: 1; min-width: 0; overflow: hidden; }
-.inventory-details h4 { font-size: 0.9rem; color: #111; margin: 0 0 6px 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+/* 🌟 Protection des textes de détails : si le titre du produit est trop long, il se coupe (...) au lieu de pousser la carte */
+.inventory-details { 
+  flex: 1; 
+  min-width: 0; 
+  overflow: hidden; 
+}
+.inventory-details h4 { 
+  font-size: 0.9rem; 
+  color: #111; 
+  margin: 0 0 6px 0; 
+  white-space: nowrap; 
+  text-overflow: ellipsis; 
+  overflow: hidden; 
+}
 .stock-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 20px; font-weight: bold; text-transform: uppercase; display: inline-block; white-space: nowrap; }
 
 .status-success { background: #e6f4ea; color: #137333; }
