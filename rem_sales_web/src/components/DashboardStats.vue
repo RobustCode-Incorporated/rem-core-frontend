@@ -113,9 +113,12 @@ const fetchDashboardData = async (silent = false) => {
     if (companyId) queryParams.company_id = companyId;
 
     const docsRes = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, { 
-      params: queryParams, 
-      headers 
-    });
+  params: { 
+    ...queryParams,
+    all: 'true' // 👈 On demande tout l'historique
+  }, 
+  headers 
+});
     
     const myDocuments = extractArray(docsRes.data);
 
