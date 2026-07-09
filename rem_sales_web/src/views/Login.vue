@@ -12,7 +12,7 @@
         <h1 class="form-title">Connexion Administrateur</h1>
 
         <form class="login-form" @submit.prevent="handleLogin">
-          <label>Email professionnel</label>
+          <label>Identifiant</label>
           <input v-model="credentials.email" type="email" placeholder="patron@entreprise.com" required />
 
           <label>Mot de passe</label>
