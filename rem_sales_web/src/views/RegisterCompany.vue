@@ -42,7 +42,7 @@
             </div>
           </div>
 
-          <label>Email professionnel</label>
+          <label>Mail d'identification</label>
           <input v-model="form.email" type="email" placeholder="patron@entreprise.com" required />
 
           <label>Mot de passe</label>
