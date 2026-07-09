@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <!-- Bandeau de succès d'activation (Dynamique) -->
     <div v-if="daysRemaining !== null && daysRemaining > 0" class="success-activation-banner">
       <div class="success-banner-content">
         <span>
@@ -10,11 +11,13 @@
     </div>
 
     <header class="top-navbar">
+      <!-- Branding : Logo et Titre -->
       <div class="brand-zone">
         <img src="../assets/RobustCodelogowhite.png" alt="Logo REM" class="logo-top" />
         <h1 class="brand-title">ROBUST ENTERPRISE MANAGEMENT</h1>
       </div>
 
+      <!-- Navigation Droite : Minimaliste restaurée -->
       <div class="nav-right">
         <nav class="nav-menu">
           <button v-for="link in menuItems" :key="link.id" 
@@ -137,7 +140,7 @@ const logout = () => {
 .success-banner-content { max-width: 1200px; margin: 0 auto; line-height: 1.4; }
 .plan-badge { background: #fffa00; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-left: 10px; display: inline-block; margin-top: 5px; }
 
-/* 🌟 Adaptation du Header */
+/* Header */
 .top-navbar { background: #000; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; flex-wrap: wrap; gap: 15px; }
 .brand-zone { display: flex; flex-direction: column; align-items: center; min-width: 150px; }
 .logo-top { width: 120px; height: auto; margin-bottom: 2px; }
@@ -145,11 +148,24 @@ const logout = () => {
 
 .nav-right { display: flex; align-items: center; gap: 15px; flex: 1; justify-content: flex-end; overflow: hidden; }
 
-/* 🌟 Menu glissant pour mobile */
-.nav-menu { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; padding-bottom: 5px; }
+/* Menu de navigation */
+.nav-menu { display: flex; gap: 20px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
 .nav-menu::-webkit-scrollbar { display: none; }
-.nav-item { background: transparent; color: #A0A0A0; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; padding: 5px 0; }
-.nav-item:hover, .nav-item.active { color: #fff; font-weight: bold; border-bottom: 2px solid #fff; }
+
+/* 🌟 STYLE MINIMALISTE RESTAURÉ (Pas de ligne sous les onglets, pas de texte en gras) */
+.nav-item { 
+  background: transparent; 
+  color: #A0A0A0; 
+  border: none; 
+  cursor: pointer; 
+  font-size: 0.85rem; 
+  transition: color 0.2s ease; 
+  padding: 5px 0;
+}
+/* Changement subtil de couleur au survol et à l'état actif, pur et épuré */
+.nav-item:hover, .nav-item.active { 
+  color: #fff; 
+}
 
 .logout-btn { background: transparent; color: #fff; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
 .logout-btn:hover { background: #fff; color: #000; }
