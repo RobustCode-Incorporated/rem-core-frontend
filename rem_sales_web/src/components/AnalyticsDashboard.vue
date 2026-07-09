@@ -131,21 +131,49 @@
 import { computed, onMounted, ref } from 'vue'
 import { useSalesStore } from '../stores/sales'
 import ResellersMap from './ResellersMap.vue'
+import axios from 'axios' // 🌟 AJOUT : Requis pour interroger le backend en direct
 
 const salesStore = useSalesStore()
 
 // Récupération dynamique
 const currentPlan = ref(localStorage.getItem('plan_type') || 'entrée')
-// 🎯 AJOUT : Récupération de la devise depuis le localStorage (par défaut USD)
 const companyCurrency = ref(localStorage.getItem('companyCurrency') || 'USD')
 
-onMounted(() => {
+// Helper pour extraire proprement les tableaux venant de l'API
+const extractArray = (payload) => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (payload.data && Array.isArray(payload.data)) return payload.data;
+  if (payload.documents && Array.isArray(payload.documents)) return payload.documents;
+  if (payload.results && Array.isArray(payload.results)) return payload.results;
+  const alternativeArray = Object.values(payload).find(val => Array.isArray(val));
+  return alternativeArray || [];
+};
+
+onMounted(async () => {
   const companyId = localStorage.getItem('companyId') || 'b95f3b70-9d08-4ea0-95ca-961cf7df688f'
-  if (salesStore.sales.length === 0) salesStore.fetchSales() 
+  const token = localStorage.getItem('token')
+  const headers = { Authorization: `Bearer ${token}` }
+
+  try {
+    // 🌟 MIGRATION HISTORIQUE SANS BRIDAGE : Requête non-paginée explicite
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/documents`, {
+      params: { company_id: companyId, all: 'true' },
+      headers
+    })
+    
+    // Remplacement chirurgical des données du store Pinia pour déclencher la réactivité
+    salesStore.sales = extractArray(response.data)
+  } catch (err) {
+    console.error("❌ Erreur lors de la récupération des indicateurs globaux :", err)
+    // Sécurité : Fallback sur l'action par défaut si l'appel complet échoue
+    if (salesStore.sales.length === 0) salesStore.fetchSales() 
+  }
+
   salesStore.fetchProductAnalytics(companyId)
 })
 
-// 🎯 AJOUT : Fonction universelle de formatage monétaire
+// Fonction universelle de formatage monétaire
 const formatCurrency = (value) => {
   if (isNaN(value) || value === null) return '0'
   return new Intl.NumberFormat(undefined, {
@@ -255,7 +283,6 @@ const lineData = computed(() => {
       const key = `${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear().toString().slice(-2)}`
       dataMap[key] = (dataMap[key] || 0) + Number(s.total_amount)
     })
-  // 🎯 AJOUT : Le nom de la courbe intègre dynamiquement la devise
   return { series: [{ name: `CA (${companyCurrency.value})`, data: Object.values(dataMap) }], categories: Object.keys(dataMap) }
 })
 
@@ -270,7 +297,6 @@ const lineOptions = computed(() => ({
 </script>
 
 <style scoped>
-/* Les styles restent identiques à ton code d'origine, aucune modification visuelle n'a été apportée ici */
 .analytics-wrapper { display: flex; flex-direction: column; gap: 32px; padding-bottom: 40px; }
 .analytics-lead h2 { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
 .analytics-lead p { font-size: 0.85rem; color: #707070; }
