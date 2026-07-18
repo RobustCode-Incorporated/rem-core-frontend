@@ -114,10 +114,10 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container { 
-  display: flex; 
-  height: 100vh; 
-  font-family: 'ABeeZee', sans-serif; 
+.login-container {
+  display: flex;
+  min-height: 100svh;
+  font-family: 'ABeeZee', sans-serif;
 }
 
 .left-panel { 
@@ -162,13 +162,13 @@ const handleLogin = async () => {
   margin: 0;
 }
 
-.right-panel { 
-  flex: 1; 
-  background-color: #FFFAFA; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  padding: 20px; 
+.right-panel {
+  flex: 1;
+  background-color: #FFFAFA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 .form-wrapper { width: 100%; max-width: 400px; }
@@ -214,6 +214,20 @@ const handleLogin = async () => {
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
 
 @media (max-width: 768px) { 
-  .left-panel { display: none; } 
+  .login-container {
+    display: block;
+  }
+  .left-panel { display: none; }
+  .right-panel {
+    min-height: 100svh;
+    align-items: flex-start;
+    padding: 28px 16px;
+  }
+  .form-wrapper {
+    max-width: none;
+  }
+  .form-title {
+    font-size: 1.25rem;
+  }
 }
 </style>

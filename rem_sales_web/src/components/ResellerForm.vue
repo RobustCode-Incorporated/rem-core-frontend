@@ -69,33 +69,35 @@
 
     <div class="list-section">
       <h3>Liste des revendeurs</h3>
-      <table class="reseller-table">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Dépôt</th>
-            <th>Téléphone</th>
-            <th>Statut GPS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="reseller in resellers" :key="reseller.id">
-            <td>{{ reseller.name }}</td>
-            <td>{{ reseller.email }}</td>
-            <td>{{ reseller.deposit_name }}</td>
-            <td>{{ reseller.phone }}</td>
-            <td>
-              <span :class="['badge', reseller.latitude ? 'ok' : 'wait']">
-                {{ reseller.latitude ? 'Localisé' : 'En attente' }}
-              </span>
-            </td>
-          </tr>
-          <tr v-if="resellers.length === 0">
-            <td colspan="5" class="empty-msg">Aucun revendeur enregistré.</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="reseller-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Dépôt</th>
+              <th>Téléphone</th>
+              <th>Statut GPS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="reseller in resellers" :key="reseller.id">
+              <td>{{ reseller.name }}</td>
+              <td>{{ reseller.email }}</td>
+              <td>{{ reseller.deposit_name }}</td>
+              <td>{{ reseller.phone }}</td>
+              <td>
+                <span :class="['badge', reseller.latitude ? 'ok' : 'wait']">
+                  {{ reseller.latitude ? 'Localisé' : 'En attente' }}
+                </span>
+              </td>
+            </tr>
+            <tr v-if="resellers.length === 0">
+              <td colspan="5" class="empty-msg">Aucun revendeur enregistré.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -224,4 +226,16 @@ input { padding: 14px; border: 1px solid #ddd; border-radius: 6px; width: 100%; 
 .badge.ok { background: #e8f5e9; color: #2e7d32; }
 .badge.wait { background: #fff3e0; color: #ef6c00; }
 .empty-msg { text-align: center; color: #999; padding: 20px; }
+.table-scroll { overflow-x: auto; }
+.reseller-table { min-width: 680px; }
+
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
 </style>

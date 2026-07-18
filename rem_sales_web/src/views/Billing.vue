@@ -207,6 +207,7 @@ const handleSubscription = async (priceId) => {
 /* 🌟 STYLE DU NOUVEAU SÉLECTEUR BOUTON (Design Minimaliste Noir & Blanc) */
 .billing-mode-selector {
   display: inline-flex;
+  flex-wrap: wrap;
   background-color: #1c1c1e;
   padding: 6px;
   border-radius: 30px;
@@ -218,7 +219,7 @@ const handleSubscription = async (priceId) => {
   background: transparent;
   border: none;
   color: #a0a0a0;
-  padding: 10px 24px;
+  padding: 10px 18px;
   font-size: 0.95rem;
   font-weight: bold;
   border-radius: 25px;
@@ -270,7 +271,8 @@ const handleSubscription = async (priceId) => {
   border: 1px solid #333; 
   padding: 40px 30px; 
   border-radius: 16px; 
-  width: 320px; 
+  width: 100%;
+  max-width: 340px;
   text-align: left; 
   position: relative; 
   box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
@@ -403,5 +405,40 @@ const handleSubscription = async (priceId) => {
 @media (max-width: 1024px) {
   .plan-card.featured { transform: scale(1); }
   .plan-card.featured:hover { transform: translateY(-8px); }
+}
+
+@media (max-width: 768px) {
+  .billing-container {
+    padding: 32px 14px;
+  }
+  .main-title {
+    font-size: 1.8rem;
+    line-height: 1.25;
+  }
+  .subtitle {
+    font-size: 0.95rem;
+  }
+  .billing-mode-selector {
+    width: 100%;
+    border-radius: 14px;
+    margin-bottom: 28px;
+  }
+  .selector-btn {
+    flex: 1 1 100%;
+    width: 100%;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    padding: 10px 12px;
+  }
+  .plans-grid {
+    gap: 18px;
+  }
+  .plan-card {
+    max-width: none;
+    padding: 34px 18px 22px;
+  }
+  .amount {
+    font-size: 2.8rem;
+  }
 }
 </style>

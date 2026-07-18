@@ -89,4 +89,17 @@ p {
   color: #6f6f6f;
   font-size: 0.92rem;
 }
+
+@media (max-width: 768px) {
+  .legal-page {
+    padding: 16px 10px;
+  }
+  .legal-card {
+    padding: 18px 14px;
+    border-radius: 10px;
+  }
+  h1 {
+    font-size: 1.2rem;
+  }
+}
 </style>

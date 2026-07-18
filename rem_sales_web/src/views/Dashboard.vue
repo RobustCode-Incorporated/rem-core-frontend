@@ -135,7 +135,7 @@ const logout = () => {
 </script>
 
 <style scoped>
-.dashboard-container { display: flex; flex-direction: column; height: 100vh; background: #FFFAFA; font-family: 'ABeeZee', sans-serif; }
+.dashboard-container { display: flex; flex-direction: column; min-height: 100svh; background: #FFFAFA; font-family: 'ABeeZee', sans-serif; }
 .success-activation-banner { background: linear-gradient(90deg, #111111, #1b5e20); color: #ffffff; padding: 14px 20px; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideDown 0.4s ease-out; text-align: center; }
 .success-banner-content { max-width: 1200px; margin: 0 auto; line-height: 1.4; }
 .plan-badge { background: #fffa00; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-left: 10px; display: inline-block; margin-top: 5px; }
@@ -180,5 +180,17 @@ const logout = () => {
   .content-area { padding: 30px 50px; }
   .logo-top { width: 140px; }
   .brand-title { font-size: 0.65rem; letter-spacing: 1.5px; }
+}
+
+@media (max-width: 767px) {
+  .top-navbar {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nav-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
 }
 </style>

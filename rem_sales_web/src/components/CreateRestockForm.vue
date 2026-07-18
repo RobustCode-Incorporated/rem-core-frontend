@@ -7,33 +7,35 @@
 
     <div v-if="loading" class="loader">Chargement du catalogue...</div>
 
-    <table v-else class="stock-table">
-      <thead>
-        <tr>
-          <th>Produit</th>
-          <th>Prix Unitaire</th>
-          <th>Quantité à commander</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="prod in products" :key="prod.id">
-          <td>
-            <div class="prod-name">{{ prod.name }}</div>
-            <small class="prod-desc">{{ prod.description || 'Aucune description' }}</small>
-          </td>
-          <td>{{ Number(prod.selling_price || 0).toLocaleString() }} {{ prod.currency }}</td>
-          <td>
-            <input 
-              type="number" 
-              v-model.number="orderQtys[prod.id]" 
-              placeholder="0" 
-              class="qty-input"
-              min="0"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="table-scroll">
+      <table class="stock-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Prix Unitaire</th>
+            <th>Quantité à commander</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="prod in products" :key="prod.id">
+            <td>
+              <div class="prod-name">{{ prod.name }}</div>
+              <small class="prod-desc">{{ prod.description || 'Aucune description' }}</small>
+            </td>
+            <td>{{ Number(prod.selling_price || 0).toLocaleString() }} {{ prod.currency }}</td>
+            <td>
+              <input 
+                type="number" 
+                v-model.number="orderQtys[prod.id]" 
+                placeholder="0" 
+                class="qty-input"
+                min="0"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="footer-actions">
       <button 
@@ -121,4 +123,17 @@ onMounted(fetchProducts);
 .btn-order { margin-top: 20px; padding: 12px 25px; background: #000; color: #fff; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
 .refresh-btn { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 .loader { text-align: center; padding: 20px; color: #666; }
+.table-scroll { overflow-x: auto; }
+.stock-table { min-width: 620px; }
+
+@media (max-width: 768px) {
+  .restock-container {
+    padding: 14px;
+  }
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+}
 </style>

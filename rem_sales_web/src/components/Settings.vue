@@ -71,4 +71,20 @@ const handleDestroyAccount = async () => {
 .btn-destroy { background-color: #d32f2f; color: #fff; border: none; padding: 12px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
 .btn-destroy:hover { background-color: #b71c1c; }
 .btn-destroy:disabled { background-color: #ef9a9a; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+  .settings-title {
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+  }
+  .danger-zone-box {
+    padding: 16px;
+  }
+  .btn-destroy {
+    width: 100%;
+    padding: 12px 10px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+}
 </style>

@@ -53,26 +53,28 @@
     <hr class="divider" />
     <div class="list-section">
       <h3>Catalogue actuel</h3>
-      <table class="product-table">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Stock</th>
-            <th>Prix Achat</th>
-            <th>Prix Vente</th>
-            <th>Monnaie</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="product in catalogStore.products" :key="product.id">
-            <td class="prod-name">{{ product.name }}</td>
-            <td>{{ product.stock_quantity }}</td>
-            <td>{{ product.purchase_price }}</td>
-            <td>{{ product.selling_price }}</td>
-            <td><span class="currency-tag">{{ product.currency }}</span></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Stock</th>
+              <th>Prix Achat</th>
+              <th>Prix Vente</th>
+              <th>Monnaie</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in catalogStore.products" :key="product.id">
+              <td class="prod-name">{{ product.name }}</td>
+              <td>{{ product.stock_quantity }}</td>
+              <td>{{ product.purchase_price }}</td>
+              <td>{{ product.selling_price }}</td>
+              <td><span class="currency-tag">{{ product.currency }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -133,4 +135,16 @@ input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radiu
 .banner { padding: 12px; margin-bottom: 20px; border-radius: 6px; font-weight: 600; }
 .success { background: #e8f5e9; color: #2e7d32; }
 .error { background: #ffebee; color: #c62828; }
+.table-scroll { overflow-x: auto; }
+.product-table { min-width: 560px; }
+
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
 </style>

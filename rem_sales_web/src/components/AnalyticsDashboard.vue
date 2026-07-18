@@ -328,4 +328,24 @@ const lineOptions = computed(() => ({
   .charts-layout { grid-template-columns: 1fr; }
   .center-column { order: -1; }
 }
+
+@media (max-width: 768px) {
+  .analytics-wrapper {
+    gap: 18px;
+  }
+  .analytics-lead h2 {
+    font-size: 1.1rem;
+    line-height: 1.35;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .clean-chart {
+    padding: 14px;
+    min-height: 260px;
+  }
+  .evolution-render :deep(.apexcharts-canvas),
+  .evolution-render :deep(svg) {
+    width: 100% !important;
+  }
+}
 </style>

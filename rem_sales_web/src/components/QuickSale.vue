@@ -237,4 +237,36 @@ onMounted(() => {
 .summary-row { display: flex; justify-content: space-between; font-size: 0.95rem; }
 .checkout-submit-btn { width: 100%; padding: 15px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
 .checkout-submit-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+@media (max-width: 1024px) {
+  .caisse-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .checkout-card {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .panel-section,
+  .checkout-card {
+    padding: 16px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  .products-selection-grid {
+    grid-template-columns: 1fr;
+  }
+  .cart-item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
 </style>

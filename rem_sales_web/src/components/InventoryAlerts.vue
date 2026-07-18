@@ -155,7 +155,7 @@ onMounted(() => {
 .subtitle { color: #64748b; font-size: 0.95rem; }
 
 /* Grille des Compteurs Globaux (Style Black Card importé) */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 45px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 25px; margin-bottom: 45px; }
 .black-card { background: #111111; color: #ffffff; border-radius: 12px; padding: 25px; display: flex; align-items: flex-start; gap: 20px; border: 1px solid #222; }
 .card-icon { font-size: 2.2rem; background: #1c1c1c; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
 .card-content h3 { font-size: 0.85rem; color: #888; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px; }
@@ -199,4 +199,17 @@ onMounted(() => {
 .btn-retry { margin-top: 15px; background: #111; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
 .spinner { width: 20px; height: 20px; border: 3px solid #eee; border-top-color: #111; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 10px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .inventory-container {
+    padding: 14px;
+  }
+  .inventory-section {
+    padding: 14px;
+  }
+  .inventory-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 </style>

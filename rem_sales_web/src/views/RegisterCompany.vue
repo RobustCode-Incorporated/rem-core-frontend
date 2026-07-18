@@ -135,10 +135,10 @@ const handleRegister = async () => {
 
 <style scoped>
 /* Base */
-.login-container { 
-  display: flex; 
-  height: 100vh; 
-  font-family: 'ABeeZee', sans-serif; 
+.login-container {
+  display: flex;
+  min-height: 100svh;
+  font-family: 'ABeeZee', sans-serif;
 }
 
 /* 🌟 NOUVEAU LEFT PANEL : Identique à la page de Login (Responsive & Élastique) */
@@ -178,13 +178,13 @@ const handleRegister = async () => {
 }
 
 /* Formulaire et layout de droite */
-.right-panel { 
-  flex: 1; 
-  background-color: #FFFAFA; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  padding: 20px; 
+.right-panel {
+  flex: 1;
+  background-color: #FFFAFA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 .form-wrapper { width: 100%; max-width: 450px; }
 .form-title { font-size: 22px; font-weight: bold; margin-bottom: 24px; color: #000; }
@@ -235,6 +235,25 @@ const handleRegister = async () => {
 .register-text a { color: #000; font-weight: bold; text-decoration: none; }
 
 @media (max-width: 768px) { 
-  .left-panel { display: none; } 
+  .login-container {
+    display: block;
+  }
+  .left-panel { display: none; }
+  .right-panel {
+    min-height: 100svh;
+    align-items: flex-start;
+    padding: 28px 16px;
+  }
+  .form-wrapper {
+    max-width: none;
+  }
+  .name-row {
+    grid-template-columns: 1fr;
+    display: grid;
+    gap: 0;
+  }
+  .form-title {
+    font-size: 1.25rem;
+  }
 }
 </style>

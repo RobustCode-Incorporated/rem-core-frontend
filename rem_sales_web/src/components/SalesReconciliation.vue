@@ -468,6 +468,34 @@ onMounted(() => {
 .invoice-footer p { margin: 4px 0; font-size: 0.9rem; }
 .footer-legal { font-size: 0.75rem !important; margin-top: 12px !important; }
 
+@media (max-width: 900px) {
+  .sales-module-container {
+    padding: 14px;
+  }
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+  .sales-table {
+    min-width: 920px;
+  }
+  .modal-content {
+    width: 96%;
+  }
+  .invoice-paper {
+    padding: 16px;
+  }
+  .invoice-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .invoice-meta-block {
+    text-align: left;
+  }
+  .invoice-total-block {
+    width: 100%;
+  }
+}
+
 @media print {
   .no-print, .no-print * { display: none !important; }
   .modal-overlay { position: absolute !important; background: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }

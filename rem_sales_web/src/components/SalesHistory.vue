@@ -40,43 +40,45 @@
       Aucune transaction disponible ou trouvée.
     </div>
 
-    <table v-else class="data-table" :class="{ 'no-print': isModalOpen }">
-      <thead>
-        <tr>
-          <th>Numéro Facture</th>
-          <th>Type</th>
-          <th>Client / Fournisseur</th>
-          <th>Date</th>
-          <th>Montant</th>
-          <th>Statut</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="doc in salesHistory" :key="doc.id">
-          <td class="font-mono font-bold">{{ doc.number || 'N/A' }}</td>
-          <td>
-            <span :class="['type-badge', String(doc.type).toLowerCase()]">
-              {{ String(doc.type).toUpperCase().includes('RESTOCK') ? 'RESTOCK' : 'VENTE' }}
-            </span>
-          </td>
-          <td class="font-bold">
-            {{ doc.client_name || doc.reseller_name || (String(doc.type).toUpperCase().includes('RESTOCK') ? 'Dépôt Principal' : 'Client de passage') }}
-            <span v-if="doc.depot_name" class="depot-tag">({{ doc.depot_name }})</span>
-          </td>
-          <td>{{ formatDate(doc.created_at) }}</td>
-          <td class="font-bold text-success">{{ Number(doc.total_amount || 0).toLocaleString() }} $</td>
-          <td>
-            <span :class="['badge', String(doc.status || '').toLowerCase()]">
-              {{ doc.status || 'UNKNOWN' }}
-            </span>
-          </td>
-          <td>
-            <button @click="openInvoice(doc)" class="action-btn">Consulter</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="table-scroll" :class="{ 'no-print': isModalOpen }">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Numéro Facture</th>
+            <th>Type</th>
+            <th>Client / Fournisseur</th>
+            <th>Date</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="doc in salesHistory" :key="doc.id">
+            <td class="font-mono font-bold">{{ doc.number || 'N/A' }}</td>
+            <td>
+              <span :class="['type-badge', String(doc.type).toLowerCase()]">
+                {{ String(doc.type).toUpperCase().includes('RESTOCK') ? 'RESTOCK' : 'VENTE' }}
+              </span>
+            </td>
+            <td class="font-bold">
+              {{ doc.client_name || doc.reseller_name || (String(doc.type).toUpperCase().includes('RESTOCK') ? 'Dépôt Principal' : 'Client de passage') }}
+              <span v-if="doc.depot_name" class="depot-tag">({{ doc.depot_name }})</span>
+            </td>
+            <td>{{ formatDate(doc.created_at) }}</td>
+            <td class="font-bold text-success">{{ Number(doc.total_amount || 0).toLocaleString() }} $</td>
+            <td>
+              <span :class="['badge', String(doc.status || '').toLowerCase()]">
+                {{ doc.status || 'UNKNOWN' }}
+              </span>
+            </td>
+            <td>
+              <button @click="openInvoice(doc)" class="action-btn">Consulter</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
@@ -255,4 +257,25 @@ onMounted(fetchSales);
 .state-feedback { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
 .spinner { width: 16px; height: 16px; border: 2px solid #e2e8f0; border-top-color: #000; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.table-scroll { overflow-x: auto; }
+.data-table { min-width: 820px; }
+
+@media (max-width: 768px) {
+  .history-module {
+    padding: 14px;
+  }
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-content {
+    width: 96%;
+  }
+  .invoice-paper {
+    padding: 16px;
+  }
+  .invoice-total-block {
+    width: 100%;
+  }
+}
 </style>

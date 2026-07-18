@@ -20,26 +20,28 @@
         Aucune demande de réapprovisionnement enregistrée.
       </div>
 
-      <table v-else class="data-table">
-        <thead>
-          <tr>
-            <th>Numéro</th>
-            <th>Date</th>
-            <th>Statut</th>
-            <th>Montant Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="doc in restockHistory" :key="doc.id">
-            <td class="font-bold">{{ doc.number || 'N/A' }}</td>
-            <td>{{ formatDate(doc.created_at) }}</td>
-            <td>
-              <span :class="['badge', String(doc.status || '').toLowerCase()]">{{ doc.status || 'UNKNOWN' }}</span>
-            </td>
-            <td class="font-bold">{{ Number(doc.total_amount || 0).toLocaleString() }} $</td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-else class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th>Montant Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="doc in restockHistory" :key="doc.id">
+              <td class="font-bold">{{ doc.number || 'N/A' }}</td>
+              <td>{{ formatDate(doc.created_at) }}</td>
+              <td>
+                <span :class="['badge', String(doc.status || '').toLowerCase()]">{{ doc.status || 'UNKNOWN' }}</span>
+              </td>
+              <td class="font-bold">{{ Number(doc.total_amount || 0).toLocaleString() }} $</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -123,4 +125,21 @@ onMounted(fetchRestockHistory);
 .state-feedback { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
 .spinner { width: 16px; height: 16px; border: 2px solid #e2e8f0; border-top-color: #000; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.table-scroll { overflow-x: auto; }
+.data-table { min-width: 560px; }
+
+@media (max-width: 768px) {
+  .restock-module {
+    padding: 14px;
+  }
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .btn-primary {
+    width: 100%;
+  }
+}
 </style>

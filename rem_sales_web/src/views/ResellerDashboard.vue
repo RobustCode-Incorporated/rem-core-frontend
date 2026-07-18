@@ -71,7 +71,7 @@ const logout = () => {
 .dashboard-container { 
   display: flex; 
   flex-direction: column; 
-  height: 100vh; 
+  min-height: 100svh;
   background: #FFFAFA; 
   font-family: 'ABeeZee', sans-serif; 
 }
@@ -149,5 +149,26 @@ const logout = () => {
   flex: 1; 
   padding: 40px; 
   overflow-y: auto; 
+}
+
+@media (max-width: 900px) {
+  .top-navbar {
+    padding: 10px 14px;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nav-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .nav-menu {
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .content-area {
+    padding: 16px 12px;
+  }
 }
 </style>

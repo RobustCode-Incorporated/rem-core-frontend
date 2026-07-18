@@ -360,4 +360,33 @@ onBeforeUnmount(() => {
 .deposit-tag { font-size: 0.7rem; color: #707070; background: #f0f0f0; padding: 2px 8px; border-radius: 12px; }
 .result-sub { font-size: 0.75rem; color: #707070; margin-top: 4px; }
 .resellers-map { width: 100%; height: 520px; border-radius: 4px; border: 1px solid #e5e5e5; z-index: 1; }
+
+@media (max-width: 768px) {
+  .map-module-container {
+    padding: 14px;
+  }
+  .map-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .view-toggle {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .toggle-btn {
+    padding: 8px 6px;
+    font-size: 0.7rem;
+  }
+  .refresh-btn {
+    width: 100%;
+  }
+  .search-input {
+    font-size: 0.8rem;
+    padding: 10px 12px;
+  }
+  .resellers-map {
+    height: 360px;
+  }
+}
 </style>
