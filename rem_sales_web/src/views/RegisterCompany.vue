@@ -70,6 +70,17 @@
             </button>
           </div>
 
+          <div class="consent-block">
+            <label class="consent-label">
+              <input v-model="form.acceptedConfidentialityAgreement" type="checkbox" />
+              <span>
+                Je déclare avoir lu et accepté l'
+                <router-link to="/confidentiality-agreement" target="_blank">Engagement de confidentialité PME</router-link>
+                et j'autorise le traitement des informations strictement nécessaires à mon immatriculation.
+              </span>
+            </label>
+          </div>
+
           <div v-if="error" class="error-msg">{{ error }}</div>
 
           <button type="submit" :disabled="loading">
