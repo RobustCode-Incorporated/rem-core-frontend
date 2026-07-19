@@ -80,28 +80,38 @@ const contactForm = reactive({
   message: ''
 })
 
-// Logique d'envoi du formulaire de contact
-const handleContactSubmit = async () => {
+// Logique d'envoi du formulaire via WhatsApp
+const handleContactSubmit = () => {
   isSending.value = true
+  
   try {
-    // 🚀 À remplacer par l'URL de votre API pour l'envoi d'emails ou de tickets
-    // const token = localStorage.getItem('token')
-    // await axios.post(`${import.meta.env.VITE_API_URL}/support/contact`, contactForm, {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // })
+    // Format : indicatif pays (ex: 32 pour Belgique, 33 pour France) + numéro sans le 0 au début
+    const whatsappNumber = '+32467613480' 
     
-    // Simulation d'un délai réseau pour la démo
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Formatage du message pour WhatsApp
+    const messageText = `*Nouvelle demande d'assistance (REM)* 🛠️\n\n` +
+      `*Nom :* ${contactForm.name}\n` +
+      `*Contact :* ${contactForm.contactInfo}\n` +
+      `*Sujet :* ${contactForm.subject}\n\n` +
+      `*Message :*\n${contactForm.message}`
     
-    alert("Votre demande a bien été envoyée. Nous vous recontacterons très vite !")
+    // Encodage du texte pour qu'il soit compatible avec une URL
+    const encodedText = encodeURIComponent(messageText)
     
-    // Réinitialisation du formulaire
+    // Création du lien WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`
+    
+    // Ouvre WhatsApp dans un nouvel onglet ou lance l'application
+    window.open(whatsappUrl, '_blank')
+    
+    // Réinitialisation du formulaire après l'envoi
     contactForm.name = ''
     contactForm.contactInfo = ''
     contactForm.subject = ''
     contactForm.message = ''
+    
   } catch (err) {
-    alert("Une erreur s'est produite lors de l'envoi du message.")
+    alert("Une erreur s'est produite lors de la redirection vers WhatsApp.")
   } finally {
     isSending.value = false
   }
