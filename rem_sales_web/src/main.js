@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 import VueApexCharts from 'vue3-apexcharts'
 import App from './App.vue'
 import router from './router'
-import { i18n } from './i18n/index.js'
+import { i18n } from './i18n'
 
 const app = createApp(App)
 
