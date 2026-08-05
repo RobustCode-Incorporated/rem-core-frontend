@@ -30,6 +30,10 @@
             {{ $t(link.translationKey) }}
           </button>
         </nav>
+        <div class="lang-btn-group">
+          <button @click="setLocale('fr')" :class="['lang-btn', { 'lang-btn-active': currentLocale === 'fr' }]">FR</button>
+          <button @click="setLocale('en')" :class="['lang-btn', { 'lang-btn-active': currentLocale === 'en' }]">EN</button>
+        </div>
         <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button>
       </div>
     </header>
@@ -50,7 +54,11 @@
             {{ $t(link.translationKey) }}
           </button>
         </nav>
-        <button @click="logoutAndCloseMenu" class="mobile-logout-btn">Déconnexion</button>
+        <div class="mobile-lang-group">
+          <button @click="setLocale('fr')" :class="['mobile-lang-btn', { active: currentLocale === 'fr' }]">FR</button>
+          <button @click="setLocale('en')" :class="['mobile-lang-btn', { active: currentLocale === 'en' }]">EN</button>
+        </div>
+        <button @click="logoutAndCloseMenu" class="mobile-logout-btn">{{ $t('common.logout') }}</button>
       </aside>
     </Transition>
 
@@ -66,6 +74,8 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '../i18n.js'
 import axios from 'axios'
 import SalesReconciliation from '../components/SalesReconciliation.vue'
 import InventoryAlerts from '../components/InventoryAlerts.vue'
@@ -76,6 +86,8 @@ import Settings from '../components/Settings.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { locale } = useI18n()
+const currentLocale = computed(() => locale.value)
 const currentTab = ref('dashboard')
 const isMobileMenuOpen = ref(false)
 const targetPlan = ref('')
@@ -223,6 +235,15 @@ const logoutAndCloseMenu = () => {
 
 .logout-btn { background: transparent; color: #fff; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
 .logout-btn:hover { background: #fff; color: #000; }
+
+.lang-btn-group { display: flex; gap: 4px; }
+.lang-btn { background: transparent; color: #fff; border: 1px solid #555; padding: 6px 10px; border-radius: 20px; font-size: 0.72rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+.lang-btn:hover { background: #fff; color: #000; border-color: #fff; }
+.lang-btn-active { background: #fff !important; color: #000 !important; border-color: #fff !important; }
+
+.mobile-lang-group { display: flex; gap: 8px; margin-bottom: 12px; }
+.mobile-lang-btn { background: transparent; color: #c1c1c1; border: 1px solid #333; border-radius: 10px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; flex: 1; }
+.mobile-lang-btn.active { color: #fff; border-color: #fff; background: #111; }
 
 .mobile-menu-overlay {
   position: fixed;
