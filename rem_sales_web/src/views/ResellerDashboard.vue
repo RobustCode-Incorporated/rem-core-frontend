@@ -281,7 +281,6 @@ const logoutAndCloseMenu = () => {
   padding: 40px; 
   overflow-y: auto; 
 }
-<<<<<<< HEAD
 
 @media (max-width: 767px) {
   .desktop-nav-right {
@@ -319,7 +318,6 @@ const logoutAndCloseMenu = () => {
     padding: 14px 12px 20px;
   }
 }
-=======
 
 @media (max-width: 900px) {
   .top-navbar {
@@ -344,9 +342,7 @@ const logoutAndCloseMenu = () => {
     padding: 16px 12px;
   }
 }
-<<<<<<< HEAD
->>>>>>> 761dc42a05221406c3a4065bd360cd32a3899495
-=======
+
 
 @media (max-width: 767px) {
   .desktop-nav-right {
@@ -384,5 +380,4 @@ const logoutAndCloseMenu = () => {
     padding: 14px 12px 20px;
   }
 }
->>>>>>> 70824a49dd2e8cb1f5f6cf150723e9e8339f7810
 </style>
