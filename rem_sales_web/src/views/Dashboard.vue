@@ -312,17 +312,6 @@ const logoutAndCloseMenu = () => {
   .logo-top { width: 140px; }
   .brand-title { font-size: 0.65rem; letter-spacing: 1.5px; }
 }
-@media (max-width: 767px) {
-  .desktop-nav-right {
-    display: none;
-  }
-
-  .mobile-menu-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
 @media (max-width: 900px) {
   .top-navbar {
     padding: 10px 14px;
@@ -351,6 +340,16 @@ const logoutAndCloseMenu = () => {
 }
 
 @media (max-width: 767px) {
+  .desktop-nav-right {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .top-navbar {
     align-items: flex-start;
     gap: 10px;
@@ -372,41 +371,4 @@ const logoutAndCloseMenu = () => {
     padding: 16px 12px;
   }
 }
-
-@media (max-width: 767px) {
-  .desktop-nav-right {
-    display: none;
-  }
-
-  .mobile-menu-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .top-navbar {
-    padding: 10px 14px;
-    flex-wrap: nowrap;
-  }
-
-  .brand-zone {
-    min-width: 0;
-    align-items: flex-start;
-  }
-
-  .logo-top {
-    width: 105px;
-  }
-
-  .brand-title {
-    font-size: 0.52rem;
-    letter-spacing: 0.8px;
-    white-space: normal;
-    line-height: 1.2;
-  }
-
-  .content-area {
-    padding: 14px 12px 20px;
-  }
-
 </style>
