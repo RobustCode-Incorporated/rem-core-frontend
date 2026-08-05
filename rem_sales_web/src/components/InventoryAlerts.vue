@@ -99,6 +99,7 @@ const allProductsWithStatus = computed(() => {
     let status = 'OPTIMAL'
     let statusClass = 'status-success'
     let statusCode = 'optimal'
+    let percentage = 100 // Par défaut, cercle complet si le stock est au vert
 
     if (qty === 0) {
       status = 'CRITICAL'
