@@ -1,37 +1,37 @@
 <template>
   <div class="form-container">
     <div class="form-header">
-      <h2>Ajouter un nouvel article</h2>
-      <p>Configurez les détails du produit pour le rendre disponible dans le catalogue.</p>
+      <h2>{{ $t('product.addTitle') }}</h2>
+      <p>{{ $t('product.addSubtitle') }}</p>
     </div>
 
-    <div v-if="isSuccess" class="banner success">Produit enregistré avec succès.</div>
+    <div v-if="isSuccess" class="banner success">{{ $t('product.saveSuccess') }}</div>
     <div v-if="errorMessage" class="banner error">{{ errorMessage }}</div>
 
     <form @submit.prevent="handleSubmit" class="product-form">
       <div class="form-group">
-        <label for="name">Désignation de l'article</label>
-        <input id="name" v-model="form.name" type="text" placeholder="Ex: Sac de Ciment 50kg" required />
+        <label for="name">{{ $t('product.nameLabel') }}</label>
+        <input id="name" v-model="form.name" type="text" :placeholder="$t('product.namePlaceholder')" required />
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="purchasePrice">Prix d'achat</label>
+          <label for="purchasePrice">{{ $t('product.purchasePrice') }}</label>
           <input id="purchasePrice" v-model.number="form.purchasePrice" type="number" step="0.01" placeholder="0.00" min="0" required />
         </div>
         <div class="form-group">
-          <label for="sellingPrice">Prix de vente</label>
+          <label for="sellingPrice">{{ $t('product.sellingPrice') }}</label>
           <input id="sellingPrice" v-model.number="form.sellingPrice" type="number" step="0.01" placeholder="0.00" min="1" required />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="stock">Quantité initiale</label>
-          <input id="stock" v-model.number="form.stockQuantity" type="number" placeholder="Ex: 100" min="0" required />
+          <label for="stock">{{ $t('product.initialQty') }}</label>
+          <input id="stock" v-model.number="form.stockQuantity" type="number" :placeholder="$t('product.qtyPlaceholder')" min="0" required />
         </div>
         <div class="form-group">
-          <label for="currency">Monnaie</label>
+          <label for="currency">{{ $t('product.currency') }}</label>
           <select id="currency" v-model="form.currency">
             <option value="USD">USD ($)</option>
             <option value="EUR">EUR (€)</option>
@@ -41,27 +41,27 @@
       </div>
 
       <div class="form-group">
-        <label for="alert">Seuil d'alerte stock</label>
+        <label for="alert">{{ $t('product.alertThreshold') }}</label>
         <input id="alert" v-model.number="form.minStockAlert" type="number" min="1" required />
       </div>
 
       <button type="submit" :disabled="catalogStore.loading" class="btn-submit">
-        {{ catalogStore.loading ? 'Enregistrement...' : 'Sauvegarder le produit' }}
+        {{ catalogStore.loading ? $t('product.submitLoading') : $t('product.submit') }}
       </button>
     </form>
 
     <hr class="divider" />
     <div class="list-section">
-      <h3>Catalogue actuel</h3>
+      <h3>{{ $t('product.catalogTitle') }}</h3>
       <div class="table-scroll">
         <table class="product-table">
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Stock</th>
-              <th>Prix Achat</th>
-              <th>Prix Vente</th>
-              <th>Monnaie</th>
+              <th>{{ $t('product.colName') }}</th>
+              <th>{{ $t('product.colStock') }}</th>
+              <th>{{ $t('product.colPurchase') }}</th>
+              <th>{{ $t('product.colSale') }}</th>
+              <th>{{ $t('product.colCurrency') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -81,9 +81,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useCatalogStore } from '../stores/catalog'
 
 const catalogStore = useCatalogStore()
+const { t } = useI18n()
 
 const initialFormState = {
   name: '',
@@ -114,7 +116,7 @@ const handleSubmit = async () => {
     form.value = { ...initialFormState }
     setTimeout(() => { isSuccess.value = false }, 3000)
   } else {
-    errorMessage.value = catalogStore.error || "Une erreur est survenue lors de l'enregistrement."
+    errorMessage.value = catalogStore.error || t('product.saveError')
   }
 }
 </script>

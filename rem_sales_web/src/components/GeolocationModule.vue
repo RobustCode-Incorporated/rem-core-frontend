@@ -5,11 +5,11 @@
         <div :class="['radar-circle', { 'pulsing': loading }]"></div>
       </div>
 
-      <h3>Géolocalisation</h3>
-      <p>Mettez à jour votre position actuelle pour valider votre affectation et vos flux logistiques.</p>
+      <h3>{{ $t('geo.title') }}</h3>
+      <p>{{ $t('geo.subtitle') }}</p>
       
       <button @click="updateLocation" :disabled="loading" class="btn-geo">
-        {{ loading ? 'Synchronisation en cours...' : 'Actualiser ma position GPS' }}
+        {{ loading ? $t('geo.loading') : $t('geo.action') }}
       </button>
 
       <div v-if="statusMessage" :class="['status-msg', statusType]">
@@ -21,7 +21,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const statusMessage = ref('')
@@ -30,7 +33,7 @@ const statusType = ref('')
 const updateLocation = () => {
   // 1. Vérification du support API du navigateur
   if (!navigator.geolocation) {
-    statusMessage.value = "Géolocalisation non supportée par votre terminal."
+    statusMessage.value = t('geo.notSupported')
     statusType.value = 'error'
     return
   }
@@ -38,7 +41,7 @@ const updateLocation = () => {
   // 2. Extraction et sécurisation de l'identifiant revendeur
   const resellerId = localStorage.getItem('resellerId') || localStorage.getItem('userId');
   if (!resellerId || resellerId === 'null') {
-    statusMessage.value = "Erreur d'authentification : Identifiant de session introuvable."
+    statusMessage.value = t('geo.authError')
     statusType.value = 'error'
     return
   }
@@ -61,14 +64,14 @@ const updateLocation = () => {
           }
         )
         
-        statusMessage.value = "Position géographique synchronisée avec succès."
+        statusMessage.value = t('geo.success')
         statusType.value = 'success'
         
         // Feedback haptique discret sur mobile si supporté
         if (navigator.vibrate) navigator.vibrate(200)
       } catch (err) {
         console.error("❌ [GEO SYNCHRO ERROR] :", err)
-        statusMessage.value = "Échec de la transmission des coordonnées au serveur REM."
+        statusMessage.value = t('geo.error')
         statusType.value = 'error'
       } finally {
         loading.value = false
@@ -76,7 +79,7 @@ const updateLocation = () => {
     },
     (geoError) => {
       console.warn("⚠️ [GEO PERMISSION DENIED] :", geoError)
-      statusMessage.value = "Accès aux données de localisation refusé par l'appareil."
+      statusMessage.value = t('geo.permissionDenied')
       statusType.value = 'error'
       loading.value = false
     },

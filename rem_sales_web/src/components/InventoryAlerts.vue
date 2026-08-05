@@ -1,18 +1,18 @@
 <template>
   <div class="inventory-container">
     <div class="header-section">
-      <h2>📊 État Global des Stocks</h2>
-      <p class="subtitle">Vue d'ensemble du catalogue et indicateurs de complétion logistique</p>
+      <h2>📊 {{ $t('inventory.title') }}</h2>
+      <p class="subtitle">{{ $t('inventory.subtitle') }}</p>
     </div>
 
     <div v-if="catalogStore.loading" class="state-message">
-      <span class="spinner"></span> Synchronisation du catalogue en cours...
+      <span class="spinner"></span> {{ $t('inventory.loading') }}
     </div>
 
     <div v-else-if="catalogStore.error" class="state-message error">
       ❌ {{ catalogStore.error }}
       <br />
-      <button @click="catalogStore.fetchProducts" class="btn-retry">Réessayer</button>
+      <button @click="catalogStore.fetchProducts" class="btn-retry">{{ $t('inventory.retry') }}</button>
     </div>
 
     <div v-else>
@@ -20,30 +20,30 @@
         <div class="stat-card black-card">
           <div class="card-icon rupture-icon">🚨</div>
           <div class="card-content">
-            <h3>Ruptures Totales</h3>
-            <div class="metric text-danger">{{ catalogStore.outOfStockProducts.length }} <span class="unit">Réf.</span></div>
-            <p class="trend urgent">Quantité à 0 absolue</p>
+            <h3>{{ $t('inventory.outOfStock') }}</h3>
+            <div class="metric text-danger">{{ catalogStore.outOfStockProducts.length }} <span class="unit">{{ $t('inventory.unit') }}</span></div>
+            <p class="trend urgent">{{ $t('inventory.outOfStockDesc') }}</p>
           </div>
         </div>
 
         <div class="stat-card black-card">
           <div class="card-icon warning-icon">⚠️</div>
           <div class="card-content">
-            <h3>Seuils Critiques</h3>
-            <div class="metric text-warning">{{ lowStockProducts.length }} <span class="unit">Réf.</span></div>
-            <p class="trend">Sous la limite d'alerte</p>
+            <h3>{{ $t('inventory.lowStock') }}</h3>
+            <div class="metric text-warning">{{ lowStockProducts.length }} <span class="unit">{{ $t('inventory.unit') }}</span></div>
+            <p class="trend">{{ $t('inventory.lowStockDesc') }}</p>
           </div>
         </div>
       </div>
 
       <div class="inventory-section">
         <div class="section-title-zone">
-          <h3>📦 Répartition de l'Inventaire Général</h3>
-          <p class="section-subtitle">Statut visuel de chaque marchandise calculé selon son seuil de réapprovisionnement minimal</p>
+          <h3>📦 {{ $t('inventory.distributionTitle') }}</h3>
+          <p class="section-subtitle">{{ $t('inventory.distributionSubtitle') }}</p>
         </div>
 
         <div v-if="catalogStore.products.length === 0" class="empty-stock">
-          <p>Aucun produit n'est répertorié dans le catalogue pour le moment.</p>
+          <p>{{ $t('inventory.empty') }}</p>
         </div>
 
         <div v-else class="inventory-grid">
@@ -60,9 +60,11 @@
             <div class="inventory-details">
               <h4>{{ product.name }}</h4>
               <span :class="['stock-badge', product.statusClass]">
-                {{ product.statusText }}
+                {{ product.statusCode === 'optimal'
+                  ? $t('inventory.optimal', { threshold: product.alertThreshold })
+                  : $t('inventory.' + product.statusCode) }}
               </span>
-              <p class="threshold-info">Seuil d'alerte : <strong>{{ product.alertThreshold }}</strong> u</p>
+              <p class="threshold-info">{{ $t('inventory.threshold') }} <strong>{{ product.alertThreshold }}</strong> u</p>
             </div>
 
           </div>
@@ -96,18 +98,17 @@ const allProductsWithStatus = computed(() => {
 
     let status = 'OPTIMAL'
     let statusClass = 'status-success'
-    let statusText = `Optimal (≥ ${alert})`
-    let percentage = 100 // Par défaut, cercle complet si le stock est au vert
+    let statusCode = 'optimal'
 
     if (qty === 0) {
       status = 'CRITICAL'
       statusClass = 'status-danger'
-      statusText = 'Rupture'
+      statusCode = 'critical'
       percentage = 0
     } else if (qty <= alert) {
       status = 'WARNING'
       statusClass = 'status-warning'
-      statusText = 'Stock critique'
+      statusCode = 'warning'
       // Calcul du ratio de complétion par rapport au seuil fixé
       percentage = alert > 0 ? Math.min((qty / alert) * 100, 100) : 0
     }
@@ -120,7 +121,7 @@ const allProductsWithStatus = computed(() => {
       percentage,
       stock_status: status,
       statusClass,
-      statusText
+      statusCode
     }
   })
 })
