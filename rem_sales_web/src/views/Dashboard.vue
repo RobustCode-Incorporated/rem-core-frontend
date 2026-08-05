@@ -228,7 +228,7 @@ const logoutAndCloseMenu = () => {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  z-index: 40;
+  z-index: 9998;
 }
 
 .mobile-menu-panel {
@@ -239,11 +239,7 @@ const logoutAndCloseMenu = () => {
   height: 100vh;
   background: #070707;
   border-left: 1px solid #222;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  padding: 84px 20px 20px;
-  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.45);
+  z-index: 9999;
 }
 
 .mobile-nav-menu {
