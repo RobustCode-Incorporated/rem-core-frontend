@@ -1,39 +1,39 @@
 <template>
   <div class="form-container">
     <div class="form-header">
-      <h2>Ajouter un nouveau revendeur</h2>
+      <h2>{{ $t('reseller.addTitle') }}</h2>
     </div>
 
     <form @submit.prevent="submitReseller" class="reseller-form">
       <div class="form-row">
         <div class="form-group">
-          <label>Prénom</label>
-          <input v-model="form.firstName" type="text" placeholder="Ex: Jean" required />
+          <label>{{ $t('reseller.firstName') }}</label>
+          <input v-model="form.firstName" type="text" :placeholder="$t('reseller.firstNamePlaceholder')" required />
         </div>
         <div class="form-group">
-          <label>Nom</label>
-          <input v-model="form.lastName" type="text" placeholder="Ex: Dupont" required />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Email (Connexion)</label>
-          <input v-model="form.email" type="email" placeholder="revendeur@email.com" required />
-        </div>
-        <div class="form-group">
-          <label>Téléphone</label>
-          <input v-model="form.phone" type="tel" placeholder="+243 XXX XXX XXX" required />
+          <label>{{ $t('reseller.lastName') }}</label>
+          <input v-model="form.lastName" type="text" :placeholder="$t('reseller.lastNamePlaceholder')" required />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Nom du Dépôt</label>
-          <input v-model="form.deposit_name" type="text" placeholder="Ex: Dépôt Centre-Ville" required />
+          <label>{{ $t('reseller.email') }}</label>
+          <input v-model="form.email" type="email" :placeholder="$t('reseller.emailPlaceholder')" required />
         </div>
         <div class="form-group">
-          <label>Mot de passe</label>
+          <label>{{ $t('reseller.phone') }}</label>
+          <input v-model="form.phone" type="tel" :placeholder="$t('reseller.phonePlaceholder')" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ $t('reseller.depot') }}</label>
+          <input v-model="form.deposit_name" type="text" :placeholder="$t('reseller.depotPlaceholder')" required />
+        </div>
+        <div class="form-group">
+          <label>{{ $t('reseller.password') }}</label>
           <div class="password-wrapper">
             <input 
               v-model="form.password" 
@@ -61,23 +61,23 @@
       </div>
 
       <button type="submit" class="btn-submit" :disabled="loading">
-        {{ loading ? 'Enregistrement...' : 'Créer le compte revendeur' }}
+      {{ loading ? $t('reseller.submitLoading') : $t('reseller.submit') }}
       </button>
     </form>
 
     <hr class="divider" />
 
     <div class="list-section">
-      <h3>Liste des revendeurs</h3>
+      <h3>{{ $t('reseller.listTitle') }}</h3>
       <div class="table-scroll">
         <table class="reseller-table">
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Dépôt</th>
-              <th>Téléphone</th>
-              <th>Statut GPS</th>
+              <th>{{ $t('reseller.colName') }}</th>
+              <th>{{ $t('reseller.colEmail') }}</th>
+              <th>{{ $t('reseller.colDepot') }}</th>
+              <th>{{ $t('reseller.colPhone') }}</th>
+              <th>{{ $t('reseller.colGps') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -88,12 +88,12 @@
               <td>{{ reseller.phone }}</td>
               <td>
                 <span :class="['badge', reseller.latitude ? 'ok' : 'wait']">
-                  {{ reseller.latitude ? 'Localisé' : 'En attente' }}
+                  {{ reseller.latitude ? $t('reseller.gpsOk') : $t('reseller.gpsWait') }}
                 </span>
               </td>
             </tr>
             <tr v-if="resellers.length === 0">
-              <td colspan="5" class="empty-msg">Aucun revendeur enregistré.</td>
+              <td colspan="5" class="empty-msg">{{ $t('reseller.empty') }}</td>
             </tr>
           </tbody>
         </table>
@@ -104,7 +104,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const resellers = ref([])
@@ -161,12 +164,12 @@ const submitReseller = async () => {
       }
     })
     
-    alert('Revendeur créé avec succès et accès généré !')
+    alert(t('reseller.createSuccess'))
     form.value = { firstName: '', lastName: '', email: '', password: '', phone: '', deposit_name: '' }
     await fetchResellers() 
   } catch (error) {
     console.error("❌ Échec de la création :", error)
-    alert('Erreur lors de la création : vérifiez que l\'email n\'est pas déjà utilisé.')
+    alert(t('reseller.createError'))
   } finally {
     loading.value = false
   }

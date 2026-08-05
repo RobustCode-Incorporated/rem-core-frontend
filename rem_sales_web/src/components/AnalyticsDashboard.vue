@@ -2,8 +2,8 @@
   <div class="analytics-wrapper">
     
     <div class="analytics-lead">
-      <h2>Suivi Analytique Global</h2>
-      <p>Analyse multi-tenant en temps réel du flux transactionnel. Plan <span class="plan-badge">{{ currentPlan.toUpperCase() }}</span></p>
+      <h2>{{ $t('analytics.title') }}</h2>
+      <p>{{ $t('analytics.subtitle') }} <span class="plan-badge">{{ currentPlan.toUpperCase() }}</span></p>
     </div>
 
     <div class="card-section-container">
@@ -12,27 +12,27 @@
 
     <div class="metrics-grid">
       <div class="metric-card black-card">
-        <span class="card-label">CA Flux Dépôt (Factures Restock)</span>
+        <span class="card-label">{{ $t('analytics.depositRevenue') }}</span>
         <h3 class="card-number total-direct">{{ formatCurrency(revenueDirect) }}</h3>
-        <span class="card-status status-up">▲ Encaissé Logistique</span>
+        <span class="card-status status-up">{{ $t('analytics.depositStatus') }}</span>
       </div>
       
       <div class="metric-card black-card">
-        <span class="card-label">CA Ventes Revendeurs (Caisse)</span>
+        <span class="card-label">{{ $t('analytics.resellerRevenue') }}</span>
         <h3 class="card-number total-reseller">{{ formatCurrency(revenueResellers) }}</h3>
-        <span class="card-status status-reseller">▲ Terminaux Distants</span>
+        <span class="card-status status-reseller">{{ $t('analytics.resellerStatus') }}</span>
       </div>
 
       <div class="metric-card black-card">
-        <span class="card-label">Volume Transactions</span>
+        <span class="card-label">{{ $t('analytics.volumeTransactions') }}</span>
         <h3 class="card-number">{{ salesStore.sales.length }}</h3>
-        <span class="card-status status-sync">● Éléments Synchronisés</span>
+        <span class="card-status status-sync">{{ $t('analytics.syncedItems') }}</span>
       </div>
 
       <div class="metric-card black-card">
-        <span class="card-label">Panier Moyen Global</span>
+        <span class="card-label">{{ $t('analytics.averageBasket') }}</span>
         <h3 class="card-number">{{ formatCurrency(averageBasket) }}</h3>
-        <span class="card-status status-up">▲ Intensité du Flux</span>
+        <span class="card-status status-up">{{ $t('analytics.fluxIntensity') }}</span>
       </div>
     </div>
 
@@ -40,37 +40,37 @@
       
       <div class="side-column">
         <div class="chart-box clean-chart">
-          <h3>Statuts des Restocks (Dépôt)</h3>
+          <h3>{{ $t('analytics.restockStatuses') }}</h3>
           
           <div v-if="isStandardOrAbove">
             <div v-if="hasRestockData" class="chart-render-zone">
               <apexchart type="donut" :options="donutOptionsRestock" :series="restockSeries" height="250"></apexchart>
             </div>
-            <div v-else class="empty-chart-fallback">📦 Aucun restock</div>
+            <div v-else class="empty-chart-fallback">📦 {{ $t('analytics.noRestock') }}</div>
           </div>
           
           <div v-else class="locked-premium-overlay">
             <div class="lock-blur"></div>
             <div class="lock-content">
-              <span>🔒 Plan Standard</span>
+              <span>🔒 {{ $t('analytics.planStandard') }}</span>
             </div>
           </div>
         </div>
 
         <div class="chart-box clean-chart">
-          <h3>Statuts des Ventes Revendeurs</h3>
+          <h3>{{ $t('analytics.salesStatuses') }}</h3>
           
           <div v-if="isProOrAbove">
             <div v-if="hasSalesData" class="chart-render-zone">
               <apexchart type="donut" :options="donutOptionsSales" :series="salesSeries" height="250"></apexchart>
             </div>
-            <div v-else class="empty-chart-fallback">💰 Aucune vente</div>
+            <div v-else class="empty-chart-fallback">💰 {{ $t('analytics.noSale') }}</div>
           </div>
           
           <div v-else class="locked-premium-overlay">
             <div class="lock-blur"></div>
             <div class="lock-content">
-              <span>🔒 Plan Professionnel</span>
+              <span>🔒 {{ $t('analytics.planPro') }}</span>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@
 
       <div class="center-column">
         <div class="chart-box clean-chart evolution-box">
-          <h3>Évolution Temporelle des Flux Globaux</h3>
+          <h3>{{ $t('analytics.timeEvolution') }}</h3>
           <div class="evolution-render">
             <apexchart type="area" :options="lineOptions" :series="lineData.series" height="580"></apexchart>
           </div>
@@ -87,37 +87,37 @@
 
       <div class="side-column">
         <div class="chart-box clean-chart">
-          <h3>Parts du CA par Produit</h3>
+          <h3>{{ $t('analytics.revenueByProduct') }}</h3>
           
           <div v-if="isStandardOrAbove">
             <div v-if="productData.series.length > 0" class="chart-render-zone">
               <apexchart type="donut" :options="donutOptionsProduct" :series="productData.series" height="250"></apexchart>
             </div>
-            <div v-else class="empty-chart-fallback">📊 Chargement...</div>
+            <div v-else class="empty-chart-fallback">📊 {{ $t('analytics.loadingChart') }}</div>
           </div>
           
           <div v-else class="locked-premium-overlay">
             <div class="lock-blur"></div>
             <div class="lock-content">
-              <span>🔒 Plan Standard</span>
+              <span>🔒 {{ $t('analytics.planStandard') }}</span>
             </div>
           </div>
         </div>
 
         <div class="chart-box clean-chart">
-          <h3>Top Performance Revendeurs</h3>
+          <h3>{{ $t('analytics.topResellers') }}</h3>
           
           <div v-if="isProOrAbove">
             <div v-if="resellerPerformanceData.series.length > 0" class="chart-render-zone">
               <apexchart type="donut" :options="donutOptionsResellerPerf" :series="resellerPerformanceData.series" height="250"></apexchart>
             </div>
-            <div v-else class="empty-chart-fallback">👥 Aucun CA actif</div>
+            <div v-else class="empty-chart-fallback">👥 {{ $t('analytics.noActiveRevenue') }}</div>
           </div>
           
           <div v-else class="locked-premium-overlay">
             <div class="lock-blur"></div>
             <div class="lock-content">
-              <span>🔒 Plan Professionnel</span>
+              <span>🔒 {{ $t('analytics.planPro') }}</span>
             </div>
           </div>
         </div>
@@ -129,9 +129,12 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSalesStore } from '../stores/sales'
 import ResellersMap from './ResellersMap.vue'
-import axios from 'axios' // 🌟 AJOUT : Requis pour interroger le backend en direct
+import axios from 'axios'
+
+const { t } = useI18n()
 
 const salesStore = useSalesStore()
 

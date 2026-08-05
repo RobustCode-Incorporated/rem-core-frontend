@@ -2,7 +2,7 @@
   <div class="sales-module-container">
     
     <fieldset class="filter-zone no-print">
-      <legend>Moteur de Recherche & Filtrage Avancé</legend>
+      <legend>{{ $t('sales.legend') }}</legend>
       <div class="filter-grid">
         <div class="search-box">
           <label for="search-input">{{ $t('sales.searchLabel') }}</label>
@@ -29,7 +29,7 @@
     </fieldset>
 
     <div class="results-meta no-print" v-if="metaData">
-      <p><strong>{{ metaData.totalItems }}</strong> transactions correspondantes trouvées</p>
+      <p><strong>{{ metaData.totalItems }}</strong> {{ $t('sales.found') }}</p>
     </div>
 
     <div class="table-wrapper" :class="{ 'no-print': isModalOpen }">
@@ -44,13 +44,13 @@
       <table v-else class="sales-table">
         <thead>
           <tr>
-            <th>N° Facture</th>
-            <th>Type</th>
-            <th>Bénéficiaire / Dépôt</th>
-            <th>Date d'émission</th>
-            <th class="text-left">Montant Total</th>
-            <th>Statut</th>
-            <th>Actions</th>
+            <th>{{ $t('sales.colInvoice') }}</th>
+            <th>{{ $t('sales.colType') }}</th>
+            <th>{{ $t('sales.colBeneficiary') }}</th>
+            <th>{{ $t('sales.colDate') }}</th>
+            <th class="text-left">{{ $t('sales.colAmount') }}</th>
+            <th>{{ $t('sales.colStatus') }}</th>
+            <th>{{ $t('sales.colActions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +58,7 @@
             <td class="font-mono font-bold">{{ sale.number }}</td>
             <td>
               <span :class="['type-badge', sale.type?.toLowerCase()]">
-                {{ sale.type === 'RESTOCK_REQUEST' ? ' RESTOCK' : ' VENTE' }}
+                {{ sale.type === 'RESTOCK_REQUEST' ? '📦 ' + $t('sales.typeRestock') : '💼 ' + $t('sales.typeSale') }}
               </span>
             </td>
             <td class="font-bold">
@@ -75,7 +75,7 @@
               </span>
             </td>
             <td>
-              <button @click="openInvoice(sale)" class="action-btn btn-view" title="Voir la facture">Consulter</button>
+              <button @click="openInvoice(sale)" class="action-btn btn-view" :title="$t('common.consult')">{{ $t('common.consult') }}</button>
             </td>
           </tr>
         </tbody>
@@ -83,9 +83,9 @@
     </div>
 
     <div class="pagination-bar no-print" v-if="metaData && metaData.totalPages > 1">
-      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pag-btn">◀ Précédent</button>
-      <span class="page-indicator">Page <strong>{{ currentPage }}</strong> sur <strong>{{ metaData.totalPages }}</strong></span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === metaData.totalPages" class="pag-btn">Suivant ▶</button>
+      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pag-btn">{{ $t('common.previous') }}</button>
+      <span class="page-indicator">{{ $t('common.page') }} <strong>{{ currentPage }}</strong> {{ $t('common.of') }} <strong>{{ metaData.totalPages }}</strong></span>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === metaData.totalPages" class="pag-btn">{{ $t('common.next') }}</button>
     </div>
 
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
@@ -122,69 +122,69 @@
               <p class="company-details">Solutions Technologiques Multi-tenant<br>Bruxelles, Belgique</p>
             </div>
             <div class="invoice-meta-block">
-              <h2>{{ selectedInvoice.type === 'RESTOCK_REQUEST' ? 'BON DE COMMANDE' : 'FACTURE' }}</h2>
-              <p><strong>N° :</strong> {{ selectedInvoice.number }}</p>
-              <p><strong>Date :</strong> {{ formatDate(selectedInvoice.created_at) }}</p>
-              <p><strong>Statut :</strong> <span :class="['invoice-status-inline', selectedInvoice.status.toLowerCase()]">{{ selectedInvoice.status }}</span></p>
+              <h2>{{ selectedInvoice.type === 'RESTOCK_REQUEST' ? $t('invoice.purchaseOrder') : $t('invoice.invoice') }}</h2>
+              <p><strong>{{ $t('invoice.number') }}</strong> {{ selectedInvoice.number }}</p>
+              <p><strong>{{ $t('invoice.date') }}</strong> {{ formatDate(selectedInvoice.created_at) }}</p>
+              <p><strong>{{ $t('invoice.status') }}</strong> <span :class="['invoice-status-inline', selectedInvoice.status.toLowerCase()]">{{ selectedInvoice.status }}</span></p>
             </div>
           </div>
 
           <hr class="invoice-separator" />
 
           <div class="invoice-bill-to">
-            <h3>{{ selectedInvoice.type === 'RESTOCK_REQUEST' ? 'Dépôt Demandeur :' : 'Facturé à :' }}</h3>
+            <h3>{{ selectedInvoice.type === 'RESTOCK_REQUEST' ? $t('invoice.requestingDepot') : $t('invoice.billedTo') }}</h3>
             <p class="client-name">
               {{ selectedInvoice.client_name || selectedInvoice.reseller_name }}
               <span v-if="selectedInvoice.depot_name" class="depot-tag-modal">
                 ({{ selectedInvoice.depot_name }})
               </span>
             </p>
-            <p class="client-details">Identifiant Compte : {{ selectedInvoice.reseller_id || selectedInvoice.client_id || 'N/A' }}</p>
+            <p class="client-details">{{ $t('invoice.accountId') }} {{ selectedInvoice.reseller_id || selectedInvoice.client_id || 'N/A' }}</p>
           </div>
 
           <table class="invoice-items-table">
             <thead>
               <tr>
-                <th>Description Produit</th>
-                <th class="text-right">Quantité</th>
-                <th class="text-right">Prix Unitaire</th>
-                <th class="text-right">Total</th>
+                <th>{{ $t('invoice.productDesc') }}</th>
+                <th class="text-right">{{ $t('invoice.qty') }}</th>
+                <th class="text-right">{{ $t('invoice.unitPrice') }}</th>
+                <th class="text-right">{{ $t('invoice.total') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="item in selectedInvoiceItems" :key="item.id">
-                <td>{{ item.product_name || 'Produit Réapprovisionné' }}</td>
+                <td>{{ item.product_name || $t('invoice.restockedProduct') }}</td>
                 <td class="text-right">{{ item.quantity }}</td>
                 <td class="text-right">{{ Number(item.unit_price).toLocaleString() }} $</td>
                 <td class="text-right font-bold">{{ Number(item.total_price).toLocaleString() }} $</td>
               </tr>
               <tr v-if="itemsLoading">
-                <td colspan="4" class="text-center text-muted">🔄 Chargement du détail des articles...</td>
+                <td colspan="4" class="text-center text-muted">🔄 {{ $t('invoice.loadingItems') }}</td>
               </tr>
               <tr v-else-if="selectedInvoiceItems.length === 0">
-                <td colspan="4" class="text-center text-muted">⚠️ Aucun article trouvé pour ce document.</td>
+                <td colspan="4" class="text-center text-muted">⚠️ {{ $t('invoice.noItems') }}</td>
               </tr>
             </tbody>
           </table>
 
           <div class="invoice-total-block">
             <div class="total-row">
-              <span>Montant Net HT :</span>
+              <span>{{ $t('invoice.netAmount') }}</span>
               <span>{{ Number(selectedInvoice.total_amount).toLocaleString() }} $</span>
             </div>
             <div class="total-row">
-              <span>TVA (0% / Régime Spécifique) :</span>
+              <span>{{ $t('invoice.vat') }}</span>
               <span>0 $</span>
             </div>
             <div class="total-row grand-total">
-              <span>Total Net Global (USD) :</span>
+              <span>{{ $t('invoice.grandTotal') }}</span>
               <span>{{ Number(selectedInvoice.total_amount).toLocaleString() }} $</span>
             </div>
           </div>
 
           <div class="invoice-footer">
-            <p>Merci pour votre confiance !</p>
-            <p class="footer-legal">Robust Code Inc. — Document généré électroniquement par le REM Core System v1.0.0</p>
+            <p>{{ $t('invoice.thankYou') }}</p>
+            <p class="footer-legal">{{ $t('invoice.generatedBy') }}</p>
           </div>
         </div>
 
