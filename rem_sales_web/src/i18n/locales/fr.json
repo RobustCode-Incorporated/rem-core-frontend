@@ -5,7 +5,14 @@
     "close": "Fermer",
     "save": "Enregistrer",
     "cancel": "Annuler",
-    "consult": "Consulter"
+    "consult": "Consulter",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue.",
+    "noData": "Aucune donnée disponible.",
+    "previous": "◄ Précédent",
+    "next": "Suivant ►",
+    "page": "Page",
+    "of": "sur"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -16,6 +23,18 @@
     "resellers": "Revendeurs",
     "settings": "Paramètres"
   },
+  "login": {
+    "title": "Connexion Administrateur",
+    "emailLabel": "Identifiant",
+    "emailPlaceholder": "patron@entreprise.com",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "••••••••",
+    "submit": "SE CONNECTER",
+    "loading": "Connexion en cours...",
+    "noAccount": "Pas encore de compte ?",
+    "register": "S'enregistrer",
+    "error": "Identifiants incorrects."
+  },
   "sales": {
     "title": "Recherche & Filtrage Avancé",
     "searchPlaceholder": "Ex: FACT-001234 ou Nom du client...",
@@ -24,6 +43,9 @@
     "allStatuses": "Tous les statuts",
     "paid": "Payées (PAID)",
     "draft": "Brouillons (DRAFT)",
-    "cancelled": "Annulées (CANCELLED)"
+    "cancelled": "Annulées (CANCELLED)",
+    "found": "transaction(s) correspondante(s) trouvée(s)",
+    "loadingData": "🔄 Chargement et pagination des données en cours...",
+    "noResult": "⚠️ Aucune transaction ne correspond à vos critères de recherche."
   }
 }

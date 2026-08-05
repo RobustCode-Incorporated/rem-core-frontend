@@ -5,7 +5,14 @@
     "close": "Close",
     "save": "Save",
     "cancel": "Cancel",
-    "consult": "Consult"
+    "consult": "View",
+    "loading": "Loading...",
+    "error": "An error occurred.",
+    "noData": "No data available.",
+    "previous": "◄ Previous",
+    "next": "Next ►",
+    "page": "Page",
+    "of": "of"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -16,6 +23,18 @@
     "resellers": "Resellers",
     "settings": "Settings"
   },
+  "login": {
+    "title": "Administrator Login",
+    "emailLabel": "Username",
+    "emailPlaceholder": "owner@company.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "SIGN IN",
+    "loading": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "error": "Invalid credentials."
+  },
   "sales": {
     "title": "Advanced Search & Filter",
     "searchPlaceholder": "Ex: INV-001234 or customer name...",
@@ -24,6 +43,9 @@
     "allStatuses": "All statuses",
     "paid": "Paid (PAID)",
     "draft": "Drafts (DRAFT)",
-    "cancelled": "Cancelled (CANCELLED)"
+    "cancelled": "Cancelled (CANCELLED)",
+    "found": "matching transaction(s) found",
+    "loadingData": "🔄 Loading and paginating data...",
+    "noResult": "⚠️ No transactions match your search criteria."
   }
 }
