@@ -26,7 +26,7 @@
   "login": {
     "title": "Administrator Login",
     "emailLabel": "Username",
-    "emailPlaceholder": "owner@company.com",
+    "emailPlaceholder": "owner{'@'}company.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
     "submit": "SIGN IN",
@@ -65,7 +65,7 @@
     "lastName": "Last name",
     "lastNamePlaceholder": "Ex: Smith",
     "email": "Email (Login)",
-    "emailPlaceholder": "reseller@email.com",
+    "emailPlaceholder": "reseller{'@'}email.com",
     "phone": "Phone",
     "phonePlaceholder": "+243 XXX XXX XXX",
     "depot": "Depot Name",

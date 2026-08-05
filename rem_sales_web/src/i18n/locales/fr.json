@@ -26,7 +26,7 @@
   "login": {
     "title": "Connexion Administrateur",
     "emailLabel": "Identifiant",
-    "emailPlaceholder": "patron@entreprise.com",
+    "emailPlaceholder": "patron{'@'}entreprise.com",
     "passwordLabel": "Mot de passe",
     "passwordPlaceholder": "••••••••",
     "submit": "SE CONNECTER",
@@ -65,7 +65,7 @@
     "lastName": "Nom",
     "lastNamePlaceholder": "Ex: Dupont",
     "email": "Email (Connexion)",
-    "emailPlaceholder": "revendeur@email.com",
+    "emailPlaceholder": "revendeur{'@'}email.com",
     "phone": "Téléphone",
     "phonePlaceholder": "+243 XXX XXX XXX",
     "depot": "Nom du Dépôt",
