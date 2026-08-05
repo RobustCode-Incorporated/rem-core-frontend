@@ -1,0 +1,29 @@
+{
+  "common": {
+    "logout": "Logout",
+    "menu": "Menu",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "consult": "Consult"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": "Statistics",
+    "quickSale": "Quick Sale",
+    "inventory": "Inventory Tracking",
+    "products": "Products",
+    "resellers": "Resellers",
+    "settings": "Settings"
+  },
+  "sales": {
+    "title": "Advanced Search & Filter",
+    "searchPlaceholder": "Ex: INV-001234 or customer name...",
+    "searchLabel": "Search transaction",
+    "statusLabel": "Filter by status",
+    "allStatuses": "All statuses",
+    "paid": "Paid (PAID)",
+    "draft": "Drafts (DRAFT)",
+    "cancelled": "Cancelled (CANCELLED)"
+  }
+}

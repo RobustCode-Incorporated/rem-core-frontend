@@ -1,0 +1,29 @@
+{
+  "common": {
+    "logout": "Déconnexion",
+    "menu": "Menu",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "consult": "Consulter"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "stats": "Statistiques",
+    "quickSale": "Vente Rapide",
+    "inventory": "Suivi Stocks",
+    "products": "Articles",
+    "resellers": "Revendeurs",
+    "settings": "Paramètres"
+  },
+  "sales": {
+    "title": "Recherche & Filtrage Avancé",
+    "searchPlaceholder": "Ex: FACT-001234 ou Nom du client...",
+    "searchLabel": "Rechercher une transaction",
+    "statusLabel": "Filtrer par Statut",
+    "allStatuses": "Tous les statuts",
+    "paid": "Payées (PAID)",
+    "draft": "Brouillons (DRAFT)",
+    "cancelled": "Annulées (CANCELLED)"
+  }
+}
