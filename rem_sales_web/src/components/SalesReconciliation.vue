@@ -58,7 +58,7 @@
             <td class="font-mono font-bold">{{ sale.number }}</td>
             <td>
               <span :class="['type-badge', sale.type?.toLowerCase()]">
-                {{ sale.type === 'RESTOCK_REQUEST' ? '📦 RESTOCK' : '💼 VENTE' }}
+                {{ sale.type === 'RESTOCK_REQUEST' ? ' RESTOCK' : ' VENTE' }}
               </span>
             </td>
             <td class="font-bold">
