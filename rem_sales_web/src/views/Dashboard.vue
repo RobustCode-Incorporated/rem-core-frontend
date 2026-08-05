@@ -27,10 +27,10 @@
           <button v-for="link in menuItems" :key="link.id" 
                   :class="['nav-item', { active: currentTab === link.id }]"
                   @click="currentTab = link.id">
-            {{ link.label }}
+            {{ $t(link.translationKey) }}
           </button>
         </nav>
-        <button @click="logout" class="logout-btn">Déconnexion</button>
+        <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button>
       </div>
     </header>
 
@@ -47,7 +47,7 @@
             :class="['mobile-nav-item', { active: currentTab === link.id }]"
             @click="selectTab(link.id)"
           >
-            {{ link.label }}
+            {{ $t(link.translationKey) }}
           </button>
         </nav>
         <button @click="logoutAndCloseMenu" class="mobile-logout-btn">Déconnexion</button>
@@ -82,12 +82,12 @@ const targetPlan = ref('')
 const daysRemaining = ref(null)
 
 const menuItems = [
-  { id: 'dashboard', label: 'Statistiques' }, 
-  { id: 'pos', label: 'Vente Rapide' },       
-  { id: 'inventory', label: 'Suivi Stocks' },
-  { id: 'products', label: 'Articles' },
-  { id: 'Resellers', label: 'Revendeurs'},
-  { id: 'settings', label: 'Paramètres' } 
+  { id: 'dashboard', translationKey: 'dashboard.stats' },
+  { id: 'pos', translationKey: 'dashboard.quickSale' },
+  { id: 'inventory', translationKey: 'dashboard.inventory' },
+  { id: 'products', translationKey: 'dashboard.products' },
+  { id: 'Resellers', translationKey: 'dashboard.resellers' },
+  { id: 'settings', translationKey: 'dashboard.settings' }
 ]
 
 const activeComponent = computed(() => {

@@ -5,24 +5,24 @@
       <legend>Moteur de Recherche & Filtrage Avancé</legend>
       <div class="filter-grid">
         <div class="search-box">
-          <label for="search-input">Rechercher une transaction</label>
+          <label for="search-input">{{ $t('sales.searchLabel') }}</label>
           <input 
             id="search-input"
             v-model="searchQuery" 
             @input="triggerSearch"
             type="text" 
-            placeholder="Ex: FACT-001234 ou Nom du client..." 
+            :placeholder="$t('sales.searchPlaceholder')"
             class="input-field"
           />
         </div>
 
         <div class="filter-box">
-          <label for="status-select">Filtrer par Statut</label>
+          <label for="status-select">{{ $t('sales.statusLabel') }}</label>
           <select id="status-select" v-model="selectedStatus" @change="resetAndFetch" class="input-field select-field">
-            <option value="">Tous les statuts</option>
-            <option value="PAID">Payées (PAID)</option>
-            <option value="DRAFT">Brouillons (DRAFT)</option>
-            <option value="CANCELLED">Annulées (CANCELLED)</option>
+            <option value="">{{ $t('sales.allStatuses') }}</option>
+            <option value="PAID">{{ $t('sales.paid') }}</option>
+            <option value="DRAFT">{{ $t('sales.draft') }}</option>
+            <option value="CANCELLED">{{ $t('sales.cancelled') }}</option>
           </select>
         </div>
       </div>
