@@ -1,24 +1,24 @@
 <template>
   <div class="map-module-container">
     <div class="map-header">
-      <h3>Suivi Géographique Avancé (Resellers)</h3>
+      <h3>{{ $t('map.title') }}</h3>
       <div class="map-actions">
         <div class="view-toggle">
           <button 
             @click="switchViewMode('standard')" 
             :class="['toggle-btn', { active: viewMode === 'standard' }]"
           >
-            Standard & Clusters
+            {{ $t('map.viewStandard') }}
           </button>
           <button 
             @click="switchViewMode('heatmap')" 
             :class="['toggle-btn', { active: viewMode === 'heatmap' }]"
           >
-            Carte de chaleur
+            {{ $t('map.viewHeatmap') }}
           </button>
         </div>
         <button @click="fetchResellers" class="refresh-btn" :disabled="loading">
-          {{ loading ? 'Mise à jour...' : '🔄 Actualiser' }}
+          {{ loading ? $t('map.loading') : $t('map.refresh') }}
         </button>
       </div>
     </div>
@@ -28,7 +28,7 @@
         v-model="searchQuery" 
         @keydown.enter="onSearchEnter"
         type="text" 
-        placeholder="🔍 Rechercher par Nom, Email, Dépôt ou Téléphone... (Appuyez sur Entrée)" 
+        :placeholder="$t('map.searchPlaceholder')" 
         class="search-input"
       />
       
@@ -41,10 +41,10 @@
         >
           <div class="result-main">
             <span>👤 {{ reseller.name }}</span> 
-            <span class="deposit-tag">📦 {{ reseller.deposit_name || 'Sans dépôt' }}</span>
+            <span class="deposit-tag">📦 {{ reseller.deposit_name || $t('map.noDepot') }}</span>
           </div>
           <div class="result-sub">
-            📧 {{ reseller.email }} | 📞 {{ reseller.phone || 'Pas de numéro' }}
+            📧 {{ reseller.email }} | 📞 {{ reseller.phone || $t('map.noPhone') }}
           </div>
         </li>
       </ul>
@@ -56,9 +56,12 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+const { t } = useI18n();
 
 const loading = ref(false);
 const searchQuery = ref('');
@@ -165,7 +168,7 @@ const generatePopupContent = async (reseller, popup) => {
   // Contenu d'attente (Loader) le temps de fetch l'analytics Neon
   const skeletonContent = `
     <div style="font-family: sans-serif; width: 240px; padding: 4px; text-align: center; color: #64748b;">
-      <p style="margin: 0; font-size: 11px; font-weight: 500;">Calcul des flux Neon...</p>
+      <p style="margin: 0; font-size: 11px; font-weight: 500;">${t('map.popupLoading')}</p>
     </div>
   `;
   popup.setContent(skeletonContent);
@@ -194,7 +197,7 @@ const generatePopupContent = async (reseller, popup) => {
       const content = `
         <div style="font-family: sans-serif; width: 260px; color: #1e293b; padding: 2px;">
           <h4 style="margin: 0 0 2px 0; font-size: 13px; font-weight: 700; color: #0f172a;">👤 ${reseller.name}</h4>
-          <p style="margin: 0 0 6px 0; color: #64748b; font-size: 11px;">📦 Dépôt: ${reseller.deposit_name || 'Aucun'}</p>
+          <p style="margin: 0 0 6px 0; color: #64748b; font-size: 11px;">📦 ${t('map.popupDepot')} ${reseller.deposit_name || t('map.popupNoDepot')}</p>
           
           <div style="border-top: 1px solid #f1f5f9; margin-bottom: 8px;"></div>
           
@@ -228,7 +231,7 @@ const generatePopupContent = async (reseller, popup) => {
           </div>
 
           <div style="border-top: 1px solid #f1f5f9; margin: 8px 0 4px 0;"></div>
-          <p style="margin: 1px 0; font-size: 10px; color: #64748b;">📞 ${reseller.phone || 'Non renseigné'}</p>
+          <p style="margin: 1px 0; font-size: 10px; color: #64748b;">📞 ${reseller.phone || t('map.popupNoPhone')}</p>
           <p style="margin: 1px 0; font-size: 10px; color: #64748b; text-transform: lowercase;">📧 ${reseller.email}</p>
         </div>
       `;
@@ -236,7 +239,7 @@ const generatePopupContent = async (reseller, popup) => {
     }
   } catch (error) {
     console.error("❌ Échec de génération de l'analytics popup :", error);
-    popup.setContent(`<p style="margin:0;font-size:11px;color:#dc2626;">Erreur d'agrégation de la performance.</p>`);
+    popup.setContent(`<p style="margin:0;font-size:11px;color:#dc2626;">${t('map.popupError')}</p>`);
   }
 };
 

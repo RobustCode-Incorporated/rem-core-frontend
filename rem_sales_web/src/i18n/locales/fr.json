@@ -111,6 +111,21 @@
     "thankYou": "Merci pour votre confiance !",
     "generatedBy": "Robust Code Inc. — Document généré électroniquement par le REM Core System v1.0.0"
   },
+  "map": {
+    "title": "Suivi Géographique Avancé (Resellers)",
+    "viewStandard": "Standard & Clusters",
+    "viewHeatmap": "Carte de chaleur",
+    "loading": "Mise à jour...",
+    "refresh": "🔄 Actualiser",
+    "searchPlaceholder": "🔍 Rechercher par Nom, Email, Dépôt ou Téléphone... (Appuyez sur Entrée)",
+    "noDepot": "Sans dépôt",
+    "noPhone": "Pas de numéro",
+    "popupDepot": "Dépôt:",
+    "popupNoDepot": "Aucun",
+    "popupNoPhone": "Non renseigné",
+    "popupLoading": "Calcul des flux Neon...",
+    "popupError": "Erreur d'agrégation de la performance."
+  },
   "product": {
     "addTitle": "Ajouter un nouvel article",
     "addSubtitle": "Configurez les d\u00e9tails du produit pour le rendre disponible dans le catalogue.",
