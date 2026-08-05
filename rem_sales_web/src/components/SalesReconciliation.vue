@@ -48,7 +48,7 @@
             <th>Type</th>
             <th>Bénéficiaire / Dépôt</th>
             <th>Date d'émission</th>
-            <th>Montant Total</th>
+            <th class="text-left">Montant Total</th>
             <th>Statut</th>
             <th>Actions</th>
           </tr>
@@ -68,14 +68,14 @@
               </span>
             </td>
             <td>{{ formatDate(sale.created_at) }}</td>
-            <td class="text-right font-bold">{{ Number(sale.total_amount).toLocaleString() }} $</td>
+            <td class="text-left font-bold">{{ Number(sale.total_amount).toLocaleString() }} $</td>
             <td>
               <span :class="['badge', sale.status.toLowerCase()]">
                 {{ sale.status }}
               </span>
             </td>
             <td>
-              <button @click="openInvoice(sale)" class="action-btn btn-view" title="Voir la facture">👁️</button>
+              <button @click="openInvoice(sale)" class="action-btn btn-view" title="Voir la facture">Consulter</button>
             </td>
           </tr>
         </tbody>
@@ -402,6 +402,7 @@ onMounted(() => {
 .font-mono { font-family: monospace; }
 .font-bold { font-weight: bold; }
 .text-right { text-align: right; }
+.text-left { text-align: left; }
 .text-center { text-align: center; }
 .text-muted { color: #64748b; font-style: italic; }
 
@@ -418,8 +419,8 @@ onMounted(() => {
 .type-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: #e2e8f0; color: #334155; }
 .type-badge.restock_request { background: #dbeafe; color: #1e40af; }
 
-.action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px; border-radius: 4px; }
-.action-btn:hover { background: #f1f5f9; }
+.action-btn { background: #f8fafc; border: 1px solid #cbd5e1; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #0f172a; padding: 6px 10px; border-radius: 4px; }
+.action-btn:hover { background: #e2e8f0; }
 .state-feedback { text-align: center; padding: 40px; color: #64748b; }
 .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
 .pag-btn { background: #000; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
