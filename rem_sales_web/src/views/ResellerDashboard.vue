@@ -7,7 +7,7 @@
       </div>
 
       <button class="mobile-menu-toggle" @click="toggleMobileMenu" aria-label="Ouvrir le menu">
-        {{ isMobileMenuOpen ? 'Fermer' : 'Menu' }}
+        {{ isMobileMenuOpen ? $t('common.close') : $t('common.menu') }}
       </button>
 
       <div class="nav-right desktop-nav-right">
@@ -15,11 +15,10 @@
           <button v-for="tab in tabs" :key="tab.id" 
                   :class="['nav-item', { active: currentTab === tab.id }]"
                   @click="selectTab(tab.id)">
-            {{ tab.label }}
+            {{ $t(tab.key) }}
           </button>
         </nav>
-        <!-- Bouton harmonisé -->
-        <button @click="logout" class="logout-btn">Déconnexion</button>
+        <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button></button>
       </div>
     </header>
 
@@ -36,10 +35,10 @@
             :class="['mobile-nav-item', { active: currentTab === tab.id }]"
             @click="selectTab(tab.id)"
           >
-            {{ tab.label }}
+            {{ $t(tab.key) }}
           </button>
         </nav>
-        <button @click="logoutAndCloseMenu" class="mobile-logout-btn">Déconnexion</button>
+        <button @click="logoutAndCloseMenu" class="mobile-logout-btn">{{ $t('common.logout') }}</button>
       </aside>
     </Transition>
 
@@ -68,11 +67,11 @@ const isMobileMenuOpen = ref(false);
 
 // Structure des onglets nettoyée de toute pollution visuelle
 const tabs = [
-  { id: 'dashboard', label: 'Vue d\'ensemble' },
-  { id: 'pos', label: 'Caisse' },
-  { id: 'restock', label: 'Stock & Commande' },
-  { id: 'history', label: 'Historique' },
-  { id: 'geo', label: 'Position' }
+  { id: 'dashboard', key: 'resellerDash.overview' },
+  { id: 'pos', key: 'resellerDash.cashRegister' },
+  { id: 'restock', key: 'resellerDash.stockOrder' },
+  { id: 'history', key: 'resellerDash.history' },
+  { id: 'geo', key: 'resellerDash.position' }
 ];
 
 const activeComponent = computed(() => {

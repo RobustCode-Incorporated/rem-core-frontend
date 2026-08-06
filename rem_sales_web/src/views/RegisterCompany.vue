@@ -9,19 +9,19 @@
 
     <div class="right-panel">
       <div class="form-wrapper">
-        <h1 class="form-title">Création d'espace PME</h1>
+        <h1 class="form-title">{{ $t('register.title') }}</h1>
         
         <form class="login-form" @submit.prevent="handleRegister">
-          <label>Nom de l'entreprise</label>
-          <input v-model="form.companyName" placeholder="Ex: Pharmacie du Centre" required />
+          <label>{{ $t('register.companyName') }}</label>
+          <input v-model="form.companyName" :placeholder="$t('register.companyPlaceholder')" required />
 
           <div class="name-row">
             <div class="input-half">
-              <label>Pays</label>
-              <input v-model="form.country" placeholder="Ex: RDC" required />
+              <label>{{ $t('register.country') }}</label>
+              <input v-model="form.country" :placeholder="$t('register.countryPlaceholder')" required />
             </div>
             <div class="input-half">
-              <label>Devise Principale</label>
+              <label>{{ $t('register.currency') }}</label>
               <select v-model="form.currency" class="currency-select" required>
                 <option value="USD">Dollar Américain (USD)</option>
                 <option value="EUR">Euro (EUR)</option>
@@ -33,19 +33,19 @@
 
           <div class="name-row">
             <div class="input-half">
-              <label>Prénom</label>
-              <input v-model="form.firstName" placeholder="Prénom" required />
+              <label>{{ $t('register.firstName') }}</label>
+              <input v-model="form.firstName" :placeholder="$t('register.firstNamePlaceholder')" required />
             </div>
             <div class="input-half">
-              <label>Nom</label>
-              <input v-model="form.lastName" placeholder="Nom" required />
+              <label>{{ $t('register.lastName') }}</label>
+              <input v-model="form.lastName" :placeholder="$t('register.lastNamePlaceholder')" required />
             </div>
           </div>
 
-          <label>Mail d'identification</label>
-          <input v-model="form.email" type="email" placeholder="patron@entreprise.com" required />
+          <label>{{ $t('register.email') }}</label>
+          <input v-model="form.email" type="email" :placeholder="$t('register.emailPlaceholder')" required />
 
-          <label>Mot de passe</label>
+          <label>{{ $t('register.password') }}</label>
           <div class="password-wrapper">
             <input 
               v-model="form.password" 
@@ -74,9 +74,9 @@
             <label class="consent-label">
               <input v-model="form.acceptedConfidentialityAgreement" type="checkbox" />
               <span>
-                Je déclare avoir lu et accepté l'
-                <router-link to="/confidentiality-agreement" target="_blank">Engagement de confidentialité PME</router-link>
-                et j'autorise le traitement des informations strictement nécessaires à mon immatriculation.
+                {{ $t('register.consentBefore') }}
+                <router-link to="/confidentiality-agreement" target="_blank">{{ $t('register.consentLink') }}</router-link>
+                {{ $t('register.consentAfter') }}
               </span>
             </label>
           </div>
@@ -84,13 +84,13 @@
           <div v-if="error" class="error-msg">{{ error }}</div>
 
           <button type="submit" :disabled="loading">
-            {{ loading ? 'Activation en cours...' : 'ACTIVER MON ESPACE' }}
+            {{ loading ? $t('register.submitLoading') : $t('register.submit') }}
           </button>
         </form>
 
         <p class="register-text">
-          Déjà un compte ? 
-          <router-link to="/login">Se connecter</router-link>
+          {{ $t('register.hasAccount') }}
+          <router-link to="/login">{{ $t('register.signIn') }}</router-link>
         </p>
       </div>
     </div>
@@ -99,10 +99,12 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const { t } = useI18n()
 const loading = ref(false)
 const error = ref('')
 
@@ -123,10 +125,10 @@ const handleRegister = async () => {
   error.value = ''
   try {
     await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, form)
-    alert("Compte créé avec succès !")
+    alert(t('register.successAlert'))
     router.push('/login')
   } catch (err) {
-    error.value = err.response?.data?.error || "Une erreur est survenue."
+    error.value = err.response?.data?.error || t('common.error')
   } finally {
     loading.value = false
   }

@@ -2,8 +2,8 @@
   <div class="billing-container">
     <header class="billing-header">
       <img src="../assets/RobustCodelogowhite.png" alt="Logo REM" class="brand-logo" />
-      <h1 class="main-title">Choisissez le moteur de votre PME</h1>
-      <p class="subtitle">Des outils analytiques puissants pour propulser votre croissance. Facturation sécurisée par Stripe.</p>
+      <h1 class="main-title">{{ $t('billing.title') }}</h1>
+      <p class="subtitle">{{ $t('billing.subtitle') }}</p>
     </header>
     
     <div v-if="errorMessage" class="error-banner">
@@ -17,7 +17,7 @@
         :class="{ active: !skipTrialMode }" 
         @click="skipTrialMode = false"
       >
-        Option 1 : Essai gratuit 30 jours
+        {{ $t('billing.option1') }}
       </button>
       <button 
         type="button" 
@@ -25,27 +25,27 @@
         :class="{ active: skipTrialMode }" 
         @click="skipTrialMode = true"
       >
-        Option 2 : Paiement immédiat (Sans essai)
+        {{ $t('billing.option2') }}
       </button>
     </div>
 
     <div class="plans-grid">
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.ENTREE }">
         <div class="plan-header">
-          <h3>Entrée</h3>
-          <p class="plan-desc">L'essentiel pour démarrer</p>
+          <h3>{{ $t('billing.entreeTitle') }}</h3>
+          <p class="plan-desc">{{ $t('billing.entreeDesc') }}</p>
         </div>
         <div class="price-container">
           <span class="currency">€</span>
           <span class="amount">29</span>
-          <span class="period">/ mois</span>
+          <span class="period">{{ $t('billing.perMonth') }}</span>
         </div>
         <ul class="features-list">
-          <li>Jusqu'à 3 revendeurs</li>
-          <li>Tableau de bord essentiel</li>
-          <li>Support par email</li>
-          <li v-if="skipTrialMode" class="immediate-activation">Activation & Facturation immédiate</li>
-          <li v-else>Essai gratuit de 30 jours</li>
+          <li>{{ $t('billing.entreeF1') }}</li>
+          <li>{{ $t('billing.entreeF2') }}</li>
+          <li>{{ $t('billing.entreeF3') }}</li>
+          <li v-if="skipTrialMode" class="immediate-activation">{{ $t('billing.immediateActivation') }}</li>
+          <li v-else>{{ $t('billing.freeTrial') }}</li>
         </ul>
         <button 
           @click="handleSubscription(PLAN_IDS.ENTREE)" 
@@ -53,27 +53,27 @@
           class="btn-plan base-btn"
         >
           <span v-if="activeLoadingId === PLAN_IDS.ENTREE" class="loader"></span>
-          <span v-else>{{ skipTrialMode ? 'Payer et activer' : 'Sélectionner ce plan' }}</span>
+          <span v-else>{{ skipTrialMode ? $t('billing.payAndActivate') : $t('billing.selectPlan') }}</span>
         </button>
       </div>
 
       <div class="plan-card featured" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.STANDARD }">
-        <div class="pop-badge">⭐️ RECOMMANDÉ</div>
+        <div class="pop-badge">{{ $t('billing.recommended') }}</div>
         <div class="plan-header">
-          <h3>Standard</h3>
-          <p class="plan-desc">Pour les PME en pleine expansion</p>
+          <h3>{{ $t('billing.standardTitle') }}</h3>
+          <p class="plan-desc">{{ $t('billing.standardDesc') }}</p>
         </div>
         <div class="price-container">
           <span class="currency">€</span>
           <span class="amount">59</span>
-          <span class="period">/ mois</span>
+          <span class="period">{{ $t('billing.perMonth') }}</span>
         </div>
         <ul class="features-list">
-          <li>Jusqu'à 10 revendeurs</li>
-          <li>Analyses graphiques de base</li>
-          <li>Suivi du flux logistique</li>
-          <li v-if="skipTrialMode" class="immediate-activation">Activation & Facturation immédiate</li>
-          <li v-else>Essai gratuit de 30 jours</li>
+          <li>{{ $t('billing.standardF1') }}</li>
+          <li>{{ $t('billing.standardF2') }}</li>
+          <li>{{ $t('billing.standardF3') }}</li>
+          <li v-if="skipTrialMode" class="immediate-activation">{{ $t('billing.immediateActivation') }}</li>
+          <li v-else>{{ $t('billing.freeTrial') }}</li>
         </ul>
         <button 
           @click="handleSubscription(PLAN_IDS.STANDARD)" 
@@ -81,26 +81,26 @@
           class="btn-plan featured-btn"
         >
           <span v-if="activeLoadingId === PLAN_IDS.STANDARD" class="loader loader-dark"></span>
-          <span v-else>{{ skipTrialMode ? 'Payer et activer' : 'Sélectionner ce plan' }}</span>
+          <span v-else>{{ skipTrialMode ? $t('billing.payAndActivate') : $t('billing.selectPlan') }}</span>
         </button>
       </div>
 
       <div class="plan-card" :class="{ 'disabled-card': activeLoadingId && activeLoadingId !== PLAN_IDS.PRO }">
         <div class="plan-header">
-          <h3>Professionnel</h3>
-          <p class="plan-desc">Performance et contrôle total</p>
+          <h3>{{ $t('billing.proTitle') }}</h3>
+          <p class="plan-desc">{{ $t('billing.proDesc') }}</p>
         </div>
         <div class="price-container">
           <span class="currency">€</span>
           <span class="amount">99</span>
-          <span class="period">/ mois</span>
+          <span class="period">{{ $t('billing.perMonth') }}</span>
         </div>
         <ul class="features-list">
-          <li>Revendeurs illimités</li>
-          <li>Donuts & KPI avancés</li>
-          <li>Cartographie multi-tenant</li>
-          <li v-if="skipTrialMode" class="immediate-activation">Activation & Facturation immédiate</li>
-          <li v-else>Essai gratuit de 30 jours</li>
+          <li>{{ $t('billing.proF1') }}</li>
+          <li>{{ $t('billing.proF2') }}</li>
+          <li>{{ $t('billing.proF3') }}</li>
+          <li v-if="skipTrialMode" class="immediate-activation">{{ $t('billing.immediateActivation') }}</li>
+          <li v-else>{{ $t('billing.freeTrial') }}</li>
         </ul>
         <button 
           @click="handleSubscription(PLAN_IDS.PRO)" 
@@ -108,7 +108,7 @@
           class="btn-plan base-btn"
         >
           <span v-if="activeLoadingId === PLAN_IDS.PRO" class="loader"></span>
-          <span v-else>{{ skipTrialMode ? 'Payer et activer' : 'Sélectionner ce plan' }}</span>
+          <span v-else>{{ skipTrialMode ? $t('billing.payAndActivate') : $t('billing.selectPlan') }}</span>
         </button>
       </div>
     </div>
@@ -117,7 +117,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 // Centralisation des IDs Stripe
 const PLAN_IDS = {
@@ -156,7 +159,7 @@ const handleSubscription = async (priceId) => {
       throw new Error("L'API de paiement n'a renvoyé aucune URL valide.")
     }
   } catch (err) {
-    errorMessage.value = err.response?.data?.error || "Impossible d'initier la session de paiement avec Stripe. Veuillez réessayer."
+    errorMessage.value = err.response?.data?.error || t('billing.stripeError')
     activeLoadingId.value = null
   }
 }
