@@ -18,7 +18,7 @@
             {{ $t(tab.key) }}
           </button>
         </nav>
-        <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button></button>
+        <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button>
       </div>
     </header>
 
