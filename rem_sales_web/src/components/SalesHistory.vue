@@ -1,56 +1,56 @@
 <template>
   <div class="history-module">
     <div class="header-section">
-      <h2>Historique des Activités Commerciales</h2>
-      <p class="subtitle">Consultez vos transactions personnelles au sein de l'établissement</p>
+      <h2>{{ $t('salesHistory.title') }}</h2>
+      <p class="subtitle">{{ $t('salesHistory.subtitle') }}</p>
     </div>
     
     <fieldset class="filter-zone no-print">
-      <legend>Moteur de recherche et filtres</legend>
+      <legend>{{ $t('salesHistory.filterLegend') }}</legend>
       <div class="filter-grid">
         <div class="search-box">
-          <label for="search-input">Rechercher une transaction</label>
+          <label for="search-input">{{ $t('salesHistory.searchLabel') }}</label>
           <input 
             id="search-input"
             v-model="searchQuery" 
             @input="triggerSearch"
             type="text" 
-            placeholder="Par numéro de facture ou client." 
+            :placeholder="$t('salesHistory.searchPlaceholder')" 
             class="input-field"
           />
         </div>
 
         <div class="filter-box">
-          <label for="status-select">Filtrer par statut</label>
+          <label for="status-select">{{ $t('salesHistory.statusLabel') }}</label>
           <select id="status-select" v-model="selectedStatus" @change="resetAndFetch" class="input-field select-field">
-            <option value="">Tous les statuts</option>
-            <option value="PAID">Payées (PAID)</option>
-            <option value="DRAFT">Brouillons (DRAFT)</option>
-            <option value="CANCELLED">Annulées (CANCELLED)</option>
+            <option value="">{{ $t('salesHistory.allStatuses') }}</option>
+            <option value="PAID">{{ $t('salesHistory.paid') }}</option>
+            <option value="DRAFT">{{ $t('salesHistory.draft') }}</option>
+            <option value="CANCELLED">{{ $t('salesHistory.cancelled') }}</option>
           </select>
         </div>
       </div>
     </fieldset>
 
     <div v-if="loading" class="state-feedback">
-      <span class="spinner"></span> Chargement de l'historique des flux...
+      <span class="spinner"></span> {{ $t('salesHistory.loading') }}
     </div>
 
     <div v-else-if="salesHistory.length === 0" class="state-feedback empty-state">
-      Aucune transaction disponible ou trouvée.
+      {{ $t('salesHistory.empty') }}
     </div>
 
     <div v-else class="table-scroll" :class="{ 'no-print': isModalOpen }">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Numéro Facture</th>
-            <th>Type</th>
-            <th>Client / Fournisseur</th>
-            <th>Date</th>
-            <th>Montant</th>
-            <th>Statut</th>
-            <th>Actions</th>
+            <th>{{ $t('salesHistory.colInvoice') }}</th>
+            <th>{{ $t('salesHistory.colType') }}</th>
+            <th>{{ $t('salesHistory.colClient') }}</th>
+            <th>{{ $t('salesHistory.colDate') }}</th>
+            <th>{{ $t('salesHistory.colAmount') }}</th>
+            <th>{{ $t('salesHistory.colStatus') }}</th>
+            <th>{{ $t('salesHistory.colActions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -58,22 +58,22 @@
             <td class="font-mono font-bold">{{ doc.number || 'N/A' }}</td>
             <td>
               <span :class="['type-badge', String(doc.type).toLowerCase()]">
-                {{ String(doc.type).toUpperCase().includes('RESTOCK') ? 'RESTOCK' : 'VENTE' }}
+                {{ String(doc.type).toUpperCase().includes('RESTOCK') ? $t('salesHistory.typeRestock') : $t('salesHistory.typeSale') }}
               </span>
             </td>
             <td class="font-bold">
-              {{ doc.client_name || doc.reseller_name || (String(doc.type).toUpperCase().includes('RESTOCK') ? 'Dépôt Principal' : 'Client de passage') }}
+              {{ doc.client_name || doc.reseller_name || (String(doc.type).toUpperCase().includes('RESTOCK') ? $t('salesHistory.mainDepot') : $t('salesHistory.walkInClient')) }}
               <span v-if="doc.depot_name" class="depot-tag">({{ doc.depot_name }})</span>
             </td>
             <td>{{ formatDate(doc.created_at) }}</td>
             <td class="font-bold text-success">{{ Number(doc.total_amount || 0).toLocaleString() }} $</td>
             <td>
               <span :class="['badge', String(doc.status || '').toLowerCase()]">
-                {{ doc.status || 'UNKNOWN' }}
+                {{ doc.status || $t('salesHistory.unknownStatus') }}
               </span>
             </td>
             <td>
-              <button @click="openInvoice(doc)" class="action-btn">Consulter</button>
+              <button @click="openInvoice(doc)" class="action-btn">{{ $t('common.consult') }}</button>
             </td>
           </tr>
         </tbody>
@@ -83,43 +83,43 @@
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <div class="modal-actions-bar no-print">
-          <button @click="printInvoice" class="btn-action-print">Imprimer / PDF</button>
-          <button @click="closeModal" class="btn-action-close">Fermer</button>
+          <button @click="printInvoice" class="btn-action-print">{{ $t('invoice.print') }}</button>
+          <button @click="closeModal" class="btn-action-close">{{ $t('common.close') }}</button>
         </div>
 
         <div class="invoice-paper">
           <div class="invoice-header">
             <div>
-              <h2>{{ String(selectedInvoice.type).toUpperCase().includes('RESTOCK') ? 'BON DE COMMANDE / RESTOCK' : 'REÇU DE VENTE' }}</h2>
-              <p><strong>N° :</strong> {{ selectedInvoice.number }}</p>
-              <p><strong>Date :</strong> {{ formatDate(selectedInvoice.created_at) }}</p>
+              <h2>{{ String(selectedInvoice.type).toUpperCase().includes('RESTOCK') ? $t('salesHistory.purchaseOrderTitle') : $t('salesHistory.saleReceiptTitle') }}</h2>
+              <p><strong>{{ $t('invoice.number') }}</strong> {{ selectedInvoice.number }}</p>
+              <p><strong>{{ $t('invoice.date') }}</strong> {{ formatDate(selectedInvoice.created_at) }}</p>
             </div>
           </div>
           <hr class="invoice-separator" />
           <table class="invoice-items-table">
             <thead>
               <tr>
-                <th>Description</th>
-                <th class="text-right">Quantité</th>
-                <th class="text-right">Prix Unitaire</th>
-                <th class="text-right">Total</th>
+                <th>{{ $t('salesHistory.description') }}</th>
+                <th class="text-right">{{ $t('invoice.qty') }}</th>
+                <th class="text-right">{{ $t('invoice.unitPrice') }}</th>
+                <th class="text-right">{{ $t('invoice.total') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="item in selectedInvoiceItems" :key="item.id">
-                <td>{{ item.product_name || 'Article' }}</td>
+                <td>{{ item.product_name || $t('salesHistory.article') }}</td>
                 <td class="text-right">{{ item.quantity }}</td>
                 <td class="text-right">{{ Number(item.unit_price || 0).toLocaleString() }} $</td>
                 <td class="text-right font-bold">{{ Number(item.total_price || 0).toLocaleString() }} $</td>
               </tr>
               <tr v-if="itemsLoading">
-                <td colspan="4" class="text-center text-muted">Récupération des lignes...</td>
+                <td colspan="4" class="text-center text-muted">{{ $t('salesHistory.itemsLoading') }}</td>
               </tr>
             </tbody>
           </table>
           <div class="invoice-total-block">
             <div class="total-row grand-total">
-              <span>Total Net (USD) :</span>
+              <span>{{ $t('salesHistory.netTotal') }}</span>
               <span>{{ Number(selectedInvoice.total_amount || 0).toLocaleString() }} $</span>
             </div>
           </div>
@@ -132,7 +132,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
+const { locale } = useI18n();
 const salesHistory = ref([]);
 const searchQuery = ref('');
 const selectedStatus = ref('');
@@ -218,7 +220,7 @@ const printInvoice = () => { window.print(); };
 
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('fr-FR', {
+  return new Date(dateString).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'fr-FR', {
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
   });
 };

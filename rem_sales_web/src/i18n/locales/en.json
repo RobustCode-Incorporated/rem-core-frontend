@@ -310,6 +310,38 @@
       "success": "Your workspace has been properly closed. No charge will be made.",
       "error": "An error occurred while deleting."
     }
+  },
+  "salesHistory": {
+    "title": "Business Activity History",
+    "subtitle": "View your personal transactions within the establishment",
+    "filterLegend": "Search Engine and Filters",
+    "searchLabel": "Search transaction",
+    "searchPlaceholder": "By invoice number or client.",
+    "statusLabel": "Filter by status",
+    "allStatuses": "All statuses",
+    "paid": "Paid (PAID)",
+    "draft": "Drafts (DRAFT)",
+    "cancelled": "Cancelled (CANCELLED)",
+    "loading": "Loading transaction history...",
+    "empty": "No transactions available or found.",
+    "colInvoice": "Invoice Number",
+    "colType": "Type",
+    "colClient": "Client / Supplier",
+    "colDate": "Date",
+    "colAmount": "Amount",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "typeRestock": "RESTOCK",
+    "typeSale": "SALE",
+    "mainDepot": "Main Depot",
+    "walkInClient": "Walk-in Client",
+    "unknownStatus": "UNKNOWN",
+    "purchaseOrderTitle": "PURCHASE ORDER / RESTOCK",
+    "saleReceiptTitle": "SALES RECEIPT",
+    "description": "Description",
+    "article": "Item",
+    "itemsLoading": "Fetching line items...",
+    "netTotal": "Net Total (USD):"
   }
 }
 

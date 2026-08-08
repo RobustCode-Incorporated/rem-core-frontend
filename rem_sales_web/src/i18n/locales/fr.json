@@ -310,6 +310,38 @@
       "success": "Votre espace a été clôturé proprement. Aucun prélèvement ne sera effectué.",
       "error": "Une erreur s'est produite lors de la suppression."
     }
+  },
+  "salesHistory": {
+    "title": "Historique des Activités Commerciales",
+    "subtitle": "Consultez vos transactions personnelles au sein de l'établissement",
+    "filterLegend": "Moteur de recherche et filtres",
+    "searchLabel": "Rechercher une transaction",
+    "searchPlaceholder": "Par numéro de facture ou client.",
+    "statusLabel": "Filtrer par statut",
+    "allStatuses": "Tous les statuts",
+    "paid": "Payées (PAID)",
+    "draft": "Brouillons (DRAFT)",
+    "cancelled": "Annulées (CANCELLED)",
+    "loading": "Chargement de l'historique des flux...",
+    "empty": "Aucune transaction disponible ou trouvée.",
+    "colInvoice": "Numéro Facture",
+    "colType": "Type",
+    "colClient": "Client / Fournisseur",
+    "colDate": "Date",
+    "colAmount": "Montant",
+    "colStatus": "Statut",
+    "colActions": "Actions",
+    "typeRestock": "RESTOCK",
+    "typeSale": "VENTE",
+    "mainDepot": "Dépôt Principal",
+    "walkInClient": "Client de passage",
+    "unknownStatus": "UNKNOWN",
+    "purchaseOrderTitle": "BON DE COMMANDE / RESTOCK",
+    "saleReceiptTitle": "REÇU DE VENTE",
+    "description": "Description",
+    "article": "Article",
+    "itemsLoading": "Récupération des lignes...",
+    "netTotal": "Total Net (USD) :"
   }
 }
 
