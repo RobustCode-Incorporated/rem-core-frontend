@@ -28,7 +28,13 @@
       <div class="panel-section current-stock-section">
         <h3>{{ $t('quickSale.stockSectionTitle') }}</h3>
         <div v-if="loadingStock" class="mini-loader">{{ $t('quickSale.loadingStock') }}</div>
-        
+
+        <div v-else-if="stockError" class="mini-error">{{ stockError }}</div>
+
+        <div v-else-if="resellerStock.length === 0" class="mini-empty">
+          {{ $t('quickSale.emptyStock') }}
+        </div>
+
         <div v-else class="products-selection-grid">
           <div 
             v-for="item in resellerStock" 
@@ -101,6 +107,7 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const resellerStock = ref([]);
 const loadingStock = ref(true);
+const stockError = ref('');
 const isSubmitting = ref(false);
 const cart = ref([]);
 
@@ -115,11 +122,25 @@ const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
 const fetchResellerInventory = async () => {
   loadingStock.value = true;
+  stockError.value = '';
   try {
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/resellers/me/stock`, { headers });
-    resellerStock.value = res.data || [];
+    const payload = res.data;
+    if (Array.isArray(payload)) {
+      resellerStock.value = payload;
+    } else if (Array.isArray(payload?.data)) {
+      resellerStock.value = payload.data;
+    } else if (Array.isArray(payload?.stock)) {
+      resellerStock.value = payload.stock;
+    } else if (Array.isArray(payload?.documents)) {
+      resellerStock.value = payload.documents;
+    } else {
+      resellerStock.value = [];
+    }
   } catch (err) {
     console.error("Erreur chargement stock caisse:", err);
+    resellerStock.value = [];
+    stockError.value = t('quickSale.errorGeneric') + (err.response?.data?.message || err.message);
   } finally {
     loadingStock.value = false;
   }
@@ -215,6 +236,8 @@ onMounted(() => {
 .form-group textarea { height: 60px; resize: none; }
 
 .products-selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+.mini-loader, .mini-empty { text-align: center; color: #888; font-size: 0.9rem; padding: 30px 0; }
+.mini-error { text-align: center; color: #dc2626; font-size: 0.9rem; padding: 20px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; }
 .product-selection-card { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
 .product-selection-card:hover { border-color: #111; background: #fff; }
 .out-of-stock { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
