@@ -396,6 +396,19 @@
     "successMessage": "Order sent to administration!",
     "errorGeneric": "Failed to send the order."
   },
+  "restockModule": {
+    "title": "My Inventory & Orders",
+    "newOrderBtn": "+ Order from depot",
+    "closeCatalogBtn": "Close catalog",
+    "historyTitle": "My restock requests",
+    "loading": "Analyzing your restock requests...",
+    "empty": "No restock requests recorded.",
+    "colNumber": "Number",
+    "colDate": "Date",
+    "colStatus": "Status",
+    "colAmount": "Total Amount",
+    "unknownStatus": "UNKNOWN"
+  },
   "quickSale": {
     "clientInfoTitle": "Client Information (Details)",
     "fullNameLabel": "Full name *",

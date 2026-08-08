@@ -1,33 +1,33 @@
 <template>
   <div class="restock-module">
     <div class="header">
-      <h2>Mon Inventaire & Commandes</h2>
+      <h2>{{ $t('restockModule.title') }}</h2>
       <button @click="showOrderForm = !showOrderForm" class="btn-primary">
-        {{ showOrderForm ? 'Fermer le catalogue' : '+ Commander au dépôt' }}
+        {{ showOrderForm ? $t('restockModule.closeCatalogBtn') : $t('restockModule.newOrderBtn') }}
       </button>
     </div>
 
     <CreateRestockForm v-if="showOrderForm" @submitted="onOrderSubmitted" />
 
     <div v-else>
-      <h3>Mes demandes de réapprovisionnement</h3>
+      <h3>{{ $t('restockModule.historyTitle') }}</h3>
       
       <div v-if="loading" class="state-feedback">
-        <span class="spinner"></span> Analyse de vos demandes d'approvisionnement...
+        <span class="spinner"></span> {{ $t('restockModule.loading') }}
       </div>
       
       <div v-else-if="restockHistory.length === 0" class="state-feedback">
-        Aucune demande de réapprovisionnement enregistrée.
+        {{ $t('restockModule.empty') }}
       </div>
 
       <div v-else class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Numéro</th>
-              <th>Date</th>
-              <th>Statut</th>
-              <th>Montant Total</th>
+              <th>{{ $t('restockModule.colNumber') }}</th>
+              <th>{{ $t('restockModule.colDate') }}</th>
+              <th>{{ $t('restockModule.colStatus') }}</th>
+              <th>{{ $t('restockModule.colAmount') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -35,7 +35,7 @@
               <td class="font-bold">{{ doc.number || 'N/A' }}</td>
               <td>{{ formatDate(doc.created_at) }}</td>
               <td>
-                <span :class="['badge', String(doc.status || '').toLowerCase()]">{{ doc.status || 'UNKNOWN' }}</span>
+                <span :class="['badge', String(doc.status || '').toLowerCase()]">{{ doc.status || $t('restockModule.unknownStatus') }}</span>
               </td>
               <td class="font-bold">{{ Number(doc.total_amount || 0).toLocaleString() }} $</td>
             </tr>
@@ -49,8 +49,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 import CreateRestockForm from './CreateRestockForm.vue';
 
+const { locale } = useI18n();
 const showOrderForm = ref(false);
 const restockHistory = ref([]);
 const loading = ref(false);
@@ -100,7 +102,7 @@ const fetchRestockHistory = async () => {
 
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('fr-FR');
+  return new Date(dateString).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'fr-FR');
 };
 
 const onOrderSubmitted = () => {

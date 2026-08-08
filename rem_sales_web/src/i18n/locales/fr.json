@@ -395,8 +395,19 @@
     "errorNoItems": "Veuillez sélectionner au moins un produit.",
     "successMessage": "Commande transmise à l'administration !",
     "errorGeneric": "Échec de l'envoi de la commande."
-  },
-  "quickSale": {
+  },  "restockModule": {
+    "title": "Mon Inventaire & Commandes",
+    "newOrderBtn": "+ Commander au dépôt",
+    "closeCatalogBtn": "Fermer le catalogue",
+    "historyTitle": "Mes demandes de réapprovisionnement",
+    "loading": "Analyse de vos demandes d'approvisionnement...",
+    "empty": "Aucune demande de réapprovisionnement enregistrée.",
+    "colNumber": "Numéro",
+    "colDate": "Date",
+    "colStatus": "Statut",
+    "colAmount": "Montant Total",
+    "unknownStatus": "INCONNU"
+  },  "quickSale": {
     "clientInfoTitle": "Informations Client (Détail)",
     "fullNameLabel": "Nom complet *",
     "fullNamePlaceholder": "Ex: Jean Dupont",
