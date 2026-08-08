@@ -57,6 +57,10 @@
     </main>
   </div>
 </template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { setLocale } from '../i18n.js';
 
@@ -69,11 +73,7 @@ import GeolocationModule from '../components/GeolocationModule.vue';
 
 const router = useRouter();
 const { locale } = useI18n();
-const currentLocale = computed(() => locale.value '../components/RestockModule.vue';
-import SalesHistory from '../components/SalesHistory.vue';
-import GeolocationModule from '../components/GeolocationModule.vue';
-
-const router = useRouter();
+const currentLocale = computed(() => locale.value);
 const currentTab = ref('dashboard');
 const isMobileMenuOpen = ref(false);
 
