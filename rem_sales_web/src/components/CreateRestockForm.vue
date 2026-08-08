@@ -1,26 +1,26 @@
 <template>
   <div class="restock-container">
     <div class="header-section">
-      <h2>Commander des Produits (Catalogue)</h2>
-      <button @click="fetchProducts" class="refresh-btn">Actualiser Catalogue</button>
+      <h2>{{ $t('restockForm.title') }}</h2>
+      <button @click="fetchProducts" class="refresh-btn">{{ $t('restockForm.refresh') }}</button>
     </div>
 
-    <div v-if="loading" class="loader">Chargement du catalogue...</div>
+    <div v-if="loading" class="loader">{{ $t('restockForm.loading') }}</div>
 
     <div v-else class="table-scroll">
       <table class="stock-table">
         <thead>
           <tr>
-            <th>Produit</th>
-            <th>Prix Unitaire</th>
-            <th>Quantité à commander</th>
+            <th>{{ $t('restockForm.colProduct') }}</th>
+            <th>{{ $t('restockForm.colPrice') }}</th>
+            <th>{{ $t('restockForm.colQty') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="prod in products" :key="prod.id">
             <td>
               <div class="prod-name">{{ prod.name }}</div>
-              <small class="prod-desc">{{ prod.description || 'Aucune description' }}</small>
+              <small class="prod-desc">{{ prod.description || $t('restockForm.noDescription') }}</small>
             </td>
             <td>{{ Number(prod.selling_price || 0).toLocaleString() }} {{ prod.currency }}</td>
             <td>
@@ -43,7 +43,7 @@
         class="btn-order" 
         :disabled="isSubmitting"
       >
-        {{ isSubmitting ? 'Traitement...' : 'Valider la commande' }}
+        {{ isSubmitting ? $t('restockForm.processing') : $t('restockForm.submit') }}
       </button>
     </div>
   </div>
@@ -52,7 +52,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const products = ref([]);
 const orderQtys = ref({});
 const loading = ref(false);
@@ -87,7 +89,7 @@ const submitRestock = async () => {
     .filter(([_, qty]) => qty > 0)
     .map(([product_id, quantity]) => ({ product_id, quantity }));
 
-  if (items.length === 0) return alert("Veuillez sélectionner au moins un produit.");
+  if (items.length === 0) return alert(t('restockForm.errorNoItems'));
 
   isSubmitting.value = true;
   try {
@@ -97,12 +99,12 @@ const submitRestock = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     
-    alert("Commande transmise à l'administration !");
+    alert(t('restockForm.successMessage'));
     orderQtys.value = {}; 
     emit('submitted');
   } catch (err) { 
     console.error(err);
-    alert("Échec de l'envoi de la commande."); 
+    alert(t('restockForm.errorGeneric')); 
   } finally {
     isSubmitting.value = false;
   }

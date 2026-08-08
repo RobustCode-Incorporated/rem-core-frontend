@@ -1,13 +1,13 @@
 <template>
   <div class="list-container">
-    <h3>Catalogue des Articles</h3>
+    <h3>{{ $t('productList.title') }}</h3>
     <table>
       <thead>
         <tr>
-          <th>Nom</th>
-          <th>Stock</th>
-          <th>Prix Achat</th>
-          <th>Prix Vente</th>
+          <th>{{ $t('product.colName') }}</th>
+          <th>{{ $t('product.colStock') }}</th>
+          <th>{{ $t('product.colPurchase') }}</th>
+          <th>{{ $t('product.colSale') }}</th>
         </tr>
       </thead>
       <tbody>

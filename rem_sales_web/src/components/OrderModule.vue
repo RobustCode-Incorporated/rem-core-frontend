@@ -1,56 +1,56 @@
 <template>
   <div class="pos-container">
     <header class="module-header">
-      <h2>Vente Rapide</h2>
-      <p>Générez une facture immédiate et enregistrez les coordonnées du client.</p>
+      <h2>{{ $t('orderModule.title') }}</h2>
+      <p>{{ $t('orderModule.subtitle') }}</p>
     </header>
 
     <div class="form-grid">
       <div class="form-group full-width">
-        <label>Nom du client *</label>
+        <label>{{ $t('orderModule.clientNameLabel') }}</label>
         <input 
           v-model="clientForm.name" 
           type="text" 
-          placeholder="Ex: MAMADOU DIAL" 
+          :placeholder="$t('orderModule.clientNamePlaceholder')" 
           class="form-input" 
           required
         />
       </div>
 
       <div class="form-group">
-        <label>Téléphone</label>
+        <label>{{ $t('orderModule.phoneLabel') }}</label>
         <input 
           v-model="clientForm.phone" 
           type="text" 
-          placeholder="Ex: +243..." 
+          :placeholder="$t('orderModule.phonePlaceholder')" 
           class="form-input" 
         />
       </div>
 
       <div class="form-group">
-        <label>E-mail</label>
+        <label>{{ $t('orderModule.emailLabel') }}</label>
         <input 
           v-model="clientForm.email" 
           type="email" 
-          placeholder="Ex: client@email.com" 
+          :placeholder="$t('orderModule.emailPlaceholder')" 
           class="form-input" 
         />
       </div>
 
       <div class="form-group full-width">
-        <label>Adresse de livraison / résidence</label>
+        <label>{{ $t('orderModule.addressLabel') }}</label>
         <textarea 
           v-model="clientForm.address" 
-          placeholder="Ex: Av. Kasa-Vubu N°14, Kinshasa" 
+          :placeholder="$t('orderModule.addressPlaceholder')" 
           class="form-input form-textarea"
           rows="2"
         ></textarea>
       </div>
 
       <div class="form-group">
-        <label>Article à vendre *</label>
+        <label>{{ $t('orderModule.productLabel') }}</label>
         <select v-model="selectedProduct" class="form-input animate-select" required>
-          <option :value="null" disabled>Sélectionnez un article</option>
+          <option :value="null" disabled>{{ $t('orderModule.productPlaceholder') }}</option>
           <option v-for="p in catalogStore.products" :key="p.id" :value="p">
             {{ p.name }} - {{ p.selling_price }} {{ p.currency }}
           </option>
@@ -58,7 +58,7 @@
       </div>
 
       <div class="form-group">
-        <label>Quantité *</label>
+        <label>{{ $t('orderModule.qtyLabel') }}</label>
         <input 
           v-model.number="quantity" 
           type="number" 
@@ -74,7 +74,7 @@
       :disabled="loading" 
       class="btn-primary"
     >
-      {{ loading ? 'Traitement de la transaction...' : 'Valider & Encaisser' }}
+      {{ loading ? $t('orderModule.processing') : $t('orderModule.submit') }}
     </button>
   </div>
 </template>
@@ -82,8 +82,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useCatalogStore } from '../stores/catalog'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 
+const { t } = useI18n()
 const catalogStore = useCatalogStore()
 const selectedProduct = ref(null)
 const quantity = ref(1)
@@ -103,15 +105,15 @@ onMounted(() => {
 
 const processSale = async () => {
   if (!clientForm.value.name || clientForm.value.name.trim() === '') {
-    return alert("Le nom du client est obligatoire pour documenter la vente.")
+    return alert(t('orderModule.errorNameRequired'))
   }
 
   if (!selectedProduct.value) {
-    return alert("Veuillez sélectionner un produit.")
+    return alert(t('orderModule.errorProductRequired'))
   }
   
   if (quantity.value < 1) {
-    return alert("La quantité doit être supérieure ou égale à 1.")
+    return alert(t('orderModule.errorQtyMin'))
   }
   
   loading.value = true
@@ -163,7 +165,7 @@ const processSale = async () => {
       }
     )
     
-    alert(`Transaction validée et enregistrée avec succès pour ${clientForm.value.name}.`)
+    alert(t('orderModule.successMessage', { name: clientForm.value.name }))
     
     // Réinitialisation complète du module après succès
     clientForm.value = { name: '', phone: '', email: '', address: '' }
@@ -172,7 +174,7 @@ const processSale = async () => {
     
   } catch (err) {
     console.error("Erreur vente:", err)
-    alert("Échec de l'opération : " + (err.response?.data?.error || err.message))
+    alert(t('orderModule.errorGeneric') + (err.response?.data?.error || err.message))
   } finally {
     loading.value = false
   }

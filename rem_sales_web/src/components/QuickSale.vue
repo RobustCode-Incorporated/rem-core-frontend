@@ -2,32 +2,32 @@
   <div class="caisse-container">
     <div class="left-panel">
       <div class="panel-section">
-        <h3>Informations Client (Détail)</h3>
+        <h3>{{ $t('quickSale.clientInfoTitle') }}</h3>
         <div class="client-form">
           <div class="form-group">
-            <label>Nom complet *</label>
-            <input v-model="clientForm.name" type="text" placeholder="Ex: Jean Dupont" />
+            <label>{{ $t('quickSale.fullNameLabel') }}</label>
+            <input v-model="clientForm.name" type="text" :placeholder="$t('quickSale.fullNamePlaceholder')" />
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Téléphone</label>
-              <input v-model="clientForm.phone" type="text" placeholder="+32..." />
+              <label>{{ $t('quickSale.phoneLabel') }}</label>
+              <input v-model="clientForm.phone" type="text" :placeholder="$t('quickSale.phonePlaceholder')" />
             </div>
             <div class="form-group">
-              <label>Email</label>
-              <input v-model="clientForm.email" type="email" placeholder="client@gmail.com" />
+              <label>{{ $t('quickSale.emailLabel') }}</label>
+              <input v-model="clientForm.email" type="email" :placeholder="$t('quickSale.emailPlaceholder')" />
             </div>
           </div>
           <div class="form-group">
-            <label>Adresse de livraison / résidence</label>
-            <textarea v-model="clientForm.address" placeholder="Rue de la Loi, Bruxelles..."></textarea>
+            <label>{{ $t('quickSale.addressLabel') }}</label>
+            <textarea v-model="clientForm.address" :placeholder="$t('quickSale.addressPlaceholder')"></textarea>
           </div>
         </div>
       </div>
 
       <div class="panel-section current-stock-section">
-        <h3>Articles disponibles dans votre dépôt</h3>
-        <div v-if="loadingStock" class="mini-loader">Chargement de votre inventaire...</div>
+        <h3>{{ $t('quickSale.stockSectionTitle') }}</h3>
+        <div v-if="loadingStock" class="mini-loader">{{ $t('quickSale.loadingStock') }}</div>
         
         <div v-else class="products-selection-grid">
           <div 
@@ -39,7 +39,7 @@
           >
             <div class="p-info">
               <span class="p-name">{{ item.products?.name || item.product_name }}</span>
-              <span class="p-qty">Dispo: <strong>{{ item.quantity }}</strong> unités</span>
+              <span class="p-qty">{{ $t('quickSale.available') }} <strong>{{ item.quantity }}</strong> {{ $t('quickSale.units') }}</span>
             </div>
             <button class="add-btn" :disabled="item.quantity <= 0">＋</button>
           </div>
@@ -49,17 +49,17 @@
 
     <div class="right-panel">
       <div class="checkout-card">
-        <h3>Panier de Vente Directe</h3>
+        <h3>{{ $t('quickSale.cartTitle') }}</h3>
         
         <div v-if="cart.length === 0" class="empty-cart">
-          <p>Le panier est vide. Cliquez sur un article à gauche pour l'ajouter.</p>
+          <p>{{ $t('quickSale.emptyCart') }}</p>
         </div>
 
         <div v-else class="cart-items-list">
           <div v-for="(cartItem, index) in cart" :key="cartItem.product_id" class="cart-item">
             <div class="item-meta">
               <h4>{{ cartItem.name }}</h4>
-              <p>Stock max : {{ cartItem.maxAvailable }}</p>
+              <p>{{ $t('quickSale.stockMax') }} {{ cartItem.maxAvailable }}</p>
             </div>
             <div class="item-actions">
               <input 
@@ -76,7 +76,7 @@
 
         <div class="price-summary">
           <div class="summary-row">
-            <span>Total Articles :</span>
+            <span>{{ $t('quickSale.totalArticles') }}</span>
             <strong>{{ totalArticlesCount }}</strong>
           </div>
         </div>
@@ -86,7 +86,7 @@
           class="checkout-submit-btn" 
           :disabled="cart.length === 0 || !clientForm.name || isSubmitting"
         >
-          {{ isSubmitting ? 'Validation de la vente...' : 'Valider et Encaisser la Vente' }}
+          {{ isSubmitting ? $t('quickSale.submitProcessing') : $t('quickSale.submitButton') }}
         </button>
       </div>
     </div>
@@ -96,7 +96,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const resellerStock = ref([]);
 const loadingStock = ref(true);
 const isSubmitting = ref(false);
@@ -145,7 +147,7 @@ const validateCartQty = (index) => {
   const item = cart.value[index];
   if (item.selectedQty > item.maxAvailable) {
     item.selectedQty = item.maxAvailable;
-    alert(`Quantité limitée au stock disponible (${item.maxAvailable} unités).`);
+    alert(t('quickSale.qtyLimitAlert', { max: item.maxAvailable }));
   }
   if (item.selectedQty < 1 || !item.selectedQty) item.selectedQty = 1;
 };
@@ -180,7 +182,7 @@ const processCheckout = async () => {
     // ⚡ 2. Déclenchement immédiat de l'événement pour recalculer le Dashboard Stats
     window.dispatchEvent(new CustomEvent('sales-updated'));
     
-    alert("Vente enregistrée avec succès, les stocks du dépôt ont été déduits !");
+    alert(t('quickSale.successMessage'));
     
     // Reset Form & Cart
     cart.value = [];
@@ -189,7 +191,7 @@ const processCheckout = async () => {
     // Refresh local stock updated values from DB
     await fetchResellerInventory();
   } catch (err) {
-    alert("Erreur lors de la validation : " + (err.response?.data?.message || err.message));
+    alert(t('quickSale.errorGeneric') + (err.response?.data?.message || err.message));
   } finally {
     isSubmitting.value = false;
   }

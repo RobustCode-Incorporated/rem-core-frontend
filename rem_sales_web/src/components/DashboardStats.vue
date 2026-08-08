@@ -1,12 +1,12 @@
 <template>
   <div class="dashboard-stats-container">
     <div class="header-section">
-      <h2>Vue d'ensemble</h2>
-      <p class="subtitle">Vos indicateurs de performance en temps réel</p>
+      <h2>{{ $t('dashboardStats.title') }}</h2>
+      <p class="subtitle">{{ $t('dashboardStats.subtitle') }}</p>
     </div>
 
     <div v-if="isLoading && productsStock.length === 0" class="loader">
-      <span class="spinner"></span> Synchronisation de vos données...
+      <span class="spinner"></span> {{ $t('dashboardStats.loading') }}
     </div>
 
     <div v-else>
@@ -14,30 +14,30 @@
         <div class="stat-card black-card">
           <div class="card-icon stock-icon">📦</div>
           <div class="card-content">
-            <h3>Articles en Stock</h3>
-            <div class="metric">{{ totalStock }} <span class="unit">unités</span></div>
-            <p class="trend">Disponibles immédiatement</p>
+            <h3>{{ $t('dashboardStats.stockCardTitle') }}</h3>
+            <div class="metric">{{ totalStock }} <span class="unit">{{ $t('dashboardStats.unitPieces') }}</span></div>
+            <p class="trend">{{ $t('dashboardStats.stockTrend') }}</p>
           </div>
         </div>
 
         <div class="stat-card black-card">
           <div class="card-icon revenue-icon">💰</div>
           <div class="card-content">
-            <h3>Mes Ventes (Caisse)</h3>
+            <h3>{{ $t('dashboardStats.revenueCardTitle') }}</h3>
             <div class="metric">{{ totalRevenue.toLocaleString() }} <span class="unit">$</span></div>
-            <p class="trend">Ventes directes clients</p>
+            <p class="trend">{{ $t('dashboardStats.revenueTrend') }}</p>
           </div>
         </div>
       </div>
 
       <div class="inventory-section">
         <div class="section-title-zone">
-          <h3>Répartition et Stock Optimal par Marchandise</h3>
-          <p class="section-subtitle">Chaque produit dispose de son indicateur de complétion visuel basé sur son seuil optimal</p>
+          <h3>{{ $t('dashboardStats.inventoryTitle') }}</h3>
+          <p class="section-subtitle">{{ $t('dashboardStats.inventorySubtitle') }}</p>
         </div>
 
         <div v-if="productsStock.length === 0" class="empty-stock">
-          <p>Aucun produit en stock actuellement. Effectuez une demande de réapprovisionnement.</p>
+          <p>{{ $t('dashboardStats.emptyStock') }}</p>
         </div>
 
         <div v-else class="inventory-grid">
@@ -50,7 +50,7 @@
               </div>
             </div>
             <div class="inventory-details">
-              <h4>{{ item.products?.name || item.product_name || 'Produit inconnu' }}</h4>
+              <h4>{{ item.products?.name || item.product_name || $t('dashboardStats.unknownProduct') }}</h4>
               <span :class="['stock-badge', getStockStatusClass(item.stock_status)]">
                 {{ getStockStatusText(item.stock_status, item.optimal_threshold) }}
               </span>
@@ -65,7 +65,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const totalStock = ref(0);
 const totalRevenue = ref(0);
 const productsStock = ref([]);
@@ -157,9 +159,9 @@ const getDonutStyle = (item) => {
 };
 
 const getStockStatusText = (status, optimalThreshold) => {
-  if (status === 'CRITICAL') return 'Stock critique';
-  if (status === 'WARNING') return 'Stock moyen';
-  return `Optimal (≥ ${optimalThreshold || 0})`;
+  if (status === 'CRITICAL') return t('dashboardStats.statusCritical');
+  if (status === 'WARNING') return t('dashboardStats.statusWarning');
+  return t('dashboardStats.statusOptimal', { threshold: optimalThreshold || 0 });
 };
 
 const getStockStatusClass = (status) => {
