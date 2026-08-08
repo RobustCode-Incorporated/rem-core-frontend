@@ -18,6 +18,10 @@
             {{ $t(tab.key) }}
           </button>
         </nav>
+        <div class="lang-btn-group">
+          <button @click="setLocale('fr')" :class="['lang-btn', { 'lang-btn-active': currentLocale === 'fr' }]">FR</button>
+          <button @click="setLocale('en')" :class="['lang-btn', { 'lang-btn-active': currentLocale === 'en' }]">EN</button>
+        </div>
         <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button>
       </div>
     </header>
@@ -38,6 +42,10 @@
             {{ $t(tab.key) }}
           </button>
         </nav>
+        <div class="mobile-lang-group">
+          <button @click="setLocale('fr')" :class="['mobile-lang-btn', { active: currentLocale === 'fr' }]">FR</button>
+          <button @click="setLocale('en')" :class="['mobile-lang-btn', { active: currentLocale === 'en' }]">EN</button>
+        </div>
         <button @click="logoutAndCloseMenu" class="mobile-logout-btn">{{ $t('common.logout') }}</button>
       </aside>
     </Transition>
@@ -49,15 +57,19 @@
     </main>
   </div>
 </template>
-
-<script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { setLocale } from '../i18n.js';
 
 // Imports des modules applicatifs
 import DashboardStats from '../components/DashboardStats.vue';
 import QuickSale from '../components/QuickSale.vue';
 import RestockModule from '../components/RestockModule.vue';
+import SalesHistory from '../components/SalesHistory.vue';
+import GeolocationModule from '../components/GeolocationModule.vue';
+
+const router = useRouter();
+const { locale } = useI18n();
+const currentLocale = computed(() => locale.value '../components/RestockModule.vue';
 import SalesHistory from '../components/SalesHistory.vue';
 import GeolocationModule from '../components/GeolocationModule.vue';
 
@@ -197,6 +209,15 @@ const logoutAndCloseMenu = () => {
   transition: 0.3s;
 }
 .logout-btn:hover { background: #fff; color: #000; }
+
+.lang-btn-group { display: flex; gap: 4px; }
+.lang-btn { background: transparent; color: #fff; border: 1px solid #555; padding: 6px 10px; border-radius: 20px; font-size: 0.72rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+.lang-btn:hover { background: #fff; color: #000; border-color: #fff; }
+.lang-btn-active { background: #fff !important; color: #000 !important; border-color: #fff !important; }
+
+.mobile-lang-group { display: flex; gap: 8px; margin-bottom: 12px; }
+.mobile-lang-btn { background: transparent; color: #c1c1c1; border: 1px solid #333; border-radius: 10px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; flex: 1; }
+.mobile-lang-btn.active { color: #fff; border-color: #fff; background: #111; }
 
 .mobile-menu-overlay {
   position: fixed;
