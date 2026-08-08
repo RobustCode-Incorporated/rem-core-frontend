@@ -34,11 +34,11 @@
 
     <div class="table-wrapper" :class="{ 'no-print': isModalOpen }">
       <div v-if="loading" class="state-feedback loading-state">
-        🔄 Chargement et pagination des données en cours...
+        {{ $t('sales.loadingData') }}
       </div>
       
       <div v-else-if="salesList.length === 0" class="state-feedback empty-state">
-        ⚠️ Aucune transaction ne correspond à vos critères de recherche.
+        {{ $t('sales.noResult') }}
       </div>
 
       <table v-else class="sales-table">
@@ -75,7 +75,11 @@
               </span>
             </td>
             <td>
+<<<<<<< HEAD
+      <button @click="openInvoice(sale)" class="action-btn btn-view" :title="$t('common.consult')">{{ $t('common.consult') }}</button>
+=======
               <button @click="openInvoice(sale)" class="action-btn btn-view" :title="$t('common.consult')">{{ $t('common.consult') }}</button>
+>>>>>>> 1c1c355a41e41c4e814ff38d45a2722c56b8bfb4
             </td>
           </tr>
         </tbody>

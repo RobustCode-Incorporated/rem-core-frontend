@@ -9,18 +9,18 @@
 
     <div class="right-panel">
       <div class="form-wrapper">
-        <h1 class="form-title">Connexion Administrateur</h1>
+        <h1 class="form-title">{{ $t('login.title') }}</h1>
 
         <form class="login-form" @submit.prevent="handleLogin">
-          <label>Identifiant</label>
-          <input v-model="credentials.email" type="email" placeholder="patron@entreprise.com" required />
+          <label>{{ $t('login.emailLabel') }}</label>
+          <input v-model="credentials.email" type="email" :placeholder="$t('login.emailPlaceholder')" required />
 
-          <label>Mot de passe</label>
+          <label>{{ $t('login.passwordLabel') }}</label>
           <div class="password-wrapper">
             <input 
               :type="showPassword ? 'text' : 'password'" 
               v-model="credentials.password" 
-              placeholder="••••••••" 
+              :placeholder="$t('login.passwordPlaceholder')" 
               required 
             />
             <button 
@@ -43,13 +43,13 @@
           </div>
 
           <button type="submit" :disabled="loading">
-            {{ loading ? 'Connexion en cours...' : 'SE CONNECTER' }}
+            {{ loading ? $t('login.loading') : $t('login.submit') }}
           </button>
         </form>
 
         <p class="register-text">
-          Pas encore de compte ?
-          <router-link to="/register">S’enregistrer</router-link>
+          {{ $t('login.noAccount') }}
+          <router-link to="/register">{{ $t('login.register') }}</router-link>
         </p>
       </div>
     </div>
@@ -58,10 +58,12 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const { t } = useI18n();
 const loading = ref(false);
 const credentials = ref({ email: '', password: '' });
 const showPassword = ref(false);
@@ -105,8 +107,8 @@ const handleLogin = async () => {
     }
 
   } catch (err) {
-    console.error("Erreur login :", err);
-    alert("Identifiants incorrects.");
+    console.error("Erreur login :", err)
+    alert(t('login.error'))
   } finally {
     loading.value = false;
   }
