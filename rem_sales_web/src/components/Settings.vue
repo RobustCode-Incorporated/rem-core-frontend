@@ -1,61 +1,61 @@
 <template>
   <div class="settings-view-wrapper">
-    <h2 class="settings-title">Paramètres du compte</h2>
+    <h2 class="settings-title">{{ $t('settings.title') }}</h2>
     
     <div class="settings-grid">
       
       <!-- CARTE : À PROPOS DE NOUS -->
       <div class="settings-card about-card">
-        <h3 class="card-title">À propos de nous</h3>
+        <h3 class="card-title">{{ $t('settings.about.title') }}</h3>
         <p class="card-text">
-          <strong>Robust Enterprise Management</strong> est une solution conçue pour propulser la gestion des PME. Notre mission est de simplifier votre quotidien en centralisant vos stocks, vos réseaux de revendeurs et votre facturation sur une interface unique, évolutive et robuste. Développé avec passion pour accompagner votre croissance.
+          <strong>Robust Enterprise Management</strong> {{ $t('settings.about.text') }}
         </p>
       </div>
 
       <!-- CARTE : ASSISTANCE & CONTACT -->
       <div class="settings-card support-card">
-        <h3 class="card-title">Assistance & Support</h3>
-        <p class="card-subtitle">Une question ? Un problème technique ? Notre équipe est à votre écoute.</p>
-        <p class="sla-text">🕒 <strong>Nous vous recontactons dans les 2 prochaines heures</strong> (hors week-end).</p>
+        <h3 class="card-title">{{ $t('settings.support.title') }}</h3>
+        <p class="card-subtitle">{{ $t('settings.support.subtitle') }}</p>
+        <p class="sla-text">🕒 <strong>{{ $t('settings.support.sla') }}</strong></p>
         
         <form @submit.prevent="handleContactSubmit" class="support-form">
           <div class="form-group">
-            <label>Nom & Prénom</label>
-            <input type="text" v-model="contactForm.name" placeholder="Votre nom" required />
+            <label>{{ $t('settings.support.nameLabel') }}</label>
+            <input type="text" v-model="contactForm.name" :placeholder="$t('settings.support.namePlaceholder')" required />
           </div>
           <div class="form-group">
-            <label>Email ou Téléphone</label>
-            <input type="text" v-model="contactForm.contactInfo" placeholder="Comment vous joindre ?" required />
+            <label>{{ $t('settings.support.contactLabel') }}</label>
+            <input type="text" v-model="contactForm.contactInfo" :placeholder="$t('settings.support.contactPlaceholder')" required />
           </div>
           <div class="form-group">
-            <label>Sujet</label>
+            <label>{{ $t('settings.support.subjectLabel') }}</label>
             <select v-model="contactForm.subject" required>
-              <option value="" disabled>Sélectionnez un sujet...</option>
-              <option value="bug">Problème technique / Bug</option>
-              <option value="billing">Question sur la facturation</option>
-              <option value="feature">Suggestion d'amélioration</option>
-              <option value="other">Autre</option>
+              <option value="" disabled>{{ $t('settings.support.subjectPlaceholder') }}</option>
+              <option value="bug">{{ $t('settings.support.subjectBug') }}</option>
+              <option value="billing">{{ $t('settings.support.subjectBilling') }}</option>
+              <option value="feature">{{ $t('settings.support.subjectFeature') }}</option>
+              <option value="other">{{ $t('settings.support.subjectOther') }}</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Votre message</label>
-            <textarea v-model="contactForm.message" rows="4" placeholder="Décrivez votre demande ici..." required></textarea>
+            <label>{{ $t('settings.support.messageLabel') }}</label>
+            <textarea v-model="contactForm.message" rows="4" :placeholder="$t('settings.support.messagePlaceholder')" required></textarea>
           </div>
           <button type="submit" class="btn-submit" :disabled="isSending">
-            {{ isSending ? 'Envoi en cours...' : 'Envoyer la demande' }}
+            {{ isSending ? $t('settings.support.sending') : $t('settings.support.submit') }}
           </button>
         </form>
       </div>
 
       <!-- CARTE : ZONE DE DANGER (Votre code d'origine) -->
       <div class="settings-card danger-zone-box">
-        <h3 class="danger-title">Zone de Danger Absolu</h3>
+        <h3 class="danger-title">{{ $t('settings.danger.title') }}</h3>
         <p class="danger-text">
-          Si vous résiliez votre espace au cours des 30 jours d'essai, votre carte ne sera jamais débitée. Toutes vos données locales et d'inventaire REM seront immédiatement purgées définitivement.
+          {{ $t('settings.danger.text') }}
         </p>
         
         <button @click="handleDestroyAccount" :disabled="loading" class="btn-destroy">
-          {{ loading ? 'CLÔTURE DU COMPTE EN COURS...' : 'ANNULER L\'ESSAI & SUPPRIMER LE COMPTE' }}
+          {{ loading ? $t('settings.danger.loading') : $t('settings.danger.submit') }}
         </button>
       </div>
 
@@ -67,7 +67,9 @@
 import { ref, reactive } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const loading = ref(false)
 const isSending = ref(false)
 const router = useRouter()
@@ -111,7 +113,7 @@ const handleContactSubmit = () => {
     contactForm.message = ''
     
   } catch (err) {
-    alert("Une erreur s'est produite lors de la redirection vers WhatsApp.")
+    alert(t('settings.support.whatsappError'))
   } finally {
     isSending.value = false
   }
@@ -119,7 +121,7 @@ const handleContactSubmit = () => {
 
 // Logique de suppression du compte (Votre code d'origine)
 const handleDestroyAccount = async () => {
-  const confirmation = confirm("CONFIRMATION CRUCIALE :\nÊtes-vous certain de vouloir détruire votre entreprise ? Votre période d'essai Stripe sera instantanément annulée et vos données supprimées définitivement.")
+  const confirmation = confirm(t('settings.danger.confirm'))
   if (!confirmation) return
 
   loading.value = true
@@ -130,11 +132,11 @@ const handleDestroyAccount = async () => {
       headers: { Authorization: `Bearer ${token}` }
     })
 
-    alert("Votre espace a été clôturé proprement. Aucun prélèvement ne sera effectué.")
+    alert(t('settings.danger.success'))
     localStorage.clear()
     router.push('/register')
   } catch (err) {
-    alert(err.response?.data?.error || "Une erreur s'est produite lors de la suppression.")
+    alert(err.response?.data?.error || t('settings.danger.error'))
   } finally {
     loading.value = false
   }

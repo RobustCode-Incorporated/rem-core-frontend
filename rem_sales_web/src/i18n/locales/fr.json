@@ -274,6 +274,42 @@
     "colActions": "Actions",
     "typeRestock": "RESTOCK",
     "typeSale": "VENTE"
+  },
+  "settings": {
+    "title": "Paramètres du compte",
+    "about": {
+      "title": "À propos de nous",
+      "text": "Robust Enterprise Management est une solution conçue pour propulser la gestion des PME. Notre mission est de simplifier votre quotidien en centralisant vos stocks, vos réseaux de revendeurs et votre facturation sur une interface unique, évolutive et robuste. Développé avec passion pour accompagner votre croissance."
+    },
+    "support": {
+      "title": "Assistance & Support",
+      "subtitle": "Une question ? Un problème technique ? Notre équipe est à votre écoute.",
+      "sla": "\ud83d\udd52 Nous vous recontactons dans les 2 prochaines heures (hors week-end).",
+      "nameLabel": "Nom & Prénom",
+      "namePlaceholder": "Votre nom",
+      "contactLabel": "Email ou Téléphone",
+      "contactPlaceholder": "Comment vous joindre ?",
+      "subjectLabel": "Sujet",
+      "subjectPlaceholder": "Sélectionnez un sujet...",
+      "subjectBug": "Problème technique / Bug",
+      "subjectBilling": "Question sur la facturation",
+      "subjectFeature": "Suggestion d'amélioration",
+      "subjectOther": "Autre",
+      "messageLabel": "Votre message",
+      "messagePlaceholder": "Décrivez votre demande ici...",
+      "sending": "Envoi en cours...",
+      "submit": "Envoyer la demande",
+      "whatsappError": "Une erreur s'est produite lors de la redirection vers WhatsApp."
+    },
+    "danger": {
+      "title": "Zone de Danger Absolu",
+      "text": "Si vous résiliez votre espace au cours des 30 jours d'essai, votre carte ne sera jamais débitée. Toutes vos données locales et d'inventaire REM seront immédiatement purgées définitivement.",
+      "loading": "CLÔTURE DU COMPTE EN COURS...",
+      "submit": "ANNULER L'ESSAI & SUPPRIMER LE COMPTE",
+      "confirm": "CONFIRMATION CRUCIALE :\nÊtes-vous certain de vouloir détruire votre entreprise ? Votre période d'essai Stripe sera instantanément annulée et vos données supprimées définitivement.",
+      "success": "Votre espace a été clôturé proprement. Aucun prélèvement ne sera effectué.",
+      "error": "Une erreur s'est produite lors de la suppression."
+    }
   }
 }
 

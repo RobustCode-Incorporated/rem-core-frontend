@@ -274,6 +274,42 @@
     "colActions": "Actions",
     "typeRestock": "RESTOCK",
     "typeSale": "SALE"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "about": {
+      "title": "About us",
+      "text": "Robust Enterprise Management is a solution designed to boost the management of SMEs. Our mission is to simplify your daily operations by centralizing your inventory, reseller networks and billing on a single, scalable and robust interface. Developed with passion to support your growth."
+    },
+    "support": {
+      "title": "Support & Contact",
+      "subtitle": "Have a question? A technical issue? Our team is here to help.",
+      "sla": "\ud83d\udd52 We will get back to you within the next 2 hours (excluding weekends).",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Your name",
+      "contactLabel": "Email or Phone",
+      "contactPlaceholder": "How can we reach you?",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Select a subject...",
+      "subjectBug": "Technical issue / Bug",
+      "subjectBilling": "Billing question",
+      "subjectFeature": "Improvement suggestion",
+      "subjectOther": "Other",
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Describe your request here...",
+      "sending": "Sending...",
+      "submit": "Send request",
+      "whatsappError": "An error occurred while redirecting to WhatsApp."
+    },
+    "danger": {
+      "title": "Absolute Danger Zone",
+      "text": "If you cancel your workspace during the 30-day trial, your card will never be charged. All your local and REM inventory data will be immediately and permanently purged.",
+      "loading": "CLOSING ACCOUNT...",
+      "submit": "CANCEL TRIAL & DELETE ACCOUNT",
+      "confirm": "CRUCIAL CONFIRMATION:\nAre you sure you want to destroy your company? Your Stripe trial period will be instantly cancelled and your data permanently deleted.",
+      "success": "Your workspace has been properly closed. No charge will be made.",
+      "error": "An error occurred while deleting."
+    }
   }
 }
 
