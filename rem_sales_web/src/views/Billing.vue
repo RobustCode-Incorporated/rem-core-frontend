@@ -37,7 +37,7 @@
         </div>
         <div class="price-container">
           <span class="currency">€</span>
-          <span class="amount">29</span>
+          <span class="amount">249</span>
           <span class="period">{{ $t('billing.perMonth') }}</span>
         </div>
         <ul class="features-list">
@@ -65,7 +65,7 @@
         </div>
         <div class="price-container">
           <span class="currency">€</span>
-          <span class="amount">59</span>
+          <span class="amount">549</span>
           <span class="period">{{ $t('billing.perMonth') }}</span>
         </div>
         <ul class="features-list">
@@ -92,7 +92,7 @@
         </div>
         <div class="price-container">
           <span class="currency">€</span>
-          <span class="amount">99</span>
+          <span class="amount">899</span>
           <span class="period">{{ $t('billing.perMonth') }}</span>
         </div>
         <ul class="features-list">
