@@ -73,7 +73,7 @@
               </span>
             </td>
             <td>
-              <button @click="openInvoice(doc)" class="action-btn">{{ $t('common.consult') }}</button>
+              <button @click="openInvoice(doc)" class="action-btn btn-view" :title="$t('common.consult')">{{ $t('common.consult') }}</button>
             </td>
           </tr>
         </tbody>
@@ -244,7 +244,8 @@ onMounted(fetchSales);
 .text-success { color: #10b981; }
 .type-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; background: #e2e8f0; }
 .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; }
-.action-btn { background: #000; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; }
+.action-btn { background: #f8fafc; border: 1px solid #cbd5e1; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #0f172a; padding: 6px 10px; border-radius: 4px; }
+.action-btn:hover { background: #e2e8f0; }
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; }
 .modal-content { background: #fff; width: 90%; max-width: 800px; max-height: 90vh; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
 .modal-actions-bar { background: #000; padding: 12px 24px; display: flex; gap: 12px; }

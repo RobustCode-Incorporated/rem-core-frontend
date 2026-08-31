@@ -75,11 +75,7 @@
               </span>
             </td>
             <td>
-<<<<<<< HEAD
-      <button @click="openInvoice(sale)" class="action-btn btn-view" :title="$t('common.consult')">{{ $t('common.consult') }}</button>
-=======
               <button @click="openInvoice(sale)" class="action-btn btn-view" :title="$t('common.consult')">{{ $t('common.consult') }}</button>
->>>>>>> 1c1c355a41e41c4e814ff38d45a2722c56b8bfb4
             </td>
           </tr>
         </tbody>
