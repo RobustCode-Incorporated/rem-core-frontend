@@ -93,8 +93,8 @@
         
         <div class="modal-actions-bar no-print">
           <button @click="printInvoice" class="btn-action-print">🖨️ Imprimer / PDF</button>
-          <a :href="whatsappLink" target="_blank" class="btn-action-whatsapp">💬 WhatsApp</a>
-          <a :href="emailLink" class="btn-action-email">✉️ Email</a>
+          <button @click="sendViaWhatsapp" class="btn-action-whatsapp" :disabled="isGeneratingPdf">💬 {{ isGeneratingPdf ? 'Génération...' : 'WhatsApp' }}</button>
+          <button @click="sendViaEmail" class="btn-action-email" :disabled="isGeneratingPdf">✉️ {{ isGeneratingPdf ? 'Génération...' : 'Email' }}</button>
           
           <button 
             v-if="selectedInvoice.status === 'DRAFT' && userRole !== 'STAFF'" 
@@ -115,7 +115,7 @@
           <button @click="closeModal" class="btn-action-close">Fermer ✕</button>
         </div>
 
-        <div class="invoice-paper">
+        <div class="invoice-paper" ref="invoicePaperRef">
           <div class="invoice-header">
             <div class="logo-container">
               <img :src="logoRobustCode" alt="Robust Code Inc. Logo" class="invoice-logo-img" />
@@ -197,6 +197,8 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import { useSalesStore } from '../stores/sales'
 
 import logoRobustCode from '../assets/RobustCodelogowhite.png'
@@ -226,6 +228,8 @@ let debounceTimeout = null
 const isModalOpen = ref(false)
 const selectedInvoice = ref(null)
 const selectedInvoiceItems = ref([])
+const invoicePaperRef = ref(null)
+const isGeneratingPdf = ref(false)
 
 // 🔄 Forcer la réinitialisation de la pagination et le rechargement si l'onglet change
 watch(() => props.defaultType, () => {
@@ -359,22 +363,85 @@ const printInvoice = () => {
   window.print()
 }
 
-const whatsappLink = computed(() => {
-  if (!selectedInvoice.value) return '#'
-  const text = encodeURIComponent(
-    `Bonjour, voici votre document ${selectedInvoice.value.number} d'un montant de ${Number(selectedInvoice.value.total_amount).toLocaleString()} $.`
-  )
-  return `https://api.whatsapp.com/send?text=${text}`
-})
+// 📄 Génère un PDF de la facture affichée à partir du rendu HTML de la modale
+const generateInvoicePdf = async () => {
+  const element = invoicePaperRef.value
+  const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+  const imgData = canvas.toDataURL('image/png')
 
-const emailLink = computed(() => {
-  if (!selectedInvoice.value) return '#'
-  const subject = encodeURIComponent(`Document Robust Code Inc. - N° ${selectedInvoice.value.number}`)
-  const body = encodeURIComponent(
-    `Bonjour,\n\nVeuillez trouver les informations rattachées au dossier ${selectedInvoice.value.number}.\nMontant total : ${Number(selectedInvoice.value.total_amount).toLocaleString()} $\nStatut : ${selectedInvoice.value.status}\n\nCordialement,`
-  )
-  return `mailto:?subject=${subject}&body=${body}`
-})
+  const pdf = new jsPDF('p', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  const imgWidth = pageWidth
+  const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+  let heightLeft = imgHeight
+  let position = 0
+  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+  heightLeft -= pageHeight
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight
+    pdf.addPage()
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+    heightLeft -= pageHeight
+  }
+
+  return pdf
+}
+
+// 💬 Partage la facture au format PDF via WhatsApp (partage natif fichier, ou repli téléchargement)
+const sendViaWhatsapp = async () => {
+  if (!selectedInvoice.value || isGeneratingPdf.value) return
+  isGeneratingPdf.value = true
+  try {
+    const pdf = await generateInvoicePdf()
+    const fileName = `Facture_${selectedInvoice.value.number}.pdf`
+    const text = `Bonjour, voici votre document ${selectedInvoice.value.number} d'un montant de ${Number(selectedInvoice.value.total_amount).toLocaleString()} $.`
+    const file = new File([pdf.output('blob')], fileName, { type: 'application/pdf' })
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text, title: fileName })
+    } else {
+      pdf.save(fileName)
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + '\n\n(Le PDF de la facture a été téléchargé, veuillez le joindre à ce message.)')}`, '_blank')
+    }
+  } catch (error) {
+    console.error("❌ Échec de l'envoi de la facture PDF via WhatsApp:", error)
+    if (error?.name !== 'AbortError') {
+      alert("Une erreur est survenue lors de la génération du PDF de la facture.")
+    }
+  } finally {
+    isGeneratingPdf.value = false
+  }
+}
+
+// ✉️ Partage la facture au format PDF par email (partage natif fichier, ou repli téléchargement)
+const sendViaEmail = async () => {
+  if (!selectedInvoice.value || isGeneratingPdf.value) return
+  isGeneratingPdf.value = true
+  try {
+    const pdf = await generateInvoicePdf()
+    const fileName = `Facture_${selectedInvoice.value.number}.pdf`
+    const subject = `Document Robust Code Inc. - N° ${selectedInvoice.value.number}`
+    const body = `Bonjour,\n\nVeuillez trouver ci-joint le document ${selectedInvoice.value.number}.\nMontant total : ${Number(selectedInvoice.value.total_amount).toLocaleString()} $\nStatut : ${selectedInvoice.value.status}\n\nCordialement,`
+    const file = new File([pdf.output('blob')], fileName, { type: 'application/pdf' })
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text: body, title: subject })
+    } else {
+      pdf.save(fileName)
+      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\n(Le PDF de la facture a été téléchargé, veuillez le joindre à cet email.)')}`
+    }
+  } catch (error) {
+    console.error("❌ Échec de l'envoi de la facture PDF par email:", error)
+    if (error?.name !== 'AbortError') {
+      alert("Une erreur est survenue lors de la génération du PDF de la facture.")
+    }
+  } finally {
+    isGeneratingPdf.value = false
+  }
+}
 
 onMounted(() => {
   fetchPaginatingSales()
@@ -431,6 +498,7 @@ onMounted(() => {
 .modal-content { background: #f8fafc; width: 90%; max-width: 850px; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; overflow: hidden; }
 .modal-actions-bar { background: #1e293b; padding: 12px 24px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .modal-actions-bar button, .modal-actions-bar a { padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; transition: background 0.2s ease; }
+.modal-actions-bar button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btn-action-print { background: #3b82f6; color: white; }
 .btn-action-print:hover { background: #2563eb; }
