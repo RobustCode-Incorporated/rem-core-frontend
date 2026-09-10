@@ -124,9 +124,9 @@ const { t } = useI18n()
 
 // Centralisation des IDs Stripe
 const PLAN_IDS = {
-  ENTREE: 'price_1TibG6JLHjLUPZfxYZfpGu8B',
-  STANDARD: 'price_1TibLcJLHjLUPZfxOz4622dR',
-  PRO: 'price_1TibOoJLHjLUPZfxUmFSbuvL'
+  ENTREE: 'price_1UEEPPJIC2dbGq3pDr7dpZaZ',
+  STANDARD: 'price_1UEEWCJIC2dbGq3puVWcPNbT',
+  PRO: 'price_1UEEUbJIC2dbGq3p5cpzerQR'
 }
 
 const activeLoadingId = ref(null)
