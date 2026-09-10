@@ -80,21 +80,20 @@ const handleLogin = async () => {
     localStorage.setItem('resellerId', res.data.user.id);
 
     const companyData = res.data.company || res.data.user.company || {};
-    
-    if (companyData.plan_type || res.data.plan_type) {
-      const plan = companyData.plan_type || res.data.plan_type;
-      localStorage.setItem('plan_type', plan);
-      localStorage.setItem('chosen_plan', plan);
-    }
-    
+
+    const plan = companyData.plan_type || res.data.plan_type || 'entrée';
+    localStorage.setItem('plan_type', plan);
+    localStorage.setItem('chosen_plan', plan);
+
     if (companyData.currency) {
       localStorage.setItem('companyCurrency', companyData.currency);
     }
 
-    const isPremium = companyData.is_premium || res.data.is_premium;
-    if (isPremium) {
-      localStorage.setItem('is_premium', 'true');
-    }
+    // 🎯 Toujours écraser l'état premium avec la valeur réelle du compte connecté,
+    // pour éviter qu'un état "premium" laissé par une session précédente (autre compte)
+    // ne débloque à tort le dashboard d'un nouveau compte non payant.
+    const isPremium = companyData.is_premium || res.data.is_premium || false;
+    localStorage.setItem('is_premium', isPremium ? 'true' : 'false');
 
     const role = res.data.user.role;
     if (role === 'ADMIN') {

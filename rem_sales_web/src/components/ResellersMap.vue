@@ -141,11 +141,16 @@ const initMap = () => {
 };
 
 const fetchResellers = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.warn("⚠️ [UX WARN] Aucun token valide, chargement des resellers annulé.");
+    return;
+  }
+
   loading.value = true;
   try {
     const companyId = localStorage.getItem('companyId') || '943e411e-9c4c-484f-9dde-9db708f5159a';
-    const token = localStorage.getItem('token');
-    
+
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/sales/resellers-location`, {
       headers: { Authorization: `Bearer ${token}` },
       params: { company_id: companyId }
@@ -154,6 +159,13 @@ const fetchResellers = async () => {
     resellersList.value = response.data.data;
     renderLayers();
   } catch (error) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // Token invalide/expiré : on arrête le polling plutôt que de spammer l'API en boucle.
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
     console.error("❌ [UX ERROR] Erreur lors du chargement des resellers :", error);
   } finally {
     loading.value = false;
