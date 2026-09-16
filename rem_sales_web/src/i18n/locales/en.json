@@ -96,7 +96,7 @@
     "inventory": "Inventory Tracking",
     "products": "Products",
     "resellers": "Resellers",
-    "globe3d": "🌐 3D Map",
+    "globe3d": " 3D Map",
     "settings": "Settings"
   },
   "login": {
@@ -192,8 +192,8 @@
     "viewStandard": "Standard & Clusters",
     "viewHeatmap": "Heat map",
     "loading": "Updating...",
-    "refresh": "🔄 Refresh",
-    "searchPlaceholder": "🔍 Search by Name, Email, Depot or Phone... (Press Enter)",
+    "refresh": " Refresh",
+    "searchPlaceholder": " Search by Name, Email, Depot or Phone... (Press Enter)",
     "noDepot": "No depot",
     "noPhone": "No number",
     "popupDepot": "Depot:",
