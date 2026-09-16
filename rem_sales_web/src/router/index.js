@@ -16,6 +16,8 @@ const router = createRouter({
       component: () => import('../views/Dashboard.vue'),
       meta: { requiresAuth: true, requiresPremium: true }
     },
+    // Prototype Option B (globe GEV minimal) — isolé, ne touche à aucune route existante.
+    { path: '/globe-prototype', component: () => import('../views/GlobePrototype.vue') },
     // Redirection automatique vers le dashboard si une route inconnue est appelée
     { path: '/:pathMatch(.*)*', redirect: '/dashboard' }
   ]
