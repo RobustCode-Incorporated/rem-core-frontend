@@ -81,7 +81,16 @@
       </div>
     </div>
 
-    <div ref="containerEl" class="gev-globe-canvas"></div>
+    <div class="gev-globe-canvas-wrap">
+      <div ref="containerEl" class="gev-globe-canvas"></div>
+      <div v-if="selectedReseller" class="gev-reseller-card">
+        <button class="gev-reseller-card-close" @click="selectedReseller = null" aria-label="Fermer">✕</button>
+        <strong>{{ selectedReseller.name }}</strong>
+        <p v-if="selectedReseller.deposit_name">📦 {{ selectedReseller.deposit_name }}</p>
+        <p v-if="selectedReseller.phone">📞 {{ selectedReseller.phone }}</p>
+        <p v-if="selectedReseller.email">📧 {{ selectedReseller.email }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -97,6 +106,7 @@
  */
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import axios from 'axios';
+import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { createApplication } from 'gods-eye-view/application';
 import { createApplicationViewer } from 'gods-eye-view/application/viewer';
@@ -104,10 +114,21 @@ import { createEsriImagery } from 'gods-eye-view/maps/imagery';
 import { initAnnotations } from 'gods-eye-view/annotations';
 import { createDefaultPlaceSearch } from 'gods-eye-view/search';
 
+// Icône de pin des revendeurs : un simple marqueur cliquable, pas un libellé
+// GEV (pensé pour annoter 1-2 lieux à la fois, pas afficher un nom par
+// revendeur en permanence — voir fetchResellers/pickHandler ci-dessous).
+const pinBuilder = new Cesium.PinBuilder();
+const resellerPinCanvas = pinBuilder.fromColor(
+  Cesium.Color.fromCssColorString('#2563eb'),
+  32,
+);
+const RESELLER_ENTITY_PREFIX = 'reseller-';
+
 const containerEl = ref(null);
 const loading = ref(false);
 const statusMessage = ref('Démarrage du globe...');
 const resellersList = ref([]);
+const selectedReseller = ref(null);
 
 // Recherche d'adresse (GEV/search, keyless via Photon — voir docs/GEV-GLOBE-PROTOTYPE.md)
 const addressQuery = ref('');
@@ -169,6 +190,14 @@ function createData() {
   return {};
 }
 
+function pickReseller(viewer, screenPosition) {
+  const picked = viewer.scene.pick(screenPosition);
+  if (!Cesium.defined(picked) || !picked.id?.properties) return null;
+  const id = String(picked.id.id || '');
+  if (!id.startsWith(RESELLER_ENTITY_PREFIX)) return null;
+  return picked.id.properties.getValue(Cesium.JulianDate.now());
+}
+
 function createTools({ scene, signal, defer }) {
   // Keyless geocoding (Photon) for the address search box; route() is proxied
   // by the REM backend (/api/route -> OSRM) for the logistics itinerary below.
@@ -178,6 +207,23 @@ function createTools({ scene, signal, defer }) {
   });
   const annotations = initAnnotations({ viewer: scene.viewer, placeSearch });
   defer(() => annotations.destroy());
+
+  // Revendeurs = simples pins cliquables (voir fetchResellers), pas des
+  // annotations GEV : on gère nous-mêmes le clic (fiche revendeur) et le
+  // survol (curseur pointer), comme le ferait un popup Leaflet classique.
+  const pickHandler = new Cesium.ScreenSpaceEventHandler(scene.viewer.scene.canvas);
+  pickHandler.setInputAction((movement) => {
+    selectedReseller.value = pickReseller(scene.viewer, movement.position);
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  pickHandler.setInputAction((movement) => {
+    const hit = pickReseller(scene.viewer, movement.endPosition);
+    scene.viewer.scene.canvas.style.cursor = hit ? 'pointer' : '';
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  defer(() => {
+    pickHandler.destroy();
+    if (!scene.viewer.isDestroyed()) scene.viewer.scene.canvas.style.cursor = '';
+  });
+
   return { annotations };
 }
 
@@ -201,30 +247,37 @@ const fetchResellers = async () => {
       },
     );
 
-    const { annotations } = app.getComponents().tools;
+    const { viewer } = app.getComponents().scene;
     resellersList.value = response.data.data;
 
-    const pins = response.data.data
-      .map((reseller) => {
-        const lat = parseFloat(reseller.latitude);
-        const lon = parseFloat(reseller.longitude);
-        if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
-        return {
-          type: 'pin',
-          latitude: lat,
-          longitude: lon,
-          label: reseller.deposit_name
-            ? `${reseller.name} — ${reseller.deposit_name}`
-            : reseller.name,
-        };
-      })
-      .filter(Boolean);
-
-    // Pas de clear() ici : l'engine de-dup un pin identique (même place, même
-    // libellé) plutôt que de le dupliquer, donc un rafraîchissement de 45s ne
-    // fait pas disparaître une recherche d'adresse ou un itinéraire en cours.
-    if (pins.length) await annotations.annotate(pins);
-    statusMessage.value = `${pins.length} revendeur(s) affiché(s) sur le globe.`;
+    // Pins de revendeurs gérés en entités Cesium directes (pas via GEV
+    // annotations) : pas de libellé permanent affiché en gros sur le globe,
+    // juste un marqueur ; le nom/dépôt/téléphone s'affichent au clic (voir
+    // pickReseller/selectedReseller) — comme le popup Leaflet existant.
+    for (const entity of [...viewer.entities.values]) {
+      if (String(entity.id).startsWith(RESELLER_ENTITY_PREFIX)) viewer.entities.remove(entity);
+    }
+    let shown = 0;
+    for (const reseller of response.data.data) {
+      const lat = parseFloat(reseller.latitude);
+      const lon = parseFloat(reseller.longitude);
+      if (Number.isNaN(lat) || Number.isNaN(lon)) continue;
+      shown += 1;
+      viewer.entities.add({
+        id: `${RESELLER_ENTITY_PREFIX}${reseller.id}`,
+        position: Cesium.Cartesian3.fromDegrees(lon, lat),
+        billboard: {
+          image: resellerPinCanvas,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+        properties: reseller,
+      });
+    }
+    if (selectedReseller.value && !response.data.data.some((r) => r.id === selectedReseller.value.id)) {
+      selectedReseller.value = null; // la fiche ouverte ne correspond plus à un revendeur actuel
+    }
+    statusMessage.value = `${shown} revendeur(s) affiché(s) sur le globe.`;
   } catch (error) {
     if (error.response?.status === 401 || error.response?.status === 403) {
       if (pollInterval) {
@@ -430,6 +483,9 @@ onBeforeUnmount(async () => {
   color: #707070;
   margin: 0 0 12px 0;
 }
+.gev-globe-canvas-wrap {
+  position: relative;
+}
 .gev-globe-canvas {
   position: relative;
   width: 100%;
@@ -437,6 +493,43 @@ onBeforeUnmount(async () => {
   border-radius: 4px;
   border: 1px solid #e5e5e5;
   overflow: hidden;
+}
+.gev-reseller-card {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 12px 32px 12px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  max-width: 260px;
+}
+.gev-reseller-card strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #000000;
+  margin-bottom: 6px;
+}
+.gev-reseller-card p {
+  margin: 2px 0;
+  font-size: 0.75rem;
+  color: #444;
+}
+.gev-reseller-card-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #707070;
+  cursor: pointer;
+  padding: 4px;
+}
+.gev-reseller-card-close:hover {
+  color: #000000;
 }
 .gev-tools-row {
   display: flex;
