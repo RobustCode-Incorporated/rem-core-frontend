@@ -83,6 +83,7 @@ import ProductForm from '../components/ProductForm.vue'
 import ResellerForm from '../components/ResellerForm.vue'
 import AnalyticsDashboard from '../components/AnalyticsDashboard.vue'
 import Settings from '../components/Settings.vue'
+import GevGlobeMap from '../components/GevGlobeMap.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -99,17 +100,19 @@ const menuItems = [
   { id: 'inventory', translationKey: 'dashboard.inventory' },
   { id: 'products', translationKey: 'dashboard.products' },
   { id: 'Resellers', translationKey: 'dashboard.resellers' },
+  { id: 'globe3d', translationKey: 'dashboard.globe3d' },
   { id: 'settings', translationKey: 'dashboard.settings' }
 ]
 
 const activeComponent = computed(() => {
   const components = {
-    dashboard: AnalyticsDashboard, 
-    pos: SalesReconciliation,      
+    dashboard: AnalyticsDashboard,
+    pos: SalesReconciliation,
     inventory: InventoryAlerts,
     products: ProductForm,
     Resellers: ResellerForm,
-    settings: Settings 
+    globe3d: GevGlobeMap,
+    settings: Settings
   }
   return components[currentTab.value]
 })
