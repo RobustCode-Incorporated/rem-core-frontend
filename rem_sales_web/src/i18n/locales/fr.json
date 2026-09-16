@@ -96,7 +96,7 @@
     "inventory": "Suivi Stocks",
     "products": "Articles",
     "resellers": "Revendeurs",
-    "globe3d": "🌐 Carte 3D",
+    "globe3d": " Carte 3D",
     "settings": "Paramètres"
   },
   "login": {
@@ -192,8 +192,8 @@
     "viewStandard": "Standard & Clusters",
     "viewHeatmap": "Carte de chaleur",
     "loading": "Mise à jour...",
-    "refresh": "🔄 Actualiser",
-    "searchPlaceholder": "🔍 Rechercher par Nom, Email, Dépôt ou Téléphone... (Appuyez sur Entrée)",
+    "refresh": " Actualiser",
+    "searchPlaceholder": " Rechercher par Nom, Email, Dépôt ou Téléphone... (Appuyez sur Entrée)",
     "noDepot": "Sans dépôt",
     "noPhone": "Pas de numéro",
     "popupDepot": "Dépôt:",
