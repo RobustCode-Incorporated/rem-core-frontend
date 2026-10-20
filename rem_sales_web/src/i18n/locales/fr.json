@@ -435,6 +435,10 @@
   },
   "productList": {
     "title": "Catalogue des Articles"
+  },
+  "finance": {
+    "open": "REM Finance",
+    "opening": "Ouverture…",
+    "unavailable": "REM Finance n'est pas encore disponible pour votre entreprise. Réessayez plus tard."
   }
 }
-

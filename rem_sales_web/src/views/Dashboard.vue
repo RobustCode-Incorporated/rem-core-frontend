@@ -34,6 +34,7 @@
           <button @click="setLocale('fr')" :class="['lang-btn', { 'lang-btn-active': currentLocale === 'fr' }]">FR</button>
           <button @click="setLocale('en')" :class="['lang-btn', { 'lang-btn-active': currentLocale === 'en' }]">EN</button>
         </div>
+        <button @click="openFinance" :disabled="openingFinance" class="logout-btn">{{ openingFinance ? $t('finance.opening') : $t('finance.open') }}</button>
         <button @click="logout" class="logout-btn">{{ $t('common.logout') }}</button>
       </div>
     </header>
@@ -58,6 +59,7 @@
           <button @click="setLocale('fr')" :class="['mobile-lang-btn', { active: currentLocale === 'fr' }]">FR</button>
           <button @click="setLocale('en')" :class="['mobile-lang-btn', { active: currentLocale === 'en' }]">EN</button>
         </div>
+        <button @click="openFinance" :disabled="openingFinance" class="mobile-logout-btn">{{ openingFinance ? $t('finance.opening') : $t('finance.open') }}</button>
         <button @click="logoutAndCloseMenu" class="mobile-logout-btn">{{ $t('common.logout') }}</button>
       </aside>
     </Transition>
@@ -87,7 +89,7 @@ import GevGlobeMap from '../components/GevGlobeMap.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const currentLocale = computed(() => locale.value)
 const currentTab = ref('dashboard')
 const isMobileMenuOpen = ref(false)
@@ -167,6 +169,23 @@ onMounted(async () => {
     }
   }
 })
+
+// REM Finance (foa.robust-code.com): the backend signs a one-minute link that
+// opens it already signed in, in the same company.
+const openingFinance = ref(false)
+const openFinance = async () => {
+  openingFinance.value = true
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://rem-core-backend.onrender.com/api'
+    const response = await axios.post(`${apiUrl}/auth/finance-handoff`, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+    window.location.assign(response.data.url)
+  } catch (error) {
+    openingFinance.value = false
+    window.alert(t('finance.unavailable'))
+  }
+}
 
 const logout = () => {
   localStorage.clear()
