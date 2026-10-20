@@ -437,6 +437,10 @@
   },
   "productList": {
     "title": "Product Catalog"
+  },
+  "finance": {
+    "open": "REM Finance",
+    "opening": "Opening…",
+    "unavailable": "REM Finance is not available for your company yet. Try again later."
   }
 }
-
